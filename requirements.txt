@@ -1,0 +1,6 @@
+requests >= 2.0
+future
+line-bot-sdk
+flask
+pytesseract
+pillow
