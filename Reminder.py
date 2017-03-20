@@ -1,10 +1,10 @@
-<<<<<<< HEAD
 import os
 import sys
 import time
+import datetime
 import threading
-# from schedule import Scheduler as schedule
-import schedule
+from datetime import datetime as dt
+from sched import scheduler
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -21,7 +21,6 @@ from linebot.models import (
 )
 
 # get channel_secret and channel_access_token from your environment variable
-
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
 if channel_secret is None:
@@ -33,56 +32,44 @@ if channel_access_token is None:
 
 line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
-
-def job():
-    line_bot_api.push_message("U39166bd6890a58b174c92aed76983241", TextMessage(text="Morning honey :))) Howdy?"))
+scheduler = scheduler(time.time, time.sleep)
 
 
-def run_threaded(job_func):
-    job_thread = threading.Thread(target=job_func)
-    job_thread.start()
+def job(line_bot_api, message="Morning honey :))) Howdy?"):
+    line_bot_api.push_message("U39166bd6890a58b174c92aed76983241", TextMessage(text=message))
+    t = dt.combine(dt.now() + datetime.timedelta(days=1), daily_time)
+    scheduler.enterabs(time.mktime(t.timetuple()), 1, job, (line_bot_api, message,))
 
 
-def run_continuously(interval=1):
-    cease_continuous_run = threading.Event()
+daily_time = datetime.time(23,22)
+first_time = dt.combine(dt.now(), daily_time)
 
-    class ScheduleThread(threading.Thread):
-        @classmethod
-        def run(cls):
-            while not cease_continuous_run.is_set():
-                schedule.run_pending()
-                time.sleep(interval)
+# time, priority, callable, *args
+scheduler.enterabs(time.mktime(first_time.timetuple()), 1, job, (line_bot_api, "Morning honey :))) Howdy?",))
+scheduler.run()
 
-    continuous_thread = ScheduleThread()
-    continuous_thread.start()
-    return cease_continuous_run
-
-
-schedule.every(10).seconds.do(run_threaded, job)
-run_continuously()
-=======
-# from flask import jsonify
-from ImageProcessor import ImageProcessor
-from validate_email import validate_email
-from pymongo import MongoClient
-from datetime import datetime,date,time
-import pprint
-
-client = MongoClient('localhost', 27017)
-db = client.linebot
-
-d = date(2017, 3, 14)
-t = time(12, 30)
-event = {"lineid":"2783718371823718",
-          "about" : "ujian kanji",
-          "urgency" : 10,
-          "datetime" : datetime.combine(d, t),
-          "fullfiled" : -1}
-events = db.events
-eventone = events.find_one()
-
-pprint.pprint(eventone)
-print (eventone.data.lineid)
+# # from flask import jsonify
+# from ImageProcessor import ImageProcessor
+# from validate_email import validate_email
+# from pymongo import MongoClient
+# from datetime import datetime,date,time
+# import pprint
+#
+# client = MongoClient('localhost', 27017)
+# db = client.linebot
+#
+# d = date(2017, 3, 14)
+# t = time(12, 30)
+# event = {"lineid":"2783718371823718",
+#           "about" : "ujian kanji",
+#           "urgency" : 10,
+#           "datetime" : datetime.combine(d, t),
+#           "fullfiled" : -1}
+# events = db.events
+# eventone = events.find_one()
+#
+# pprint.pprint(eventone)
+# print (eventone.data.lineid)
 # event_id = events.insert_one(event).inserted_id
 
 # print (jsonify(event))
@@ -128,4 +115,3 @@ print (eventone.data.lineid)
 # if __name__ == "__main__":
 #
 #     app.run()
->>>>>>> master
