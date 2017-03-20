@@ -2,5 +2,6 @@ requests >= 2.0
 future
 line-bot-sdk
 flask
+schedule  
 pytesseract
 pillow
