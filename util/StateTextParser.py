@@ -61,6 +61,8 @@ class StateTextParser:
             print("Bos kalo bos "+bossName+" mau nambah acara bos ketik '/tambahjadwal namajadwal hari bulan tahun jam menit' ")
             print("bisa juga lihat schedule bos dengan ketik '/lihatjadwal'")
             print("bos juga bisa reschedule bos dengan ketik '/ubahjadwal namajadwal hari bulan tahun jam menit'")
+            print("dan hapus schedule bos dengan ketik '/selesaijadwal namajadwal' ")
+            print("dan hapus schedule bos dengan ketik '/reportjadwal' ")
             print("dan hapus schedule bos dengan ketik '/hapusjadwal namajadwal' ")
 
         elif self.text == "/habit":
@@ -84,6 +86,12 @@ class StateTextParser:
         elif "/hapusjadwal" in self.text:
             self.hapusjadwal()
 
+        elif "/selesaijadwal" in self.text:
+            self.selesaijadwal()
+
+        elif "/reportjadwal" == self.text:
+            self.reportjadwal()
+
         else:
             print("halo bos, sekretaris bos "+bossName+ " kurang paham, coba ketik /help ya bos :)")
 
@@ -92,33 +100,55 @@ class StateTextParser:
         if (s[0] == '/tambahjadwal'):
             try:
                 self.checkTambahJadwal(s)
-                ev1 = Event(self.lineid,s[1],s[7],s[2],s[3],s[4],s[5],s[6],-1)
+                ev1 = Event(self.lineid,s[1],s[7],s[2],s[3],s[4],s[5],s[6],0)
                 ev1.create()
             except ValueError:
                 print ("format penulisan '/tambahjadwal namajadwal hari bulan tahun jam menit'")
+
+    def selesaijadwal(self):
+        s = self.text.split(" ")
+        if (s[0] == '/selesaijadwal'):
+            ev1 = Event(self.lineid,"lol",10,1,1,1,1,1,0)
+            eve = ev1.searchOne({"lineid":self.lineid,"about":s[1]})
+            ev1.set(eve)
+            ev1.setFulfilled(1)
+            ev1.update()
 
     def ubahjadwal(self):
         s = self.text.split(" ")
         if (s[0] == '/ubahjadwal'):
             try:
                 self.checkTambahJadwal(s)
-                ev1 = Event(self.lineid,s[1],s[7],s[2],s[3],s[4],s[5],s[6],-1)
+                ev1 = Event(self.lineid,s[1],s[7],s[2],s[3],s[4],s[5],s[6],0)
                 ev1.update()
             except ValueError:
                 print ("format penulisan '/ubahjadwal namajadwal hari bulan tahun jam menit' , nama jadwal tidak dapat diubah")
 
+    def reportjadwal(self):
+        ev1 = Event(self.lineid,"lol",10,1,1,1,1,1,0)
+        events = ev1.search({"lineid":self.lineid})
+        i = 0
+        total = 0
+        for event in events:
+            total += 1
+            if int(event['fullfiled']) == 1:
+                i += 1
+        percentage = i / total * 100
+        print("%.2f",percentage)
+
     def lihatjadwal(self):
-        ev1 = Event(self.lineid,"lol",10,1,1,1,1,1,-1)
+        ev1 = Event(self.lineid,"lol",10,1,1,1,1,1,0)
         events = ev1.search({"lineid":self.lineid})
         for event in events:
             print(event['about'])
             print(event['datetime'])
             print(event['urgency'])
+            print(event['fullfiled'])
 
     def hapusjadwal(self):
         s = self.text.split(" ")
         if (s[0] == '/hapusjadwal'):
-            ev1 = Event(self.lineid,"lol",10,1,1,1,1,1,-1)
+            ev1 = Event(self.lineid,"lol",10,1,1,1,1,1,0)
             ev1.removeQuery({"lineid":self.lineid,"about":s[1]})
 
     def checkTambahJadwal(self, s):
@@ -127,13 +157,17 @@ class StateTextParser:
 
 stp = StateTextParser("/help", "2783718371823718")
 stp.parse()
-stp.setText("/tambahjadwal briefLomba 30 4 2017 15 30 10")
+stp.setText("/tambahjadwal briefLomba 25 3 2017 10 30 10")
 stp.parse()
 stp.setText("/lihatjadwal")
 stp.parse()
 stp.setText("/ubahjadwal briefLomba 30 4 2017 13 30 3")
 stp.parse()
 stp.setText("/lihatjadwal")
+stp.parse()
+stp.setText("/selesaijadwal briefLomba")
+stp.parse()
+stp.setText("/reportjadwal")
 stp.parse()
 stp.setText("/hapusjadwal briefLomba")
 stp.parse()
