@@ -49,7 +49,6 @@ class StateTextParser:
         us.update()
 
     def chooseMenu(self, us):
-        print(us.getName())
         bossName = str(us.getName())
         if self.text == "/help":
             print("Halo bos, bingung sekretaris bos "+bossName+" bisa ngapain aja ?")
