@@ -50,8 +50,8 @@ class StateTextParser:
         self.us.setName(self.text)
         self.us.setState(UserConstant.STATE_UNKNOWN_USERLOCATION)
         self.us.update()
+        def default(self):
 
-    def default(self):
         print("lol")
 
     def askLocation(self, us):
