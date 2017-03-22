@@ -3,9 +3,14 @@ from __future__ import unicode_literals
 import errno
 import os
 import sys
+import datetime
+import time
 import tempfile
-from argparse import ArgumentParser
 
+from bawel.Reminder import Reminder
+
+from sched import scheduler
+from argparse import ArgumentParser
 from flask import Flask, request, abort
 
 from linebot import (
@@ -123,7 +128,7 @@ def handle_text_message(event):
                 PostbackTemplateAction(
                     label='ping with text', data='ping',
                     text='ping'),
-                MessageTemplateAction(label='Translate Rice', text='米')
+                MessageTemplateAction(label='Translate Rice', text=u'米')
             ])
         template_message = TemplateSendMessage(
             alt_text='Buttons alt text', template=buttons_template)
@@ -240,6 +245,9 @@ def handle_beacon(event):
 
 
 if __name__ == "__main__":
+    scheduler = scheduler(time.time, time.sleep)
+    reminder = Reminder(scheduler)
+
     arg_parser = ArgumentParser(
         usage='Usage: python ' + __file__ + ' [--port <port>] [--help]'
     )

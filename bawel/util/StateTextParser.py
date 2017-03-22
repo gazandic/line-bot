@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import sys
 sys.path.insert(0, "../model")
 from User import User
@@ -148,6 +150,8 @@ class StateTextParser:
             self.checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Event(self.lineid,namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
             ev1.create()
+
+
         except ValueError:
             print ("format penulisan '/tambahjadwal namajadwal hari bulan tahun jam menit'")
 
