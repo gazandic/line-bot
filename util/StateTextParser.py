@@ -2,6 +2,7 @@ import sys
 sys.path.insert(0, "../model")
 from User import User
 from Event import Event
+from Expense import Expense
 sys.path.insert(1, "../constant")
 import UserConstant
 from datetime import datetime,date,time
@@ -31,7 +32,7 @@ class StateTextParser:
             '/lihatpengeluaran': self.lihatpengeluaranCommand,
             '/ubahpengeluaran': self.ubahpengeluaranCommand,
             '/hapuspengeluaran': self.hapuspengeluaranCommand,
-            '/selesaipengeluaran': self.selesaipengeluaranCommand,
+            # '/selesaipengeluaran': self.selesaipengeluaranCommand,
             '/reportpengeluaran': self.reportpengeluaranCommand
         };
 
@@ -49,11 +50,11 @@ class StateTextParser:
             return self.us.create()
         self.us.set(user)
         if user['state'] == UserConstant.STATE_UNKNOWN_USERNAME:
-            return self.askUsername(us)
+            return self.askUsername(self.us)
         elif user['state'] == UserConstant.STATE_UNKNOWN_USERLOCATION:
-            return self.askLocation(us)
+            return self.askLocation(self.us)
         elif user['state'] == UserConstant.STATE_KNOWN_USER:
-            return self.chooseMenu(us)
+            return self.chooseMenu(self.us)
         else:
             return self.default()
 
@@ -62,8 +63,8 @@ class StateTextParser:
         self.us.setName(self.text)
         self.us.setState(UserConstant.STATE_UNKNOWN_USERLOCATION)
         self.us.update()
-        def default(self):
 
+    def default(self):
         print("lol")
 
     def askLocation(self, us):
@@ -102,7 +103,7 @@ class StateTextParser:
         self.tambahjadwal(namajadwal, hari, bulan, tahun, jam, menit, urgensi, bossName)
 
     def lihatjadwalCommand(self, bossName):
-        self.lihatjadwal(bossName)
+        self.lihatjadwal()
 
     def ubahjadwalCommand(self, namajadwal, hari, bulan, tahun, jam, menit, urgensi, bossName):
         self.ubahjadwal(namajadwal, hari, bulan, tahun, jam, menit, urgensi, bossName)
@@ -120,7 +121,7 @@ class StateTextParser:
         self.tambahpengeluaran(namapengeluaran, hari, bulan, tahun, jam, menit, name, bossName)
 
     def lihatpengeluaranCommand(self, bossName):
-        self.lihatpengeluaran(bossName)
+        self.lihatpengeluaran()
 
     def ubahpengeluaranCommand(self, namapengeluaran, hari, bulan, tahun, jam, menit, name, bossName):
         self.ubahpengeluaran(namapengeluaran, hari, bulan, tahun, jam, menit, name, bossName)
@@ -196,6 +197,7 @@ class StateTextParser:
             ev1 = Expense(self.lineid,namapengeluaran,name,hari,bulan,tahun,jam,menit,0)
             ev1.create()
         except ValueError:
+            print ("format penulisan '/tambahpengeluaran namapengeluaran hari bulan tahun jam menit name'")
 
     def ubahpengeluaran(self, namapengeluaran, hari, bulan, tahun, jam, menit, name, bossName):
         try:
@@ -203,7 +205,7 @@ class StateTextParser:
             ev1 = Expense(self.lineid,namapengeluaran,name,hari,bulan,tahun,jam,menit,0)
             ev1.update()
         except ValueError:
-            print ("format penulisan '/ubahpengeluaran namapengeluaran hari bulan tahun jam menit'  \nnama pengeluaran tidak dapat diubah")
+            print ("format penulisan '/ubahpengeluaran namapengeluaran hari bulan tahun jam menit name'  \nnama pengeluaran tidak dapat diubah")
 
     def reportpengeluaran(self, bossName):
         ev1 = Expense(self.lineid,"lol","nama",1,1,1,1,1,0)
@@ -223,7 +225,7 @@ class StateTextParser:
         for expense in expenses:
             print(expense['about'])
             print(expense['datetime'])
-            print(expense['urgency'])
+            print(expense['name'])
             print(expense['pathnota'])
 
     def hapuspengeluaran(self, namapengeluaran, bossName):
@@ -239,19 +241,23 @@ class StateTextParser:
 
 stp = StateTextParser("/help", "2783718371823718")
 stp.parse()
-stp.setText("/tambahjadwal briefLomba 25 3 2017 10 30 10")
+stp.setText("/tambahjadwal date 10 3 2017 10 30 10")
 stp.parse()
 stp.setText("/lihatjadwal")
 stp.parse()
-stp.setText("/ubahjadwal briefLomba 30 4 2017 13 30 3")
+stp.setText("/ubahjadwal date 30 4 2017 13 30 3")
 stp.parse()
 stp.setText("/lihatjadwal")
 stp.parse()
-stp.setText("/selesaijadwal briefLomba")
+stp.setText("/selesaijadwal date")
 stp.parse()
 stp.setText("/reportjadwal")
 stp.parse()
-stp.setText("/hapusjadwal briefLomba")
+stp.setText("/hapusjadwal date")
 stp.parse()
 stp.setText("/lihatjadwal")
+stp.parse()
+
+
+stp.setText("/lihatpengeluaran")
 stp.parse()
