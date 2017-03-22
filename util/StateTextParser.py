@@ -20,7 +20,19 @@ class StateTextParser:
             '/ubahjadwal': self.ubahjadwalCommand,
             '/hapusjadwal': self.hapusjadwalCommand,
             '/selesaijadwal': self.selesaijadwalCommand,
-            '/reportjadwal': self.reportjadwalCommand
+            '/reportjadwal': self.reportjadwalCommand,
+            # '/tambahhabit': self.tambahhabitCommand,
+            # '/lihathabit': self.lihathabitCommand,
+            # '/ubahhabit': self.ubahhabitCommand,
+            # '/hapushabit': self.hapushabitCommand,
+            # '/selesaihabit': self.selesaihabitCommand,
+            # '/reporthabit': self.reporthabitCommand,
+            '/tambahpengeluaran': self.tambahpengeluaranCommand,
+            '/lihatpengeluaran': self.lihatpengeluaranCommand,
+            '/ubahpengeluaran': self.ubahpengeluaranCommand,
+            '/hapuspengeluaran': self.hapuspengeluaranCommand,
+            '/selesaipengeluaran': self.selesaipengeluaranCommand,
+            '/reportpengeluaran': self.reportpengeluaranCommand
         };
 
     def setText(self, text):
@@ -82,8 +94,8 @@ class StateTextParser:
         print("dan ubahhabit bos dengan ketik '/ubahhabit namahabit jam menit hari'")
         print("bos juga bisa hapus habit bos dengan ketik '/hapushabit namahabit' ")
 
-    def pengeluaranCommand(self, bossName):
         # TODO: BIKIN SESUATU
+    def pengeluaranCommand(self, bossName):
         print("ntaran")
 
     def tambahjadwalCommand(self, namajadwal, hari, bulan, tahun, jam, menit, urgensi, bossName):
@@ -104,6 +116,21 @@ class StateTextParser:
     def reportjadwalCommand(self, bossName):
         self.reportjadwal(bossName)
 
+    def tambahpengeluaranCommand(self, namapengeluaran, hari, bulan, tahun, jam, menit, name, bossName):
+        self.tambahpengeluaran(namapengeluaran, hari, bulan, tahun, jam, menit, name, bossName)
+
+    def lihatpengeluaranCommand(self, bossName):
+        self.lihatpengeluaran(bossName)
+
+    def ubahpengeluaranCommand(self, namapengeluaran, hari, bulan, tahun, jam, menit, name, bossName):
+        self.ubahpengeluaran(namapengeluaran, hari, bulan, tahun, jam, menit, name, bossName)
+
+    def hapuspengeluaranCommand(self, namapengeluaran, bossName):
+        self.hapuspengeluaran(namapengeluaran, bossName)
+
+    def reportpengeluaranCommand(self, bossName):
+        self.reportpengeluaran(bossName)
+
     def chooseMenu(self, us):
         cmd = self.text.split()
         param = cmd[1:]
@@ -117,7 +144,7 @@ class StateTextParser:
 
     def tambahjadwal(self, namajadwal, hari, bulan, tahun, jam, menit, urgensi, bossName):
         try:
-            self.checkTambahJadwal(hari, bulan, tahun, jam, menit)
+            self.checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Event(self.lineid,namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
             ev1.create()
         except ValueError:
@@ -132,7 +159,7 @@ class StateTextParser:
 
     def ubahjadwal(self, namajadwal, hari, bulan, tahun, jam, menit, urgensi, bossName):
         try:
-            self.checkTambahJadwal(hari, bulan, tahun, jam, menit)
+            self.checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Event(self.lineid,namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
             ev1.update()
         except ValueError:
@@ -163,8 +190,51 @@ class StateTextParser:
         ev1 = Event(self.lineid,"lol",10,1,1,1,1,1,0)
         ev1.removeQuery({"lineid":self.lineid,"about":namajadwal})
 
-    def checkTambahJadwal(self, hari, bulan, tahun, jam, menit):
+    def tambahpengeluaran(self, namapengeluaran, hari, bulan, tahun, jam, menit, name, bossName):
+        try:
+            self.checkInputTanggal(hari, bulan, tahun, jam, menit)
+            ev1 = Expense(self.lineid,namapengeluaran,name,hari,bulan,tahun,jam,menit,0)
+            ev1.create()
+        except ValueError:
+
+    def ubahpengeluaran(self, namapengeluaran, hari, bulan, tahun, jam, menit, name, bossName):
+        try:
+            self.checkInputTanggal(hari, bulan, tahun, jam, menit)
+            ev1 = Expense(self.lineid,namapengeluaran,name,hari,bulan,tahun,jam,menit,0)
+            ev1.update()
+        except ValueError:
+            print ("format penulisan '/ubahpengeluaran namapengeluaran hari bulan tahun jam menit'  \nnama pengeluaran tidak dapat diubah")
+
+    def reportpengeluaran(self, bossName):
+        ev1 = Expense(self.lineid,"lol","nama",1,1,1,1,1,0)
+        # expenses = ev1.search({"lineid":self.lineid})
+        # i = 0
+        # total = 0
+        # for expense in expenses:
+        #     total += 1
+        #     if int(expense['pathnota']) == 1:
+        #         i += 1
+        # percentage = i / total * 100
+        # print("%.2f",percentage)
+
+    def lihatpengeluaran(self):
+        ev1 = Expense(self.lineid,"lol","nama",1,1,1,1,1,0)
+        expenses = ev1.search({"lineid":self.lineid})
+        for expense in expenses:
+            print(expense['about'])
+            print(expense['datetime'])
+            print(expense['urgency'])
+            print(expense['pathnota'])
+
+    def hapuspengeluaran(self, namapengeluaran, bossName):
+        ev1 = Expense(self.lineid,"lol","nama",1,1,1,1,1,0)
+        ev1.removeQuery({"lineid":self.lineid,"about":namapengeluaran})
+
+    def checkInputTanggal(self, hari, bulan, tahun, jam, menit):
         d = date(int(tahun), int(bulan), int(hari))
+        self.checkInputWaktu(jam, menit)
+
+    def checkInputWaktu(self, jam, menit):
         t = time(int(jam), int(menit))
 
 stp = StateTextParser("/help", "2783718371823718")

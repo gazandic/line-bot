@@ -78,10 +78,10 @@ class Habit(BaseMongo):
                   "fullfiled" : self.fullfiled }
         return habit
 
-ev1 = Habit("2783718371823718","shalat dhuhur",0,12,30)
-ev1.create()
-# ev1.removeSelf()
-# event = ev1.searchOne({"lineid":"2783718371823718"})
-# pprint.pprint(event)
-ev1.setFrequency(12)
-ev1.update()
+# ev1 = Habit("2783718371823718","shalat dhuhur",0,12,30)
+# ev1.create()
+# # ev1.removeSelf()
+# # event = ev1.searchOne({"lineid":"2783718371823718"})
+# # pprint.pprint(event)
+# ev1.setFrequency(12)
+# ev1.update()
