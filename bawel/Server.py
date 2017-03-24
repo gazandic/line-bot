@@ -47,6 +47,9 @@ handler = WebhookHandler(channel_secret)
 
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
+parser = RequestParser()
+scheduler = scheduler(time.time, time.sleep)
+reminder = Reminder(scheduler)
 
 # function for create tmp dir for download content
 def make_static_tmp_dir():
@@ -245,11 +248,8 @@ def handle_beacon(event):
 
 
 if __name__ == "__main__":
-    scheduler = scheduler(time.time, time.sleep)
-    reminder = Reminder(scheduler)
-
     arg_parser = ArgumentParser(
-        usage='Usage: python ' + __file__ + ' [--port <port>] [--help]'
+    usage='Usage: python ' + __file__ + ' [--port <port>] [--help]'
     )
     arg_parser.add_argument('-p', '--port', default=8000, help='port')
     arg_parser.add_argument('-d', '--debug', default=False, help='debug')
