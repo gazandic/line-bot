@@ -10,11 +10,12 @@ def checkInputTanggal(hari, bulan, tahun, jam, menit):
     checkInputWaktu(jam, menit)
 
 class TambahJadwal(Action):
-    def act(self, state, namajadwal, hari, bulan, tahun, jam, menit, urgensi, bossname):
+    def act(self, state, namajadwal, hari, bulan, tahun, jam, menit, urgensi, reminder, bossname):
         try:
             self.checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Event(self.lineid,namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
-            ev1.create()
+            eid = ev1.create()
+            reminder.add(eid)
 
         except ValueError:
             print ("format penulisan '/tambahjadwal namajadwal hari bulan tahun jam menit'")
@@ -30,18 +31,24 @@ class LihatJadwal(Action):
             print(event['fullfiled'])
 
 class UbahJadwal(Action):
-    def act(self, state, namajadwal, hari, bulan, tahun, jam, menit, urgensi, bossname):
+    def act(self, state, namajadwal, hari, bulan, tahun, jam, menit, urgensi, reminder, bossname):
         try:
             self.checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Event(self.lineid,namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
-            ev1.update()
+            eid = ev1.update()
+            dtime = ev1.searchOne({ "_id": eid })["datetime"]
+            tm = dt.strptime(str(dtime), "%Y-%m-%d %H:%M:%S.%f")
+            reminder.modify(eid, tm)
+
         except ValueError:
             print ("format penulisan '/ubahjadwal namajadwal hari bulan tahun jam menit'  \nnama jadwal tidak dapat diubah")
 
 class HapusJadwal(Action):
-    def act(self, state, namajadwal, bossname):
+    def act(self, state, namajadwal, reminder, bossname):
         ev1 = Event(self.lineid,"lol",10,1,1,1,1,1,0)
+        eid = ev1.searchOne({"lineid":self.lineid,"about":namajadwal})
         ev1.removeQuery({"lineid":self.lineid,"about":namajadwal})
+        reminder.remove(eid)
 
 class SelesaiJadwal(Action):
     def act(self, state, namajadwal, bossname):
