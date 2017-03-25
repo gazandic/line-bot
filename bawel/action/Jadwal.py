@@ -9,13 +9,15 @@ def checkInputTanggal(hari, bulan, tahun, jam, menit):
     d = date(int(tahun), int(bulan), int(hari))
     checkInputWaktu(jam, menit)
 
+# TODO: import job yang dilakukan
+
 class TambahJadwal(Action):
     def act(self, state, namajadwal, hari, bulan, tahun, jam, menit, urgensi, reminder, bossname):
         try:
             self.checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Event(self.lineid,namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
             eid = ev1.create()
-            reminder.add(eid)
+            reminder.add(eid, datetime.datetime(tahun, bulan, hari, jam, menit), job)
 
         except ValueError:
             print ("format penulisan '/tambahjadwal namajadwal hari bulan tahun jam menit'")
