@@ -4,7 +4,7 @@ from validate_email import validate_email
 
 app = Flask(__name__)
 
-pathImage = "/home/gazandic/linebot/line-bot/";
+pathImage = "/home/gazandic/linebot/memegenerator/";
 
 @app.route("/email/<string:url>",methods=['GET'])
 def get_email(url):

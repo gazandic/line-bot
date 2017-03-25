@@ -59,7 +59,8 @@ class Event(BaseMongo):
             {'_id': event['_id']},
             { "$set": { "urgency" : self.urgency,"datetime" : self.datetime,"fullfiled" : self.fullfiled}},
             upsert=False, multi=True)
-        return 0
+        # TODO: err handle
+        return event
 
     def search(self, query):
         events =  self.db.events.find(query)
