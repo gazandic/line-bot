@@ -49,14 +49,14 @@ class TextProcessor(object):
 					if(self.checkAmount(sentence) != None):
 						event_nameRe = re.compile(r'{0}\s(.*)\s){1}'.format(pengeluaranKey, action));
 						event_name = event_nameRe.findall(sentence)[0];
-						self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': {action}, 'amount': amount,'event_name': event_name});
+						self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': {action}, data:{'amount': amount,'event_name': event_name}});
 						break;
 					else:
 						print("minta jumlah duit boss")#minta jumlah duit atau bisa jadi dia mau kasi pake gambar
 				else:
 					event_nameRe = re.compile(r'{0}\s(.+)'.format(pengeluaranKey));
 					event_name = event_nameRe.findall(sentence)[0];
-					self.jsonToSend = json.dump({'type': u'pengeluaran', 'command': action, 'event_name': event_name});
+					self.jsonToSend = json.dump({'type': u'pengeluaran', 'command': action, data:{'event_name': event_name}});
 
 	def checkActionEvent(self, sentence, eventKey):
 		keyTime = ["pukul", "jam"];
@@ -80,11 +80,11 @@ class TextProcessor(object):
 				if action in ["buat", "tambah", "bikin", "ubah"]:
 					event_nameRe = re.compile(r'{0}\s(.+)\s{1}'.format(eventKey, "tanggal"), flags=re.IGNORECASE);
 					event_name = event_nameRe.findall(sentence)[0];
-					self.jsonToSend = json.dumps({'type': 'event', 'command': self.listActionInEvent[action], 'date': self.json_serial(datetypedate),'event_name': event_name})
+					self.jsonToSend = json.dumps({'type': 'event', 'command': self.listActionInEvent[action], 'data':{'date': self.json_serial(datetypedate),'event_name': event_name}})
 				else:
 					event_nameRe = re.compile(r'{0}\s(.+)\s'.format(eventKey), flags=re.IGNORECASE);
 					event_name = event_nameRe.findall(sentence)[0];
-					self.jsonToSend = json.dumps({{'type': 'event', 'command': {listActionInEvent[action]}, 'event_name': event_name}})
+					self.jsonToSend = json.dumps({'type': 'event', 'command': {listActionInEvent[action]}, 'data':{'event_name': event_name}})
 
 	def checkWhatCommand(self, sentence):
 		if (self.getCommands(sentence)):
@@ -166,6 +166,7 @@ class TextProcessor(object):
 		r = requests.get('https://api.kata.ai/v1/insights', params = parameters)
 		result = r.json();
 		entities = result["entities"];
+		print result;
 		finalResult = None;
 		for entity in entities:
 			if entity["entity"] == "DATE":
@@ -183,7 +184,8 @@ class TextProcessor(object):
 		return self.jsonToSend;
 
 test = TextProcessor();
-test.processText("si bawel bikin jadwal kerja lembur tanggal 25/03/2017 jam 15.10");
-print(test.getJsonToSent());
+# test.processText("si bawel bikin jadwal kerja lembur tanggal 25/03/2017 jam 15.10");
+# print(test.getJsonToSent());
+print(test.checkDate("si bawel bikin jadwal hari jumat minggu ini"));
 
 
