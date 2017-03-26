@@ -43,7 +43,7 @@ class ImageProcessor(object):
     def _get_image(self, url):
         print(url)
         if "http" in url:
-            return Image.open(BytesIO(requests.get(url).content))
+            return Image.open(requests.get(url),'r')
         return Image.open(url)
 
    # resize image with magnitude

@@ -7,4 +7,3 @@ pillow
 gunicorn
 pymongo
 python-dateutil
-
