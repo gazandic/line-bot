@@ -11,8 +11,8 @@ class Reminder:
         self.scheduler = scheduler
         self.scheduler.run()
 
-    def add(self, eid, time):
-        self.scheduler.enterabs(time, 1, job, (eid,))
+    def add(self, eid, tm, job):
+        self.scheduler.enterabs(tm, 1, job, (eid,))
 
     def remove(self, eid):
         ev = list(filter(lambda ev: ev.argument[0] == eid, self.scheduler.queue))[0]
