@@ -23,6 +23,6 @@ class PengeluaranDetector(object):
 					totalCandidate = max(spended);
 			return totalCandidate;
 
-PD = PengeluaranDetector("/home/gazandic/linebot/line-bot/bawel/static/tmp/testingStructure.png");
-fl = str(PD.checkForTotal());
-print(fl)
+# PD = PengeluaranDetector("/home/gazandic/linebot/line-bot/bawel/static/tmp/testingStructure.png");
+# fl = str(PD.checkForTotal());
+# print(fl)
