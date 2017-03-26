@@ -7,8 +7,8 @@ import tempfile
 from argparse import ArgumentParser
 import pprint
 from flask import Flask, request, abort
-import util.Sticker
-from util.TextProcessor import TextProcessor
+import bawel.util.Sticker
+from bawel.util.TextProcessor import TextProcessor
 import random
 from linebot import (
     LineBotApi, WebhookHandler
