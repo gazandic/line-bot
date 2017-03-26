@@ -91,7 +91,7 @@ def handle_text_message(event):
         line_bot_api.reply_message(
             event.reply_token, [
                 TextSendMessage(
-                    text='Maaf, kak ' + profile.display_name + ' bot ini fokus pada asisten grup'
+                    text='Maaf, kak ' + profile.display_name + ' bot ini fokus pada asisten grup, undang bawel ke grup kak'
                 ),
                 StickerSendMessage(
                     package_id=3,
@@ -99,7 +99,9 @@ def handle_text_message(event):
             ]
         )
     else:
-        if text == 'bye':
+        if not "si bawel" in text:
+            pass
+        elif text == '@bye':
             if isinstance(event.source, SourceGroup):
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text='Leaving group'))
@@ -112,51 +114,27 @@ def handle_text_message(event):
                 line_bot_api.reply_message(
                     event.reply_token,
                     TextMessage(text="Bot can't leave from 1:1 chat"))
-        elif text == 'confirm':
-            confirm_template = ConfirmTemplate(text='Do it?', actions=[
-                MessageTemplateAction(label='Yes', text='Yes!'),
-                MessageTemplateAction(label='No', text='No!'),
-            ])
-            template_message = TemplateSendMessage(
-                alt_text='Confirm alt text', template=confirm_template)
-            line_bot_api.reply_message(event.reply_token, template_message)
-        elif text == 'buttons':
-            buttons_template = ButtonsTemplate(
-                title='My buttons sample', text='Hello, my buttons', actions=[
-                    URITemplateAction(
-                        label='Go to line.me', uri='https://line.me'),
-                    PostbackTemplateAction(label='ping', data='ping'),
-                    PostbackTemplateAction(
-                        label='ping with text', data='ping',
-                        text='ping'),
-                    MessageTemplateAction(label='Translate Rice', text='米')
-                ])
-            template_message = TemplateSendMessage(
-                alt_text='Buttons alt text', template=buttons_template)
-            line_bot_api.reply_message(event.reply_token, template_message)
-        elif text == 'carousel':
-            carousel_template = CarouselTemplate(columns=[
-                CarouselColumn(text='hoge1', title='fuga1', actions=[
-                    URITemplateAction(
-                        label='Go to line.me', uri='https://line.me'),
-                    PostbackTemplateAction(label='ping', data='ping')
-                ]),
-                CarouselColumn(text='hoge2', title='fuga2', actions=[
-                    PostbackTemplateAction(
-                        label='ping with text', data='ping',
-                        text='ping'),
-                    MessageTemplateAction(label='Translate Rice', text='米')
-                ]),
-            ])
-            template_message = TemplateSendMessage(
-                alt_text='Buttons alt text', template=carousel_template)
-            line_bot_api.reply_message(event.reply_token, template_message)
-        elif text == 'imagemap':
-            pass
-        else:
-            restext = nlptext.processText(event.message.text);
+        elif text == 'si bawel tolong':
             line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text=restext))
+                event.reply_token, TextSendMessage(text='lagi dibuat hehe'),
+                StickerSendMessage(
+                    package_id=3,
+                    sticker_id=random.choice(randomPrivate)))
+        else:
+            try:
+                nlptext.processText(event.message.text);
+                restext = str(nlptext.getJsonToSent())
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(text=restext))
+            except:
+                # print "Unexpected error:", sys.exc_info()[0]
+                restext = "tolong ketik 'si bawel tolong' ya kakak kakak"
+                line_bot_api.reply_message(
+                    event.reply_token, TextSendMessage(text=restext),
+                    StickerSendMessage(
+                        package_id=3,
+                        sticker_id=random.choice(randomPrivate)))
+
 
 
 # @handler.add(MessageEvent, message=LocationMessage)
@@ -190,7 +168,7 @@ def handle_content_message(event):
         line_bot_api.reply_message(
             event.reply_token, [
                 TextSendMessage(
-                    text='Maaf, kak ' + profile.display_name + ' bot ini fokus pada asisten grup'
+                    text='Maaf, kak ' + profile.display_name + ' bot ini fokus pada asisten grup, undang bawel ke grup kak'
                 ),
                 StickerSendMessage(
                     package_id=3,
