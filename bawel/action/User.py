@@ -8,17 +8,16 @@ class UserPromptName(Action):
         super().__init__()
 
     def act(self, state):
-        print("Siapa nama bos ?")
-        state = {**state, 'state': STATE_ASK_USERNAME}
-        return state
+        state = {**state, 'state_id': STATE_ASK_USERNAME}
+        return (state, "Siapa nama bos?")
 
 class UserGetName(Action):
     def __init__(self):
         super().__init__()
 
     def act(self, state, name):
-        state = {**state, 'state': STATE_NOTHING, 'name': name}
-        return state
+        state = {**next_state, 'name': name}
+        return (state, "Siap bos %s".format(name))
 
 class UserPromptLoc(Action):
     def __init__(self):
@@ -26,14 +25,13 @@ class UserPromptLoc(Action):
 
     def act(self, state):
         name = state['name']
-        print("Bos %s ada di kota mana ?".format(name))
-        state = {**state, 'state': STATE_ASK_USERLOCATION}
-        return state
+        state = {**state, 'state_id': STATE_ASK_USERLOCATION}
+        return (state, "Bos %s ada di kota mana ?".format(name))
 
 class UserGetLoc(Action):
     def __init__(self):
         super().__init__()
 
     def act(self, state, loc):
-        state = {**state, 'state': STATE_NOTHING, 'loc': loc}
-        return state
+        state = {**next_state, 'loc': loc}
+        return (state, "Siap bos %s".format(name))

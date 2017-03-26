@@ -12,12 +12,12 @@ from bawel.model.Expense import Expense
 class RequestParser:
 
     def parse(self, text, state):
-        user = None
+        lineid = state.id
         us = User(lineid, "undefined", "undefined", STATE_NOTHING)
+        user = us.searchOne({"lineid":lineid})
 
-        if 'id' in state:
-            lineid = state.id
-            user = us.searchOne({"lineid":lineid})
+        # TODO
+        # if 'id' not in state:
 
         if not user:
             return us.create()
@@ -64,6 +64,4 @@ class RequestParser:
 # stp.parse("/reportjadwal", {})
 # stp.parse("/hapusjadwal date", {})
 # stp.parse("/lihatjadwal", {})
-#
-#
 # stp.parse("/lihatpengeluaran", {})
