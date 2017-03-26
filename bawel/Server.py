@@ -99,9 +99,7 @@ def handle_text_message(event):
             ]
         )
     else:
-        if not "bawel" in text:
-            pass
-        elif text == '@bye':
+        if text == '@bye':
             if isinstance(event.source, SourceGroup):
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text='Leaving group'))
@@ -120,6 +118,8 @@ def handle_text_message(event):
                 StickerSendMessage(
                     package_id=3,
                     sticker_id=random.choice(randomPrivate)))
+        elif not 'si bawel' in text:
+            pass
         else:
             try:
                 nlptext.processText(event.message.text);
