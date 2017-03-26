@@ -37,6 +37,8 @@ from linebot.models import (
 
 app = Flask(__name__, static_url_path='', static_folder='static')
 nlptext = TextProcessor();
+randomPrivate = [181, 183, 187, 188]
+
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
 channel_access_token = os.getenv('LINE_CHANNEL_ACCESS_TOKEN', None)
@@ -93,7 +95,7 @@ def handle_text_message(event):
                 ),
                 StickerSendMessage(
                     package_id=3,
-                    sticker_id=random.choice(Sticker.randomPrivate))
+                    sticker_id=random.choice(randomPrivate))
             ]
         )
     else:
@@ -192,7 +194,7 @@ def handle_content_message(event):
                 ),
                 StickerSendMessage(
                     package_id=3,
-                    sticker_id=random.choice(Sticker.randomPrivate))
+                    sticker_id=random.choice(randomPrivate))
             ]
         )
     else:
