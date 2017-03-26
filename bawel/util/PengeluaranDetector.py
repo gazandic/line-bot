@@ -1,6 +1,6 @@
 #nyoba pytesseract
 import re;
-from ImageProcessor import ImageProcessor
+from bawel.util.ImageProcessor import ImageProcessor
 
 class PengeluaranDetector(object):
 	def __init__(self, imagePath):
@@ -13,15 +13,16 @@ class PengeluaranDetector(object):
 			temp = self.IP.process_image(self.imagePath);
 			lines = temp.splitlines();
 			for line in lines:
-				print(line);
-				searchSpended = re.compile(r'Rp.(\d+\.+\d+|\d+).*');	
+				# print(line);
+				searchSpended = re.compile(r'Rp.(\d+\.+\d+|\d+).*');
 				spended = searchSpended.findall(line);
 				if (spended):
 					for spent in spended:
 						spent = float(spent);
-					print(spended);
+					# print(spended);
 					totalCandidate = max(spended);
-			print totalCandidate;
+			return totalCandidate;
 
-PD = PengeluaranDetector("C:\\Users\\Kevin Yauris\\Documents\\Oppurtinity\\line-bot\\testingStructure.png");
-PD.checkForTotal();
+# PD = PengeluaranDetector("/home/gazandic/linebot/line-bot/bawel/static/tmp/testingStructure.png");
+# fl = PD.checkForTotal();
+# print(fl)

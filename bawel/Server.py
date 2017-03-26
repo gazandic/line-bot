@@ -9,6 +9,7 @@ import pprint
 from flask import Flask, request, abort
 import bawel.util.Sticker
 from bawel.util.TextProcessor import TextProcessor
+from bawel.util.PengeluaranDetector import PengeluaranDetector
 import random
 from linebot import (
     LineBotApi, WebhookHandler
@@ -194,11 +195,14 @@ def handle_content_message(event):
         dist_path = tempfile_path + '.' + ext
         dist_name = os.path.basename(dist_path)
         os.rename(tempfile_path, dist_path)
-
+        PD = PengeluaranDetector(dist_path)
+        rptotal = str(PD.checkForTotal())
+        if not rptotal:
+            rptotal = 'Save content.'
         line_bot_api.reply_message(
             event.reply_token, [
-                TextSendMessage(text='Save content.'),
-                TextSendMessage(text=request.host_url + os.path.join('tmp', dist_name))
+                TextSendMessage(text=rptotal),
+                ImageSendMessage(text=request.host_url + os.path.join('tmp', dist_name))
             ])
 
 

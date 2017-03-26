@@ -52,16 +52,16 @@ class TextProcessor(object):
 						pengeluaran_name = 'unknown'
 						if (pengeluaran_nameRe.findall(sentence)):
 							pengeluaran_name = pengeluaran_nameRe.findall(sentence)
-						self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': action, 'data':{'amount': amount,'pengeluaran_name': pengeluaran_name}})
+						self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': action, 'data':{'amount': amount,'event_name': pengeluaran_name}})
 						break
 					else:
 						pengeluaran_nameRe = re.compile(r'{0}\s(.+)'.format(pengeluaranKey))
 						pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
-						self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': action, 'data':{'amount': 0,'pengeluaran_name': pengeluaran_name}})
+						self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': action, 'data':{'amount': 0,'event_name': pengeluaran_name}})
 				else:
 					pengeluaran_nameRe = re.compile(r'{0}\s(.+)'.format(pengeluaranKey))
 					pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
-					self.jsonToSend = json.dumps({'type': u'pengeluaran', 'command': action, 'data':{'pengeluaran_name': pengeluaran_name}})
+					self.jsonToSend = json.dumps({'type': u'pengeluaran', 'command': action, 'data':{'event_name': pengeluaran_name}})
 
 	# def checkActionPengeluaran(self, sentence, pengeluaranKey):
 	# 	for action in self.listActionInPengeluaran:
@@ -209,8 +209,8 @@ class TextProcessor(object):
 		return finalResult
 
 	def processText(self,sentence):
+		sentence = sentence.replace(":", " ")
 		if (self.isCalled(sentence)):
-			sentence = sentence.replace(":", " ")
 			self.checkWhatCommand(sentence)
 		else:
 			#ngga dipanggil
