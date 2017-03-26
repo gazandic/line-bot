@@ -9,7 +9,6 @@ try:
     from BytesIO import BytesIO
 except ImportError:
     from io import BytesIO
-from validate_email import validate_email
 class ImageProcessor(object):
     NEWIMAGESIZE = 1200
     path = ""
@@ -82,7 +81,7 @@ class ImageProcessor(object):
         #     i += 1
         ss = "".join(s)
         if self.isEmail(ss):
-            is_valid = validate_email(ss)
+            # is_valid = validate_email(ss)
             if is_valid :
                 return ss
             else :
@@ -90,11 +89,11 @@ class ImageProcessor(object):
         else:
             return ss
 
-    def checkValid(self, listEmail):
-        for key, val in listEmail.items():
-            is_valid = validate_email(ss)
-            if not is_valid:
-                listEmail[key] = ""
+    # def checkValid(self, listEmail):
+    #     for key, val in listEmail.items():
+    #         is_valid = validate_email(ss)
+    #         if not is_valid:
+    #             listEmail[key] = ""
 
     # check the char is vowel or not
     def isVowel(self, c):
