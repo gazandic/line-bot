@@ -10,7 +10,7 @@ class TextProcessor(object):
 		self.keyWordToEvent = ["jadwal"];
 		self.keyWordPengeluaran = ["pengeluaran"];
 		self.listActionInEvent = {"ikut" : "ikut", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "gajadiikut":"gajadiikut", "ubah":"ubah", "hapus":"hapus"};
-		self.listActionInPengeluaran =["tambah", "ubah", "hapus", "lihat"];  
+		self.listActionInPengeluaran =["tambah", "ubah", "hapus", "lihat"];
 		self.jsonToSend = None;
 
 	def isCalled(self, sentence):
@@ -23,7 +23,7 @@ class TextProcessor(object):
 	def getCommands(self, sentence):
 		getTheCommand = re.compile(r'{0}\b(.+)'.format(self.keyWordToCall), flags=re.IGNORECASE);
 		if(getTheCommand.findall(sentence)):
-			return(getTheCommand.findall(sentence));		
+			return(getTheCommand.findall(sentence));
 
 	def checkAmount(self, sentence):
 		keywordAmount = ["sebesar"];
@@ -44,7 +44,7 @@ class TextProcessor(object):
 		for action in self.listActionInPengeluaran:
 			isContain = re.compile(r'\b({0})\b'.format(action), flags=re.IGNORECASE)
 			if(isContain.findall(sentence)):
-				if action == "tambah":	
+				if action == "tambah":
 					amount = isContain.findall(sentence)[0];
 					if(self.checkAmount(sentence) != None):
 						event_nameRe = re.compile(r'{0}\s(.*)\s){1}'.format(pengeluaranKey, action));
@@ -71,7 +71,7 @@ class TextProcessor(object):
 				excludeTimeSentence = re.compile(r'{0}'.format(timeSentenceToExclude));
 				temp_sentence = excludeTimeSentence.sub('', temp_sentence);
 				break;
-		print temp_sentence;
+		print (temp_sentence);
 		dateSentence = self.checkDate(temp_sentence);
 		datetypedate =self.dateParser(dateSentence, timeSentence);
 		for action in self.listActionInEvent:
@@ -101,7 +101,7 @@ class TextProcessor(object):
 		else:
 			#commandnya ngga ketangkep
 			print("aku ra ngerti")
-	
+
 	def dateParser(self, dateSentence, timeSentence):
 		bulanDetected = False;
 		yearDetected = False;
@@ -125,7 +125,7 @@ class TextProcessor(object):
 		elif len(digits) == 2:
 			if (bulanDetected):
 				if (not yearDetected):
-					temp_dateSentence = temp_dateSentence + " " + str(now.year); 
+					temp_dateSentence = temp_dateSentence + " " + str(now.year);
 				else:
 					temp_dateSentence = "1 " + temp_dateSentence
 					#nanya tanggal
@@ -143,7 +143,7 @@ class TextProcessor(object):
 				#nanya tanggal, tahun asumsi tahun ini
 			else: #asumsi ngasih tangga doang ini
 				temp_dateSentence = temp_dateSentence + " " + str(now.month) + " " + str(now.year);
-		print temp_dateSentence;
+		print (temp_dateSentence);
 		if (timeSentence):
 			keteranganWaktu=["pagi", "siang", "sore", "malam"];
 			temp_timeSentence = "";
@@ -166,7 +166,7 @@ class TextProcessor(object):
 		r = requests.get('https://api.kata.ai/v1/insights', params = parameters)
 		result = r.json();
 		entities = result["entities"];
-		print result;
+		print (result);
 		finalResult = None;
 		for entity in entities:
 			if entity["entity"] == "DATE":
@@ -183,9 +183,7 @@ class TextProcessor(object):
 	def getJsonToSent(self):
 		return self.jsonToSend;
 
-test = TextProcessor();
-# test.processText("si bawel bikin jadwal kerja lembur tanggal 25/03/2017 jam 15.10");
-# print(test.getJsonToSent());
-print(test.checkDate("si bawel bikin jadwal hari jumat minggu ini"));
-
-
+# test = TextProcessor();
+# # test.processText("si bawel bikin jadwal kerja lembur tanggal 25/03/2017 jam 15.10");
+# # print(test.getJsonToSent());
+# print(test.checkDate("si bawel bikin jadwal hari jumat minggu ini"));
