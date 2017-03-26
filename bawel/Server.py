@@ -99,6 +99,8 @@ def handle_text_message(event):
             ]
         )
     else:
+        profile = line_bot_api.get_profile(event.source.user_id)
+        print(profile.display_name)
         if not "si bawel" in text:
             pass
         elif text == '@bye':

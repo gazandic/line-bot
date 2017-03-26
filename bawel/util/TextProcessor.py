@@ -1,6 +1,7 @@
 import re
 import requests
 import json
+import os
 from datetime import datetime
 from dateutil.parser import parse
 
@@ -28,7 +29,7 @@ class TextProcessor(object):
 	def checkAmount(self, sentence):
 		keywordAmount = ["sebesar"]
 		for key in keywordAmount:
-			getAmount = re.compile(r'{0}\s(.+)\s'.format(key))
+			getAmount = re.compile(r'{0}\s*(\d+\.+\d+|\d+).*'.format(key))
 			if (getAmount.findall(sentence)):
 				return getAmount.findall(sentence)
 			else:
@@ -45,18 +46,43 @@ class TextProcessor(object):
 			isContain = re.compile(r'\b({0})\b'.format(action), flags=re.IGNORECASE)
 			if(isContain.findall(sentence)):
 				if action in ["buat", "tambah", "bikin", "ubah", "ganti"]:
-					amount = isContain.findall(sentence)[0]
 					if(self.checkAmount(sentence) != None):
-						pengeluaran_nameRe = re.compile(r'{0}\s(.*)\s){1}'.format(pengeluaranKey, action))
-						pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
-						self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': self.listActionInEvent[action], 'data':{'amount': amount,'pengeluaran_name': pengeluaran_name}})
+						amount = self.checkAmount(sentence)
+						pengeluaran_nameRe = re.compile(r'{0}\s+(.*)\s+{1}'.format(pengeluaranKey, "sebesar"), flags=re.IGNORECASE)
+						pengeluaran_name = 'unknown'
+						if (pengeluaran_nameRe.findall(sentence)):
+							pengeluaran_name = pengeluaran_nameRe.findall(sentence)
+						self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': action, 'data':{'amount': amount,'pengeluaran_name': pengeluaran_name}})
 						break
 					else:
-						print("minta jumlah duit boss")#minta jumlah duit atau bisa jadi dia mau kasi pake gambar
+						pengeluaran_nameRe = re.compile(r'{0}\s(.+)'.format(pengeluaranKey))
+						pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
+						self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': action, 'data':{'amount': 0,'pengeluaran_name': pengeluaran_name}})
 				else:
 					pengeluaran_nameRe = re.compile(r'{0}\s(.+)'.format(pengeluaranKey))
 					pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
-					self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': self.listActionInEvent[action], 'data':{'pengeluaran_name': pengeluaran_name}})
+					self.jsonToSend = json.dumps({'type': u'pengeluaran', 'command': action, 'data':{'pengeluaran_name': pengeluaran_name}})
+
+	# def checkActionPengeluaran(self, sentence, pengeluaranKey):
+	# 	for action in self.listActionInPengeluaran:
+	# 		isContain = re.compile(r'\b({0})\b'.format(action), flags=re.IGNORECASE)
+	# 		if(isContain.findall(sentence)):
+	# 			if action in ["buat", "tambah", "bikin", "ubah", "ganti"]:
+	# 				amount = isContain.findall(sentence)[0]
+	# 				if(self.checkAmount(sentence) != None):
+	# 					pengeluaran_nameRe = re.compile(r'{0}\s(.*)\s){1}'.format(pengeluaranKey, action))
+	# 					pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
+	# 					self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': self.listActionInEvent[action], 'data':{'amount': amount,'pengeluaran_name': pengeluaran_name}})
+	# 					break
+	# 				else:
+	# 					pengeluaran_nameRe = re.compile(r'{0}\s(.+)'.format(pengeluaranKey))
+	# 					pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
+	# 					self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': self.listActionInEvent[action], 'data':{'pengeluaran_name': pengeluaran_name}})
+	#
+	# 			else:
+	# 				pengeluaran_nameRe = re.compile(r'{0}\s(.+)'.format(pengeluaranKey))
+	# 				pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
+	# 				self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': self.listActionInEvent[action], 'data':{'pengeluaran_name': pengeluaran_name}})
 
 	def checkActionEvent(self, sentence, eventKey):
 		keyTime = ["pukul", "jam"]
@@ -68,7 +94,7 @@ class TextProcessor(object):
 			if(timeFound):
 				timeSentence = timeFound[0]
 				timeSentenceToExclude = key +" "+ timeSentence
-				print(timeSentenceToExclude)
+				# print(timeSentenceToExclude)
 				excludeTimeSentence = re.compile(r'{0}'.format(timeSentenceToExclude))
 				temp_sentence = excludeTimeSentence.sub('', temp_sentence)
 				break
@@ -144,7 +170,7 @@ class TextProcessor(object):
 			else: #asumsi ngasih tangga doang ini
 				temp_dateSentence = temp_dateSentence + " " + str(now.month) + " " + str(now.year)+ " "
 
-		print (temp_dateSentence)
+		# print (temp_dateSentence)
 		if (timeSentence):
 			keteranganWaktu=["siang", "sore"]
 			temp_timeSentence = ""
@@ -163,19 +189,19 @@ class TextProcessor(object):
 				temp_timeSentence = timeDigits[0] +":" +timeDigits[1]+":00"
 			else:
 				temp_timeSentence = timeDigits[0] +":"+timeDigits[1]+":"+timeDigits[2]
-			print (temp_dateSentence+temp_timeSentence)
+			# print (temp_dateSentence+temp_timeSentence)
 			date = parse(temp_dateSentence+temp_timeSentence)
 		else:
-			print("jam berapa mau dilakukan bos") #ngga kedeteksi waktunya
+			date = parse(temp_dateSentence+"00:00:00")
 		return date
 
 	def checkDate(self, sentence):
-		token = "87dea5be-c26c-4bbb-afe4-adb5b982f55a"
-		parameters = {'m': sentence, 'api_token': '87dea5be-c26c-4bbb-afe4-adb5b982f55a'}
+		token = os.getenv('TOKEN_KATA', None)
+		parameters = {'m': sentence, 'api_token': token}
 		r = requests.get('https://api.kata.ai/v1/insights', params = parameters)
 		result = r.json()
 		entities = result["entities"]
-		print (result)
+		# print (result)
 		finalResult = None
 		for entity in entities:
 			if entity["entity"] == "DATE":
@@ -191,13 +217,17 @@ class TextProcessor(object):
 			print("ngga dipanggil")
 
 	def getJsonToSent(self):
-		return self.jsonToSend
+		js = self.jsonToSend
+		self.jsonToSend = None
+		return js
 
 # test = TextProcessor()
-# # test.processText("si bawel bikin jadwal kerja lembur tanggal 25/03/2017 jam 15.10")
-
-# test.processText("si bawel bikin jadwal kerja lembur tanggal 30 April pukul 1 30 siang")
-# test.processText("si bawel bikin pengeluaran beli minum sebesar 50000")
+# # # test.processText("si bawel bikin jadwal kerja lembur tanggal 25/03/2017 jam 15.10")
+#
+# test.processText("si bawel bikin jadwal kerja lembur tanggal 30 April")
+# tex = str(test.getJsonToSent())
+# print(tex)
+# test.processText("si bawel tambah pengeluaran makan ayam goreng bareng")
 # tex = str(test.getJsonToSent())
 # print(tex)
 # print(test.checkDate("si bawel bikin jadwal hari jumat minggu ini"))
