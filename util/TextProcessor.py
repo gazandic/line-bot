@@ -28,7 +28,7 @@ class TextProcessor(object):
 	def checkAmount(self, sentence):
 		keywordAmount = ["sebesar"];
 		for key in keywordAmount:
-			getAmount = re.compile(r'{0}\s(.+)\s'.format(key));
+			getAmount = re.compile(r'{0}\s*(\d+\.+\d+|\d+).*'.format(key));
 			if (getAmount.findall(sentence)):
 				return getAmount.findall(sentence);
 			else:
@@ -45,18 +45,22 @@ class TextProcessor(object):
 			isContain = re.compile(r'\b({0})\b'.format(action), flags=re.IGNORECASE)
 			if(isContain.findall(sentence)):
 				if action == "tambah":	
-					amount = isContain.findall(sentence)[0];
 					if(self.checkAmount(sentence) != None):
-						event_nameRe = re.compile(r'{0}\s(.*)\s){1}'.format(pengeluaranKey, action));
-						event_name = event_nameRe.findall(sentence)[0];
-						self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': {action}, data:{'amount': amount,'event_name': event_name}});
+						amount = self.checkAmount(sentence);
+						print(amount);
+						event_nameRe = re.compile(r'{0}\s+(.*)\s+{1}'.format(pengeluaranKey, "sebesar"), flags=re.IGNORECASE);
+						if (event_nameRe.findall(sentence)):
+							event_name = event_nameRe.findall(sentence);
+						else:
+							print("namanya ngga dapet")
+						self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': action, 'data':{'amount': amount,'event_name': event_name}});
 						break;
-					else:
+					else:	
 						print("minta jumlah duit boss")#minta jumlah duit atau bisa jadi dia mau kasi pake gambar
 				else:
 					event_nameRe = re.compile(r'{0}\s(.+)'.format(pengeluaranKey));
 					event_name = event_nameRe.findall(sentence)[0];
-					self.jsonToSend = json.dump({'type': u'pengeluaran', 'command': action, data:{'event_name': event_name}});
+					self.jsonToSend = json.dump({'type': u'pengeluaran', 'command': action, 'data':{'event_name': event_name}});
 
 	def checkActionEvent(self, sentence, eventKey):
 		keyTime = ["pukul", "jam"];
@@ -87,6 +91,7 @@ class TextProcessor(object):
 					self.jsonToSend = json.dumps({'type': 'event', 'command': {listActionInEvent[action]}, 'data':{'event_name': event_name}})
 
 	def checkWhatCommand(self, sentence):
+		self.jsonToSend = None;
 		if (self.getCommands(sentence)):
 			for command in self.getCommands(sentence):
 				for key in self.keyWordPengeluaran:
@@ -183,9 +188,9 @@ class TextProcessor(object):
 	def getJsonToSent(self):
 		return self.jsonToSend;
 
-test = TextProcessor();
-# test.processText("si bawel bikin jadwal kerja lembur tanggal 25/03/2017 jam 15.10");
+# test = TextProcessor();
+# test.processText("si bawel tambah pengeluaran makan ayam goreng bareng sebesar 1000000");
 # print(test.getJsonToSent());
-print(test.checkDate("si bawel bikin jadwal hari jumat minggu ini"));
+# print(test.checkDate("si bawel bikin jadwal hari jumat minggu ini"));
 
 
