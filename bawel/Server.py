@@ -3,14 +3,9 @@ from __future__ import unicode_literals
 import errno
 import os
 import sys
-import datetime
-import time
 import tempfile
-
-from bawel.Reminder import Reminder
-
-from sched import scheduler
 from argparse import ArgumentParser
+import pprint
 from flask import Flask, request, abort
 
 from linebot import (
@@ -30,7 +25,15 @@ from linebot.models import (
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
 )
 
-app = Flask(__name__)
+# sys.path.insert(0, "model")
+# from User import User
+# us1 = User("0001","unknown","unknown",-1)
+# us1.create()
+# user = us1.searchOne({"lineid":"0001"})
+# pprint.pprint(user)
+# us1.removeSelf()
+
+app = Flask(__name__, static_url_path='', static_folder='static')
 
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
@@ -47,9 +50,6 @@ handler = WebhookHandler(channel_secret)
 
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 
-parser = RequestParser()
-scheduler = scheduler(time.time, time.sleep)
-reminder = Reminder(scheduler)
 
 # function for create tmp dir for download content
 def make_static_tmp_dir():
@@ -60,7 +60,6 @@ def make_static_tmp_dir():
             pass
         else:
             raise
-
 
 @app.route("/", methods=['POST'])
 def callback():
@@ -131,7 +130,7 @@ def handle_text_message(event):
                 PostbackTemplateAction(
                     label='ping with text', data='ping',
                     text='ping'),
-                MessageTemplateAction(label='Translate Rice', text=u'米')
+                MessageTemplateAction(label='Translate Rice', text='米')
             ])
         template_message = TemplateSendMessage(
             alt_text='Buttons alt text', template=buttons_template)
@@ -173,6 +172,8 @@ def handle_location_message(event):
 
 @handler.add(MessageEvent, message=StickerMessage)
 def handle_sticker_message(event):
+    print("package_id:"+event.message.package_id)
+    print("sticker_id:"+event.message.sticker_id)
     line_bot_api.reply_message(
         event.reply_token,
         StickerSendMessage(
@@ -206,7 +207,7 @@ def handle_content_message(event):
     line_bot_api.reply_message(
         event.reply_token, [
             TextSendMessage(text='Save content.'),
-            TextSendMessage(text=request.host_url + os.path.join('static', 'tmp', dist_name))
+            TextSendMessage(text=request.host_url + os.path.join('tmp', dist_name))
         ])
 
 
@@ -249,7 +250,7 @@ def handle_beacon(event):
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser(
-    usage='Usage: python ' + __file__ + ' [--port <port>] [--help]'
+        usage='Usage: python ' + __file__ + ' [--port <port>] [--help]'
     )
     arg_parser.add_argument('-p', '--port', default=8000, help='port')
     arg_parser.add_argument('-d', '--debug', default=False, help='debug')

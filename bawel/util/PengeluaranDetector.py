@@ -14,7 +14,7 @@ class PengeluaranDetector(object):
 			lines = temp.splitlines();
 			for line in lines:
 				print(line);
-				searchSpended = re.compile(r'Rp.(\d+\.+\d+|\d+).*');
+				searchSpended = re.compile(r'Rp.(\d+\.+\d+|\d+).*');	
 				spended = searchSpended.findall(line);
 				if (spended):
 					for spent in spended:
