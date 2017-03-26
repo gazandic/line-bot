@@ -1,7 +1,7 @@
 import re;
 import requests;
 import json;
-from datetime import datetime;
+from datetime import datetime
 from dateutil.parser import parse
 
 class TextProcessor(object):
