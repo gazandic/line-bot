@@ -7,9 +7,9 @@ from dateutil.parser import parse
 class TextProcessor(object):
 	def __init__(self):
 		self.keyWordToCall  = "Si Bawel";
-		self.keyWordToEvent = ["jadwal"];
+		self.keyWordToEvent = ["jadwal", "acara", "jadwal", "event"];
 		self.keyWordPengeluaran = ["pengeluaran"];
-		self.listActionInEvent = {"ikut" : "ikut", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "gajadiikut":"gajadiikut", "ubah":"ubah", "hapus":"hapus"};
+		self.listActionInEvent = {"ikut" : "ikut", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "gajadi ikut":"gajadiikut", "ubah":"ubah", "hapus":"hapus"};
 		self.listActionInPengeluaran =["tambah", "ubah", "hapus", "lihat"];  
 		self.jsonToSend = None;
 
@@ -43,6 +43,7 @@ class TextProcessor(object):
 	def checkActionPengeluaran(self, sentence, pengeluaranKey):
 		for action in self.listActionInPengeluaran:
 			isContain = re.compile(r'\b({0})\b'.format(action), flags=re.IGNORECASE)
+			persons = self.checkPerson(sentence);
 			if(isContain.findall(sentence)):
 				if action == "tambah":	
 					if(self.checkAmount(sentence) != None):
@@ -52,15 +53,19 @@ class TextProcessor(object):
 						if (event_nameRe.findall(sentence)):
 							event_name = event_nameRe.findall(sentence);
 						else:
-							print("namanya ngga dapet")
-						self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': action, 'data':{'amount': amount,'event_name': event_name}});
+							print("nama event ngga dapet")
+						if persons:
+							self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': action, 'data':{'amount': amount,'event_name': event_name, 'persons':persons}});
+						else:
+							print("nama orangnya siapa?")
 						break;
 					else:	
 						print("minta jumlah duit boss")#minta jumlah duit atau bisa jadi dia mau kasi pake gambar
 				else:
 					event_nameRe = re.compile(r'{0}\s(.+)'.format(pengeluaranKey));
 					event_name = event_nameRe.findall(sentence)[0];
-					self.jsonToSend = json.dump({'type': u'pengeluaran', 'command': action, 'data':{'event_name': event_name}});
+					if persons:
+						self.jsonToSend = json.dump({'type': u'pengeluaran', 'command': action, 'data':{'event_name': event_name, 'persons':persons}});
 
 	def checkActionEvent(self, sentence, eventKey):
 		keyTime = ["pukul", "jam"];
@@ -74,21 +79,28 @@ class TextProcessor(object):
 				print(timeSentenceToExclude);
 				excludeTimeSentence = re.compile(r'{0}'.format(timeSentenceToExclude));
 				temp_sentence = excludeTimeSentence.sub('', temp_sentence);
+				dateSentence = self.checkDate(temp_sentence);
+				datetypedate =self.dateParser(dateSentence, timeSentence);
 				break;
-		print temp_sentence;
-		dateSentence = self.checkDate(temp_sentence);
-		datetypedate =self.dateParser(dateSentence, timeSentence);
+
 		for action in self.listActionInEvent:
 			isContain = re.compile(r'\b({0})\b'.format(action), flags=re.IGNORECASE);
 			if(isContain.findall(temp_sentence)):
 				if action in ["buat", "tambah", "bikin", "ubah"]:
-					event_nameRe = re.compile(r'{0}\s(.+)\s{1}'.format(eventKey, "tanggal"), flags=re.IGNORECASE);
+					event_nameRe = re.compile(r'{0}\s+(.*)\s+{1}'.format(eventKey, "tanggal"), flags=re.IGNORECASE);
 					event_name = event_nameRe.findall(sentence)[0];
 					self.jsonToSend = json.dumps({'type': 'event', 'command': self.listActionInEvent[action], 'data':{'date': self.json_serial(datetypedate),'event_name': event_name}})
 				else:
-					event_nameRe = re.compile(r'{0}\s(.+)\s'.format(eventKey), flags=re.IGNORECASE);
+					event_nameRe = re.compile(r'{0}\s+(.*)'.format(eventKey), flags=re.IGNORECASE);
 					event_name = event_nameRe.findall(sentence)[0];
-					self.jsonToSend = json.dumps({'type': 'event', 'command': {listActionInEvent[action]}, 'data':{'event_name': event_name}})
+					if action in ["ikut", "gajadi ikut"]:
+						persons = self.checkPerson(sentence);
+						if persons :
+							self.jsonToSend = json.dumps({'type': 'event', 'command': self.listActionInEvent[action], 'data':{'event_name': event_name, 'persons': persons}})
+						else:
+							print("siapa yang "+action+"?"); #nanya yang ikut
+					else:
+						self.jsonToSend = json.dumps({'type': 'event', 'command': self.listActionInEvent[action], 'data':{'event_name': event_name}})
 
 	def checkWhatCommand(self, sentence):
 		self.jsonToSend = None;
@@ -105,6 +117,8 @@ class TextProcessor(object):
 						self.checkActionEvent(sentence,key);
 		else:
 			#commandnya ngga ketangkep
+			print("aku ra ngerti")
+		if self.jsonToSend == None:
 			print("aku ra ngerti")
 	
 	def dateParser(self, dateSentence, timeSentence):
@@ -178,6 +192,18 @@ class TextProcessor(object):
 				 finalResult = entity["fragment"];
 		return finalResult;
 
+	def checkPerson(self, sentence):
+		token = "87dea5be-c26c-4bbb-afe4-adb5b982f55a"
+		parameters = {'m': sentence, 'api_token': '87dea5be-c26c-4bbb-afe4-adb5b982f55a'}
+		r = requests.get('https://api.kata.ai/v1/insights', params = parameters)
+		result = r.json();
+		entities = result["entities"];
+		finalResult = [];
+		for entity in entities:
+			if entity["entity"] == "PERSON":
+				 finalResult.append(entity["fragment"]);
+		return finalResult;
+
 	def processText(self,sentence):
 		if (self.isCalled(sentence)):
 			self.checkWhatCommand(sentence);
@@ -188,9 +214,12 @@ class TextProcessor(object):
 	def getJsonToSent(self):
 		return self.jsonToSend;
 
-# test = TextProcessor();
-# test.processText("si bawel tambah pengeluaran makan ayam goreng bareng sebesar 1000000");
-# print(test.getJsonToSent());
-# print(test.checkDate("si bawel bikin jadwal hari jumat minggu ini"));
+test = TextProcessor();
+test.checkWhatCommand("si bawel tambah pengeluaran makan bakso boejangan sebesar 7000 ical dan kevin")
+print(test.getJsonToSent());
+test.checkWhatCommand("si bawel kevin ikut event lari pagi");
+print(test.getJsonToSent());
+
+
 
 
