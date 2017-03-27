@@ -13,7 +13,7 @@ class PengeluaranDetector(object):
 			temp = self.IP.process_image(self.imagePath);
 			lines = temp.splitlines();
 			for line in lines:
-				# print(line);
+				print(line);
 				searchSpended = re.compile(r'Rp.(\d+\.+\d+|\d+).*');
 				spended = searchSpended.findall(line);
 				if (spended):
