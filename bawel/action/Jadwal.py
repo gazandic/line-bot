@@ -11,10 +11,16 @@ def checkInputTanggal(hari, bulan, tahun, jam, menit):
     d = date(int(tahun), int(bulan), int(hari))
     checkInputWaktu(jam, menit)
 
+# def normalizeParamJadwal(param, reminder):
+#     if len(param) == 8:
+#         param.append(1)         # default  
+#     param.append(reminder) 
+#     return param 
+
 # TODO: import job yang dilakukan
 
 class TambahJadwal(Action):
-    def act(self, namajadwal, hari, bulan, tahun, jam, menit, urgensi, reminder, state):
+    def act(self, namajadwal, hari, bulan, tahun, jam, menit, reminder, state, urgensi=1):
         try:
             self.checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Event(self.lineid,namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
@@ -39,7 +45,7 @@ class LihatJadwal(Action):
         return (state, output)
 
 class UbahJadwal(Action):
-    def act(self, namajadwal, hari, bulan, tahun, jam, menit, urgensi, reminder, state):
+    def act(self, namajadwal, hari, bulan, tahun, jam, menit, reminder, state, urgensi=1):
         try:
             self.checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Event(self.lineid,namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
