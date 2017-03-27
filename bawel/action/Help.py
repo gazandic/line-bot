@@ -41,7 +41,7 @@ class HelpHabit(Action):
     def __init__(self):
         super().__init__()
 
-    def act(self, state, bossname):
+    def act(self, state):
         S = """Bos mau nambah habit bos ketik '/tambahhabit namahabit jam menit hari'
 bisa juga lihat habit bos dengan ketik '/lihathabit'
 dan ubahhabit bos dengan ketik '/ubahhabit namahabit jam menit hari'

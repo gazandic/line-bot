@@ -12,7 +12,7 @@ from bawel.model.Expense import Expense
 class RequestParser:
 
     def parse(self, text, state):
-        lineid = state.id
+        lineid = state['id']
         us = User(lineid, "undefined", "undefined", STATE_NOTHING)
         user = us.searchOne({"lineid":lineid})
 
@@ -23,10 +23,10 @@ class RequestParser:
             return us.create()
         us.set(user)
 
-        state, param = chooseMenu(text, state)
-        if state == STATE_UNKNOWN:
-            return (state, ())
-            # print("halo bos, sekretaris bos "+bossName+ " kurang paham, coba ketik /help ya bos :)")
+        state, param = self.chooseMenu(text, state)
+        # if state['state_id'] == STATE_UNKNOWN:
+        #     return (state, ())
+        # print("halo bos, sekretaris bos "+bossName+ " kurang paham, coba ketik /help ya bos :)")
 
         # if 'name' not in state or not state['name']:
         #     state = {
@@ -52,9 +52,9 @@ class RequestParser:
         cmd = cmd[0]
             
         try:
-            return (REQUEST_STATE[cmd], param)
+            return ({**state, 'state_id': REQUEST_STATE[cmd]}, param)
         except IndexError:
-            return (STATE_UNKNOWN, param)
+            return ({**state, 'state_id': STATE_UNKNOWN}, param)
 
 # TEST SUITE
 #

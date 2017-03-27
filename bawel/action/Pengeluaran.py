@@ -14,7 +14,7 @@ class TambahPengeluaran(Action):
     def __init__(self):
         super().__init__()
 
-    def act(self, state, namapengeluaran, hari, bulan, tahun, jam, menit, name):
+    def act(self, namapengeluaran, hari, bulan, tahun, jam, menit, name, state):
         try:
             self.checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Expense(self.lineid,namapengeluaran,name,hari,bulan,tahun,jam,menit,0)
@@ -42,7 +42,7 @@ class UbahPengeluaran(Action):
     def __init__(self):
         super().__init__()
 
-    def act(self, state, namapengeluaran, hari, bulan, tahun, jam, menit, name):
+    def act(self, namapengeluaran, hari, bulan, tahun, jam, menit, name, state):
         try:
             self.checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Expense(self.lineid,namapengeluaran,name,hari,bulan,tahun,jam,menit,0)
@@ -55,7 +55,7 @@ class HapusPengeluaran(Action):
     def __init__(self):
         super().__init__()
 
-    def act(self, state, namapengeluaran):
+    def act(self, namapengeluaran, state):
         ev1 = Expense(self.lineid,"lol","nama",1,1,1,1,1,0)
         ev1.removeQuery({"lineid":self.lineid,"about":namapengeluaran})
         return (state, "Expenses successfuly removed")
