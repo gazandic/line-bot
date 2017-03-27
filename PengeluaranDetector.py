@@ -9,19 +9,18 @@ class PengeluaranDetector(object):
 
 	def checkForTotal(self):
 		totalCandidate= float();
+		keyWordForTotal = ["jumlah","total","RP"]
 		if (self.IP.process_image(self.imagePath)):
 			temp = self.IP.process_image(self.imagePath);
 			lines = temp.splitlines();
 			for line in lines:
 				print(line);
-				searchSpended = re.compile(r'Rp.(\d+\.+\d+|\d+).*');	
-				spended = searchSpended.findall(line);
-				if (spended):
-					for spent in spended:
-						spent = float(spent);
-					print(spended);
-					totalCandidate = max(spended);
-			print totalCandidate;
-
-PD = PengeluaranDetector("C:\\Users\\Kevin Yauris\\Documents\\Oppurtinity\\line-bot\\testingStructure.png");
-PD.checkForTotal();
+				for key in keyWordForTotal:
+					searchSpended = re.compile(r'{0}\D*(\d+\.+\d+|\d+).*'.format(key), flags= re.IGNORECASE);	
+					spended = searchSpended.findall(line);
+					if (spended):
+						for spent in spended:
+							spent = float(spent);
+						totalCandidate = max(spended);
+						break;
+			print ("totalnya adalah: ", totalCandidate);
