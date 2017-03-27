@@ -23,4 +23,11 @@ class PengeluaranDetector(object):
 							spent = float(spent);
 						totalCandidate = max(spended);
 						break;
+			if totalCandidate == 0:
+				searchSpended = re.compile(r'\D*(\d+[\.,]+\d+).*', flags= re.IGNORECASE);
+				spended = searchSpended.findall(line);
+				if (spended):
+					for spent in spended:
+						spent = float(spent);
+						totalCandidate = max(spended);
 			print ("totalnya adalah: ", totalCandidate);
