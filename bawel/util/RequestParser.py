@@ -23,34 +23,38 @@ class RequestParser:
             return us.create()
         us.set(user)
 
-        state = chooseMenu(text, state)
-        if state == STATE_UNKNOWN: return state
+        state, param = chooseMenu(text, state)
+        if state == STATE_UNKNOWN:
+            return (state, ())
             # print("halo bos, sekretaris bos "+bossName+ " kurang paham, coba ketik /help ya bos :)")
 
-        if 'name' not in state or not state['name']:
-            state = {
-                state_id: STATE_ASK_USERNAME,
-                next_state: state
-            }
-        elif 'loc' not in state or not state['loc']:
-            state = {
-                state_id: STATE_ASK_LOC,
-                next_state: state
-            }
-        else:
-            # TODO: hayo
-            pass
+        # if 'name' not in state or not state['name']:
+        #     state = {
+        #         state_id: STATE_ASK_USERNAME,
+        #         next_state: state,
+        #         next_param: param
+        #     }
+        # elif 'loc' not in state or not state['loc']:
+        #     state = {
+        #         state_id: STATE_ASK_LOC,
+        #         next_state: state
+        #         next_param: param
+        #     }
+        # else:
+        #     # TODO: hayo
+        #     pass
+
+        return (state, param)
 
     def chooseMenu(self, text, state):
         cmd = text.split()
         param = cmd[1:]
         cmd = cmd[0]
-        bossName = state['name']
-        param.append(bossName)
+            
         try:
-            return REQUEST_STATE[cmd](*param)
+            return (REQUEST_STATE[cmd], param)
         except IndexError:
-            return STATE_UNKNOWN
+            return (STATE_UNKNOWN, param)
 
 # TEST SUITE
 #

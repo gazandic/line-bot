@@ -6,12 +6,15 @@ class HelpPengeluaran(Action):
     def __init__(self):
         super().__init__()
 
-    def act(self, state, bossname):
+    def act(self, state):
         # TODO:
         return (state, "ntaran")
 
 class TambahPengeluaran(Action):
-    def act(self, state, namapengeluaran, hari, bulan, tahun, jam, menit, name, bossName):
+    def __init__(self):
+        super().__init__()
+
+    def act(self, state, namapengeluaran, hari, bulan, tahun, jam, menit, name):
         try:
             self.checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Expense(self.lineid,namapengeluaran,name,hari,bulan,tahun,jam,menit,0)
@@ -21,7 +24,10 @@ class TambahPengeluaran(Action):
             return (state, "format penulisan '/tambahpengeluaran namapengeluaran hari bulan tahun jam menit name'")
 
 class LihatPengeluaran(Action):
-    def act(self, state, bossName):
+    def __init__(self):
+        super().__init__()
+
+    def act(self, state):
         ev1 = Expense(self.lineid,"lol","nama",1,1,1,1,1,0)
         expenses = ev1.search({"lineid":self.lineid})
         def printExpense(prev, exp):
@@ -33,7 +39,10 @@ class LihatPengeluaran(Action):
         return (state, output)
 
 class UbahPengeluaran(Action):
-    def act(self, state, namapengeluaran, hari, bulan, tahun, jam, menit, name, bossName):
+    def __init__(self):
+        super().__init__()
+
+    def act(self, state, namapengeluaran, hari, bulan, tahun, jam, menit, name):
         try:
             self.checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Expense(self.lineid,namapengeluaran,name,hari,bulan,tahun,jam,menit,0)
@@ -43,13 +52,19 @@ class UbahPengeluaran(Action):
             return (state, "format penulisan '/ubahpengeluaran namapengeluaran hari bulan tahun jam menit name'  \nnama pengeluaran tidak dapat diubah")
 
 class HapusPengeluaran(Action):
-    def act(self, state, namapengeluaran, bossName):
+    def __init__(self):
+        super().__init__()
+
+    def act(self, state, namapengeluaran):
         ev1 = Expense(self.lineid,"lol","nama",1,1,1,1,1,0)
         ev1.removeQuery({"lineid":self.lineid,"about":namapengeluaran})
         return (state, "Expenses successfuly removed")
 
 class ReportPengeluaran(Action):
-    def act(self, state, bossName):
+    def __init__(self):
+        super().__init__()
+
+    def act(self, state):
         ev1 = Expense(self.lineid,"lol","nama",1,1,1,1,1,0)
         # TODO
         # expenses = ev1.search({"lineid":self.lineid})

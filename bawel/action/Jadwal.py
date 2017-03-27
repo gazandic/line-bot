@@ -14,7 +14,7 @@ def checkInputTanggal(hari, bulan, tahun, jam, menit):
 # TODO: import job yang dilakukan
 
 class TambahJadwal(Action):
-    def act(self, state, namajadwal, hari, bulan, tahun, jam, menit, urgensi, reminder, bossname):
+    def act(self, state, namajadwal, hari, bulan, tahun, jam, menit, urgensi, reminder):
         try:
             self.checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Event(self.lineid,namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
@@ -26,7 +26,7 @@ class TambahJadwal(Action):
             return (state, "format penulisan '/tambahjadwal namajadwal hari bulan tahun jam menit'")
 
 class LihatJadwal(Action):
-    def act(self, state, bossname):
+    def act(self, state):
         ev1 = Event(self.lineid,"lol",10,1,1,1,1,1,0)
         events = ev1.search({"lineid":self.lineid})
 
@@ -39,7 +39,7 @@ class LihatJadwal(Action):
         return (state, output)
 
 class UbahJadwal(Action):
-    def act(self, state, namajadwal, hari, bulan, tahun, jam, menit, urgensi, reminder, bossname):
+    def act(self, state, namajadwal, hari, bulan, tahun, jam, menit, urgensi, reminder):
         try:
             self.checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Event(self.lineid,namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
@@ -53,7 +53,7 @@ class UbahJadwal(Action):
             return (state, "format penulisan '/ubahjadwal namajadwal hari bulan tahun jam menit'  \nnama jadwal tidak dapat diubah")
 
 class HapusJadwal(Action):
-    def act(self, state, namajadwal, reminder, bossname):
+    def act(self, state, namajadwal, reminder):
         ev1 = Event(self.lineid,"lol",10,1,1,1,1,1,0)
         eid = ev1.searchOne({"lineid":self.lineid,"about":namajadwal})
         ev1.removeQuery({"lineid":self.lineid,"about":namajadwal})
@@ -61,7 +61,7 @@ class HapusJadwal(Action):
         return (state, "Event removed successfully")
 
 # class SelesaiJadwal(Action):
-#     def act(self, state, namajadwal, bossname):
+#     def act(self, state, namajadwal):
 #         ev1 = Event(self.lineid,"lol",10,1,1,1,1,1,0)
 #         eve = ev1.searchOne({"lineid":self.lineid,"about":namajadwal})
 #         ev1.set(eve)
@@ -69,7 +69,7 @@ class HapusJadwal(Action):
 #         ev1.update()
 
 class ReportJadwal(Action):
-    def act(self, state, bossname):
+    def act(self, state):
         ev1 = Event(self.lineid,"lol",10,1,1,1,1,1,0)
         events = ev1.search({"lineid":self.lineid})
         i = 0
