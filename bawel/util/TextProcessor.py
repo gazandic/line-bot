@@ -31,7 +31,7 @@ class TextProcessor(object):
 		for key in keywordAmount:
 			getAmount = re.compile(r'{0}\s*(\d+\.+\d+|\d+).*'.format(key))
 			if (getAmount.findall(sentence)):
-				return getAmount.findall(sentence)
+				return getAmount.findall(sentence)[0]
 			else:
 				return None
 
@@ -51,17 +51,17 @@ class TextProcessor(object):
 						pengeluaran_nameRe = re.compile(r'{0}\s+(.*)\s+{1}'.format(pengeluaranKey, "sebesar"), flags=re.IGNORECASE)
 						pengeluaran_name = 'unknown'
 						if (pengeluaran_nameRe.findall(sentence)):
-							pengeluaran_name = pengeluaran_nameRe.findall(sentence)
-						self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': action, 'data':{'amount': amount,'event_name': pengeluaran_name}})
+							pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
+						self.jsonToSend = json.dumps({'type': 'Pengeluaran', 'command': action, 'data':{'amount': amount,'event_name': pengeluaran_name}})
 						break
 					else:
 						pengeluaran_nameRe = re.compile(r'{0}\s(.+)'.format(pengeluaranKey))
 						pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
-						self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': action, 'data':{'amount': 0,'event_name': pengeluaran_name}})
+						self.jsonToSend = json.dumps({'type': 'Pengeluaran', 'command': action, 'data':{'amount': 0,'event_name': pengeluaran_name}})
 				else:
 					pengeluaran_nameRe = re.compile(r'{0}\s(.+)'.format(pengeluaranKey))
 					pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
-					self.jsonToSend = json.dumps({'type': u'pengeluaran', 'command': action, 'data':{'event_name': pengeluaran_name}})
+					self.jsonToSend = json.dumps({'type': u'Pengeluaran', 'command': action, 'data':{'event_name': pengeluaran_name}})
 
 	# def checkActionPengeluaran(self, sentence, pengeluaranKey):
 	# 	for action in self.listActionInPengeluaran:
@@ -107,11 +107,11 @@ class TextProcessor(object):
 				if action in ["buat", "tambah", "bikin", "ubah", "ganti"]:
 					event_nameRe = re.compile(r'{0}\s(.+)\s{1}'.format(eventKey, "tanggal"), flags=re.IGNORECASE)
 					event_name = event_nameRe.findall(sentence)[0]
-					self.jsonToSend = json.dumps({'type': 'event', 'command': self.listActionInEvent[action], 'data':{'date': self.json_serial(datetypedate),'event_name': event_name}})
+					self.jsonToSend = json.dumps({'type': 'Jadwal', 'command': self.listActionInEvent[action], 'data':{'date': self.json_serial(datetypedate),'event_name': event_name}})
 				else:
 					event_nameRe = re.compile(r'{0}\s(.+)\s'.format(eventKey), flags=re.IGNORECASE)
 					event_name = event_nameRe.findall(sentence)[0]
-					self.jsonToSend = json.dumps({'type': 'event', 'command': self.listActionInEvent[action], 'data':{'event_name': event_name}})
+					self.jsonToSend = json.dumps({'type': 'Jadwal', 'command': self.listActionInEvent[action], 'data':{'event_name': event_name}})
 
 	def checkWhatCommand(self, sentence):
 		if (self.getCommands(sentence)):
@@ -210,22 +210,23 @@ class TextProcessor(object):
 
 	def processText(self,sentence):
 		sentence = sentence.replace(":", " ")
+		sentence = sentence.replace("-", " ")
+		sentence = sentence.replace(".", " ")
 		if (self.isCalled(sentence)):
 			self.checkWhatCommand(sentence)
 		else:
-			#ngga dipanggil
-			print("ngga dipanggil")
+			self.jsonToSend = json.dumps({'error': 'unknown input'})
 
 	def getJsonToSent(self):
 		js = self.jsonToSend
 		self.jsonToSend = None
 		return js
 
-# test = TextProcessor()
+test = TextProcessor()
 # # # test.processText("si bawel bikin jadwal kerja lembur tanggal 25/03/2017 jam 15.10")
 #
-# test.processText("si bawel bikin jadwal kerja lembur tanggal 30 April")
-# tex = str(test.getJsonToSent())
+test.processText("si bawel bikin jadwal kerja lembur tanggal 30 April")
+tex = str(test.getJsonToSent())
 # print(tex)
 # test.processText("si bawel tambah pengeluaran makan ayam goreng bareng")
 # tex = str(test.getJsonToSent())
