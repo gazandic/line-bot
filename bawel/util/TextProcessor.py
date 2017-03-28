@@ -222,11 +222,11 @@ class TextProcessor(object):
 		self.jsonToSend = None
 		return js
 
-test = TextProcessor()
+# test = TextProcessor()
 # # # test.processText("si bawel bikin jadwal kerja lembur tanggal 25/03/2017 jam 15.10")
 #
-test.processText("si bawel bikin jadwal kerja lembur tanggal 30 April")
-tex = str(test.getJsonToSent())
+# test.processText("si bawel bikin jadwal kerja lembur tanggal 30 April")
+# tex = str(test.getJsonToSent())
 # print(tex)
 # test.processText("si bawel tambah pengeluaran makan ayam goreng bareng")
 # tex = str(test.getJsonToSent())
