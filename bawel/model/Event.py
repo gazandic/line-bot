@@ -1,6 +1,6 @@
 # from flask import jsonify
 
-from BaseMongo import BaseMongo
+from bawel.model.BaseMongo import BaseMongo
 from datetime import datetime,date,time
 import pprint
 
