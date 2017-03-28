@@ -4,3 +4,4 @@ line-bot-sdk
 flask
 pytesseract
 pillow
+pymongo
