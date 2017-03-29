@@ -144,10 +144,12 @@ def handle_text_message(event):
         elif not 'si bawel' in text:
             pass
         else:
+            restext = "tolong ketik 'si bawel tolong' ya kakak kakak"
             try:
                 nlptext.processText(event.message.text)
                 jtq = JsonToQuery(nlptext.getJsonToSent())
                 restext = jtq.parseJSON()
+                print (restext)
                 global state
                 state = {**state, 'id': event.source.group_id}
                 state, output = handle_action(restext, state)
@@ -155,9 +157,8 @@ def handle_text_message(event):
                     event.reply_token, TextMessage(text=output))
 
             except:
-                e = sys.exc_info()[0]
+                e = sys.exc_info()
                 print(e)
-                restext = "tolong ketik 'si bawel tolong' ya kakak kakak"
                 line_bot_api.reply_message(
                     event.reply_token, [TextSendMessage(text=restext),
                     StickerSendMessage(
