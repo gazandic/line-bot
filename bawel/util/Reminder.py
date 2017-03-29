@@ -23,18 +23,37 @@ from linebot.models import (
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
 )
 
+def worker_once(reminder):
+    reminder.scheduler.run()
+
+def worker_repeated(reminder, callback, args):
+    worker_once(remainder)
+
+
 class Reminder:
     def __init__(self, scheduler, linebot):
         self.scheduler = scheduler
         self.linebot = linebot
 
+    def add_repeated(self, eid, tm, job, interval, args):
+        self.scheduler.enterabs(tm, 1, job, (eid, *args))
+        next_time = tm + interval
+        tm = time.mktime(tm.timetuple())
+        next_time = time.mktime(next_time.timetuple())
+
+        worker_thread = threading.Thread(target=worker_repeated, 
+            kwargs={
+                'reminder': self, 'callback': self.add_repeated,
+                'args': (eid, tm, job, interval, args)
+            })
+        worker_thread.start()
+
     def add(self, eid, tm, job, args):
         self.scheduler.enterabs(tm, 1, job, (eid, *args))
-        print(self.scheduler.queue)
-        def worker_main():
-            newsched = self.scheduler
-            newsched.run()
-        worker_thread = threading.Thread(target=worker_main)
+        tm = time.mktime(tm.timetuple())
+
+        worker_thread = threading.Thread(target=worker_once, 
+            kwargs={'reminder': self})
         worker_thread.start()
 
     def push(self, text, stickerid, lineid):
