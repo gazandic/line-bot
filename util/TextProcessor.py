@@ -215,11 +215,7 @@ class TextProcessor(object):
 		return self.jsonToSend;
 
 test = TextProcessor();
-test.checkWhatCommand("si bawel tambah pengeluaran makan bakso boejangan sebesar 7000 ical dan kevin")
+test.checkWhatCommand("si bawel tambah pengeluaran sate mas kevin sebesar 7000 ical dan ginanjar")
 print(test.getJsonToSent());
-test.checkWhatCommand("si bawel kevin ikut event lari pagi");
+test.checkWhatCommand("si bawel ikut event lari pagi oleh Gazandi");
 print(test.getJsonToSent());
-
-
-
-

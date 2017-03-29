@@ -9,7 +9,7 @@ try:
     from BytesIO import BytesIO
 except ImportError:
     from io import BytesIO
-from validate_email import validate_email
+# from validate_email import validate_email
 class ImageProcessor(object):
     NEWIMAGESIZE = 1200
     path = ""
