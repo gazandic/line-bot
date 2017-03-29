@@ -28,8 +28,9 @@ class Reminder:
         self.linebot = linebot
         self.scheduler.run()
 
-    def add(self, eid, tm, job):
-        self.scheduler.enterabs(tm, 1, job, (eid,))
+    def add(self, eid, tm, job, args):
+        self.scheduler.enterabs(tm, 1, job, (eid, *args))
+        print(self.scheduler.queue)
 
     def push(self, text, stickerid, lineid):
         self.linebot.push_message(

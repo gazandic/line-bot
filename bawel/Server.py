@@ -77,7 +77,9 @@ def make_static_tmp_dir():
 
 
 def handle_action(text, state):
+
     state, param = parser.parse(text, state)
+
     if state['state_id'] >= STATE_ADD_JADWAL and \
        state['state_id'] <= STATE_DELETE_JADWAL:
         param.append(reminder)
@@ -150,11 +152,10 @@ def handle_text_message(event):
                 global state
 
                 if id in state:
-                    user_state = state['id']
+                    user_state = state[id]
                 else:
                     user_state = { 'id': id }
-
-                user_state, output = handle_action(restext, state)
+                user_state, output = handle_action(restext, user_state)
                 state = {**state, id: user_state}
 
                 line_bot_api.reply_message(

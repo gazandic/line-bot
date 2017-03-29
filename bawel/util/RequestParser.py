@@ -50,7 +50,7 @@ class RequestParser:
         cmd = text.split()
         param = cmd[1:]
         cmd = cmd[0]
-            
+
         try:
             return ({**state, 'state_id': REQUEST_STATE[cmd]}, param)
         except IndexError:

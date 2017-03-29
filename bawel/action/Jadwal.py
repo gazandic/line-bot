@@ -32,10 +32,10 @@ class TambahJadwal(Action):
             ev1 = Event(state['id'],namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
             eid = ev1.create()
             # print("created")
-            def job(text, lineid, stickerid=180):
+            def job(eid, text, lineid, stickerid=180):
                 reminder.push(text, stickerid, lineid)
-            print (dt)
-            reminder.add(eid, t.mktime(dt.timetuple()), job("jangan lupa 1 jam lagi ada"+namajadwal,state['id']))
+            print (dt.timetuple())
+            reminder.add(eid, t.mktime(dt.timetuple()), job, ("jangan lupa 1 jam lagi ada "+namajadwal,state['id'], ))
             return (state, "Event successfuly added")
 
         except ValueError:
@@ -62,7 +62,7 @@ class UbahJadwal(Action):
             ev1 = Event(state['id'],namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
             eid = ev1.update()
             dtime = ev1.searchOne({ "_id": eid })["datetime"]
-            tm = dt.strptime(str(dtime), "%Y-%m-%d %H:%M:%S.%f")
+            tm = dt.strptime(str(dtime), "%Y-%m-%d %H:%M:%S")
             reminder.modify(eid, tm)
             return (state, "Event changed successfully")
 
