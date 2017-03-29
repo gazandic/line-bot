@@ -13,16 +13,16 @@ def checkInputTanggal(hari, bulan, tahun, jam, menit):
 
 # def normalizeParamJadwal(param, reminder):
 #     if len(param) == 8:
-#         param.append(1)         # default  
-#     param.append(reminder) 
-#     return param 
+#         param.append(1)         # default
+#     param.append(reminder)
+#     return param
 
 # TODO: import job yang dilakukan
 
 class TambahJadwal(Action):
     def act(self, namajadwal, hari, bulan, tahun, jam, menit, reminder, state, urgensi=1):
         try:
-            self.checkInputTanggal(hari, bulan, tahun, jam, menit)
+            checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Event(self.lineid,namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
             eid = ev1.create()
             reminder.add(eid, datetime.datetime(tahun, bulan, hari, jam, menit), job)
@@ -47,7 +47,7 @@ class LihatJadwal(Action):
 class UbahJadwal(Action):
     def act(self, namajadwal, hari, bulan, tahun, jam, menit, reminder, state, urgensi=1):
         try:
-            self.checkInputTanggal(hari, bulan, tahun, jam, menit)
+            checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Event(self.lineid,namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
             eid = ev1.update()
             dtime = ev1.searchOne({ "_id": eid })["datetime"]
