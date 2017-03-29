@@ -4,6 +4,7 @@ from functools import reduce
 from datetime import datetime, date, time
 
 from bawel.action.Action import Action
+from bawel.model.event import Event
 
 def checkInputWaktu(jam, menit):
     t = time(int(jam), int(menit))
