@@ -8,9 +8,10 @@ class PengeluaranDetector(object):
 		self.imagePath = imagePath;
 
 	def checkForTotal(self):
-		totalCandidate= float();
+		totalCandidate= float(0);
 		bersihinAngka = re.compile(r'([\.,]\d{2})\b');
 		keyWordForTotal = ["jumlah","total","RP"] 
+		getByKeyWord = False;
 		if (self.IP.process_image(self.imagePath)):
 			temp = self.IP.process_image(self.imagePath);
 			lines = temp.splitlines();
@@ -27,9 +28,11 @@ class PengeluaranDetector(object):
 							spent = re.sub(r'([\.|,])', "", spent);
 							print(spent);
 							spent = float(spent);
-							totalCandidate = spent;
+							if (not getByKeyWord):
+								totalCandidate = spent;
+								getByKeyWord = True;
 						break;
-			if totalCandidate == 0:
+			if totalCandidate == 0 and not getByKeyWord :
 				searchSpended = re.compile(r'\D*((\d[\.,]|\d)+)', flags= re.IGNORECASE);
 				spended = searchSpended.findall(line);
 				if (spended):
@@ -41,6 +44,3 @@ class PengeluaranDetector(object):
 						spent = float(spent);
 						totalCandidate = spent;
 			print ("totalnya adalah: ", totalCandidate);
-
-PD = PengeluaranDetector("106729.jpg");
-PD.checkForTotal()
