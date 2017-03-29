@@ -141,13 +141,15 @@ def handle_text_message(event):
                 StickerSendMessage(
                     package_id=3,
                     sticker_id=random.choice(randomPrivate))])
-        # elif not 'si bawel' in text:
-        #     pass
+        elif not 'si bawel' in text:
+            pass
         else:
             try:
                 nlptext.processText(event.message.text);
                 jtq = JsonToQuery(test.getJsonToSent())
                 restext = jtq.parseJSON()
+                line_bot_api.reply_message(
+                    event.reply_token, TextMessage(text=restext))
                 global state
                 state = {**state, 'id': event.source.group_id}
                 state, output = handle_action(restext, state)
