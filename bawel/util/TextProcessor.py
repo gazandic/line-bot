@@ -301,13 +301,3 @@ class TextProcessor(object):
 		js = self.jsonToSend
 		self.jsonToSend = None
 		return js
-
-# test = TextProcessor()
-# test.processText("si bawel bikin jadwal kerja lembur tanggal 25 April jam 15.10")
-# tex = str(test.getJsonToSent())
-# print(tex)
-# li = test.checkEntity("nama Glenn")
-# print(li)
-# test.processText("si bawel tambah pengeluaran makan ayam goreng bareng")
-
-# print(test.checkDate("si bawel bikin jadwal hari jumat minggu ini"))

@@ -2,17 +2,29 @@ from __future__ import unicode_literals
 
 import errno
 import os
+import pprint
+import random
+import sched
 import sys
 import tempfile
-import random
-import pprint
-import bawel.util.Sticker
+import time
 
 from argparse import ArgumentParser
 from flask import Flask, request, abort
+
+import bawel.util.Sticker
+
+from bawel.action.Action import dispatch_action
+
+from bawel.util.PengeluaranDetector import PengeluaranDetector
+from bawel.util.Reminder import Reminder
+from bawel.util.RequestParser import RequestParser
 from bawel.util.TextProcessor import TextProcessor
 from bawel.util.JsonToQuery import JsonToQuery
-from bawel.util.PengeluaranDetector import PengeluaranDetector
+
+from bawel.constant.StateConstant import (
+    ACTION_MAPPER, STATE_ADD_JADWAL, STATE_DELETE_JADWAL)
+
 from linebot import (
     LineBotApi, WebhookHandler
 )
@@ -30,17 +42,6 @@ from linebot.models import (
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
 )
 
-# sys.path.insert(0, "model")
-# from User import User
-# us1 = User("0001","unknown","unknown",-1)
-# us1.create()
-# user = us1.searchOne({"lineid":"0001"})
-# pprint.pprint(user)
-# us1.removeSelf()
-
-app = Flask(__name__, static_url_path='', static_folder='static')
-nlptext = TextProcessor();
-randomPrivate = [181, 183, 187, 188]
 
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
@@ -52,11 +53,17 @@ if channel_access_token is None:
     print('Specify LINE_CHANNEL_ACCESS_TOKEN as environment variable.')
     sys.exit(1)
 
-line_bot_api = LineBotApi(channel_access_token)
 handler = WebhookHandler(channel_secret)
+line_bot_api = LineBotApi(channel_access_token)
+nlptext = TextProcessor()
+parser = RequestParser()
+reminder = Reminder(sched.scheduler(time.time, time.sleep))
+randomPrivate = [181, 183, 187, 188]
+state = {}
+
 
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
-
+app = Flask(__name__, static_url_path='', static_folder='static')
 
 # function for create tmp dir for download content
 def make_static_tmp_dir():
@@ -67,6 +74,19 @@ def make_static_tmp_dir():
             pass
         else:
             raise
+
+
+def handle_action(text, state):
+    state, param = parser.parse(text, state)
+    param.append(state)
+
+    if state['state_id'] >= STATE_ADD_JADWAL and \
+       state['state_id'] <= STATE_DELETE_JADWAL:
+        param.append(reminder)
+
+    return dispatch_action(ACTION_MAPPER[state['state_id']], *param)
+    # print(output)
+
 
 @app.route("/", methods=['POST'])
 def callback():
@@ -121,15 +141,19 @@ def handle_text_message(event):
                 StickerSendMessage(
                     package_id=3,
                     sticker_id=random.choice(randomPrivate)))
-        elif not 'si bawel' in text:
-            pass
+        # elif not 'si bawel' in text:
+        #     pass
         else:
             try:
                 nlptext.processText(event.message.text);
                 jtq = JsonToQuery(test.getJsonToSent())
                 restext = jtq.parseJSON()
+                global state
+                state = {**state, 'id': event.source.group_id}
+                state, output = handle_action(restext, state)
                 line_bot_api.reply_message(
-                    event.reply_token, TextSendMessage(text=restext))
+                    event.reply_token, TextMessage(text=output))
+
             except:
                 restext = "tolong ketik 'si bawel tolong' ya kakak kakak"
                 line_bot_api.reply_message(
@@ -137,7 +161,6 @@ def handle_text_message(event):
                     StickerSendMessage(
                         package_id=3,
                         sticker_id=random.choice(randomPrivate)))
-
 
 
 # @handler.add(MessageEvent, message=LocationMessage)
