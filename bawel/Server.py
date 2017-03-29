@@ -146,14 +146,8 @@ def handle_text_message(event):
         else:
             try:
                 nlptext.processText(event.message.text)
-                line_bot_api.reply_message(
-                    event.reply_token, TextMessage(text=event.message.text))
-                jtq = JsonToQuery(test.getJsonToSent())
-                line_bot_api.reply_message(
-                    event.reply_token, TextMessage(text=str(jtq)))
+                jtq = JsonToQuery(nlptext.getJsonToSent())
                 restext = jtq.parseJSON()
-                line_bot_api.reply_message(
-                    event.reply_token, TextMessage(text=restext))
                 global state
                 state = {**state, 'id': event.source.group_id}
                 state, output = handle_action(restext, state)
