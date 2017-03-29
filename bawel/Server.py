@@ -139,12 +139,13 @@ def handle_text_message(event):
                 StickerSendMessage(
                     package_id=3,
                     sticker_id=random.choice(randomPrivate))])
-        # elif not 'si bawel' in text:
-        #     pass
+        elif not 'si bawel' in text:
+            pass
         else:
+            restext = "tolong ketik 'si bawel tolong' ya kakak kakak"
             try:
-                nlptext.processText(event.message.text);
-                jtq = JsonToQuery(test.getJsonToSent())
+                nlptext.processText(event.message.text)
+                jtq = JsonToQuery(nlptext.getJsonToSent())
                 restext = jtq.parseJSON()
 
                 global state
@@ -161,9 +162,8 @@ def handle_text_message(event):
                     event.reply_token, TextMessage(text=output))
 
             except:
-                e = sys.exc_info()[0]
+                e = sys.exc_info()
                 print(e)
-                restext = "tolong ketik 'si bawel tolong' ya kakak kakak"
                 line_bot_api.reply_message(
                     event.reply_token, [TextSendMessage(text=restext),
                     StickerSendMessage(
