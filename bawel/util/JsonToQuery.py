@@ -4,6 +4,7 @@ class JsonToQuery():
     def __init__(self, _json):
         self.json = _json
 
+
     def parseJSON(self):
         obj = self.json
         finalResult = ""

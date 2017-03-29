@@ -151,7 +151,7 @@ def handle_text_message(event):
                 restext = jtq.parseJSON()
                 print (restext)
                 global state
-                state = {**state, 'id': event.source.group_id}
+                state = {**state, 'id': event.source.group_id, 'lineid':event.source.group_id}
                 state, output = handle_action(restext, state)
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text=output))
