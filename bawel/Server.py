@@ -156,7 +156,7 @@ def handle_text_message(event):
 
                 user_state, output = handle_action(restext, state)
                 state = {**state, id: user_state}
-                
+
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text=output))
 
