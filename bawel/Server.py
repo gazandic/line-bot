@@ -121,19 +121,17 @@ def handle_text_message(event):
             ]
         )
     else:
+        id = None
+        if isinstance(event.source, SourceGroup):
+            id = event.source.group_id
+        elif isinstance(event.source, SourceRoom):
+            id = event.source.room_id
+
         if text == '@bye':
-            if isinstance(event.source, SourceGroup):
-                line_bot_api.reply_message(
-                    event.reply_token, TextMessage(text='Leaving group'))
-                line_bot_api.leave_group(event.source.group_id)
-            elif isinstance(event.source, SourceRoom):
-                line_bot_api.reply_message(
-                    event.reply_token, TextMessage(text='Leaving group'))
-                line_bot_api.leave_room(event.source.room_id)
-            else:
-                line_bot_api.reply_message(
-                    event.reply_token,
-                    TextMessage(text="Bot can't leave from 1:1 chat"))
+            line_bot_api.reply_message(
+                event.reply_token, TextMessage(text='Leaving group'))
+            line_bot_api.leave_group(id)
+
         elif text == 'si bawel tolong':
             line_bot_api.reply_message(
                 event.reply_token, [TextSendMessage(text='lagi dibuat hehe'),
@@ -148,10 +146,17 @@ def handle_text_message(event):
                 nlptext.processText(event.message.text)
                 jtq = JsonToQuery(nlptext.getJsonToSent())
                 restext = jtq.parseJSON()
-                print (restext)
+
                 global state
-                state = {**state, 'id': event.source.group_id}
-                state, output = handle_action(restext, state)
+
+                if id in state:
+                    user_state = state['id']
+                else:
+                    user_state = { 'id': id }
+
+                user_state, output = handle_action(restext, state)
+                state = {**state, id: user_state}
+                
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text=output))
 
