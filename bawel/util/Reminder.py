@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 import datetime
 import time
+import threading
 
 from datetime import datetime as dt
 from sched import scheduler
@@ -26,10 +27,15 @@ class Reminder:
     def __init__(self, scheduler, linebot):
         self.scheduler = scheduler
         self.linebot = linebot
-        self.scheduler.run()
 
-    def add(self, eid, tm, job):
-        self.scheduler.enterabs(tm, 1, job, (eid,))
+    def add(self, eid, tm, job, args):
+        self.scheduler.enterabs(tm, 1, job, (eid, *args))
+        print(self.scheduler.queue)
+        def worker_main():
+            newsched = self.scheduler
+            newsched.run()
+        worker_thread = threading.Thread(target=worker_main)
+        worker_thread.start()
 
     def push(self, text, stickerid, lineid):
         self.linebot.push_message(
@@ -47,3 +53,6 @@ class Reminder:
     def modify(self, eid, tm):
         self.remove(eid)
         self.add(eid, tm)
+
+def job(eid, text, lineid, stickerid=180):
+    reminder.push(text, stickerid, lineid)

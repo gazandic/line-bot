@@ -57,7 +57,8 @@ handler = WebhookHandler(channel_secret)
 line_bot_api = LineBotApi(channel_access_token)
 nlptext = TextProcessor()
 parser = RequestParser()
-reminder = Reminder(sched.scheduler(time.time, time.sleep), line_bot_api)
+jadwaler = sched.scheduler(time.time, time.sleep)
+reminder = Reminder(jadwaler, line_bot_api)
 randomPrivate = [181, 183, 187, 188]
 state = {}
 
@@ -77,7 +78,9 @@ def make_static_tmp_dir():
 
 
 def handle_action(text, state):
+
     state, param = parser.parse(text, state)
+
     if state['state_id'] >= STATE_ADD_JADWAL and \
        state['state_id'] <= STATE_DELETE_JADWAL:
         param.append(reminder)
@@ -150,11 +153,10 @@ def handle_text_message(event):
                 global state
 
                 if id in state:
-                    user_state = state['id']
+                    user_state = state[id]
                 else:
                     user_state = { 'id': id }
-
-                user_state, output = handle_action(restext, state)
+                user_state, output = handle_action(restext, user_state)
                 state = {**state, id: user_state}
 
                 line_bot_api.reply_message(
@@ -285,5 +287,7 @@ if __name__ == "__main__":
 
     # create tmp dir for download content
     make_static_tmp_dir()
+    jadwaler.run()
+
 
     app.run(debug=options.debug, port=options.port)
