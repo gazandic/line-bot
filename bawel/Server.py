@@ -4,13 +4,15 @@ import errno
 import os
 import sys
 import tempfile
-from argparse import ArgumentParser
-import pprint
-from flask import Flask, request, abort
-import bawel.util.Sticker
-from bawel.util.TextProcessor import TextProcessor
-from bawel.util.PengeluaranDetector import PengeluaranDetector
 import random
+import pprint
+import bawel.util.Sticker
+
+from argparse import ArgumentParser
+from flask import Flask, request, abort
+from bawel.util.TextProcessor import TextProcessor
+from bawel.util.JsonToQuery import JsonToQuery
+from bawel.util.PengeluaranDetector import PengeluaranDetector
 from linebot import (
     LineBotApi, WebhookHandler
 )
@@ -124,11 +126,11 @@ def handle_text_message(event):
         else:
             try:
                 nlptext.processText(event.message.text);
-                restext = str(nlptext.getJsonToSent())
+                jtq = JsonToQuery(test.getJsonToSent())
+                restext = jtq.parseJSON()
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(text=restext))
             except:
-                # print "Unexpected error:", sys.exc_info()[0]
                 restext = "tolong ketik 'si bawel tolong' ya kakak kakak"
                 line_bot_api.reply_message(
                     event.reply_token, TextSendMessage(text=restext),

@@ -1,21 +1,19 @@
-from bawel.util.TextProcessor import TextProcessor
-import json
 from datetime import datetime
+
 class JsonToQuery():
     def __init__(self, _json):
         self.json = _json
 
     def parseJSON(self):
-        obj = json.loads(self.json)
+        obj = self.json
         finalResult = ""
+        print (obj)
         if obj.get('error'):
-            print (obj['error'])
-            return 0
-        precommand = obj['command']+obj['type']
+            return str(obj['error'])
+        precommand = '/'+obj['command']+obj['type']
         finalResult += precommand
         data = obj['data']
         nama = data['event_name']
-        print(data)
         nama = nama.replace(" ", "_")
         finalResult += ' '+nama
         if data.get('date'):
@@ -24,12 +22,11 @@ class JsonToQuery():
         elif data.get('amount'):
             amount = ' '+data['amount']
             finalResult += amount
-        print(finalResult)
-
-
-test = TextProcessor()
-st = "tambah pengeluaran kerja lembur sebesar 10000"
-print (st)
-test.processText(st)
-jtq = JsonToQuery(test.getJsonToSent())
-jtq.parseJSON()
+        if data.get('persons'):
+            personstring = ''
+            for person in data['persons']:
+                if not 'bawel' in person:
+                    personstring = ' '+person
+                    break
+            finalResult += personstring
+        return finalResult
