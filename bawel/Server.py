@@ -57,7 +57,7 @@ handler = WebhookHandler(channel_secret)
 line_bot_api = LineBotApi(channel_access_token)
 nlptext = TextProcessor()
 parser = RequestParser()
-reminder = Reminder(sched.scheduler(time.time, time.sleep))
+reminder = Reminder(sched.scheduler(time.time, time.sleep), line_bot_api)
 randomPrivate = [181, 183, 187, 188]
 state = {}
 
@@ -78,11 +78,10 @@ def make_static_tmp_dir():
 
 def handle_action(text, state):
     state, param = parser.parse(text, state)
-    param.append(state)
-
     if state['state_id'] >= STATE_ADD_JADWAL and \
        state['state_id'] <= STATE_DELETE_JADWAL:
         param.append(reminder)
+    param.append(state)
 
     return dispatch_action(ACTION_MAPPER[state['state_id']], *param)
     # print(output)
@@ -151,7 +150,7 @@ def handle_text_message(event):
                 restext = jtq.parseJSON()
                 print (restext)
                 global state
-                state = {**state, 'id': event.source.group_id, 'lineid':event.source.group_id}
+                state = {**state, 'id': event.source.group_id}
                 state, output = handle_action(restext, state)
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text=output))
