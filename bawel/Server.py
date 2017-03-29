@@ -57,7 +57,8 @@ handler = WebhookHandler(channel_secret)
 line_bot_api = LineBotApi(channel_access_token)
 nlptext = TextProcessor()
 parser = RequestParser()
-reminder = Reminder(sched.scheduler(time.time, time.sleep), line_bot_api)
+jadwaler = sched.scheduler(time.time, time.sleep)
+reminder = Reminder(jadwaler, line_bot_api)
 randomPrivate = [181, 183, 187, 188]
 state = {}
 
@@ -286,5 +287,7 @@ if __name__ == "__main__":
 
     # create tmp dir for download content
     make_static_tmp_dir()
+    jadwaler.run()
+
 
     app.run(debug=options.debug, port=options.port)
