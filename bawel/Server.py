@@ -137,10 +137,10 @@ def handle_text_message(event):
                     TextMessage(text="Bot can't leave from 1:1 chat"))
         elif text == 'si bawel tolong':
             line_bot_api.reply_message(
-                event.reply_token, TextSendMessage(text='lagi dibuat hehe'),
+                event.reply_token, [TextSendMessage(text='lagi dibuat hehe'),
                 StickerSendMessage(
                     package_id=3,
-                    sticker_id=random.choice(randomPrivate)))
+                    sticker_id=random.choice(randomPrivate))])
         # elif not 'si bawel' in text:
         #     pass
         else:
@@ -155,12 +155,14 @@ def handle_text_message(event):
                     event.reply_token, TextMessage(text=output))
 
             except:
+                e = sys.exc_info()[0]
+                print(e)
                 restext = "tolong ketik 'si bawel tolong' ya kakak kakak"
                 line_bot_api.reply_message(
-                    event.reply_token, TextSendMessage(text=restext),
+                    event.reply_token, [TextSendMessage(text=restext),
                     StickerSendMessage(
                         package_id=3,
-                        sticker_id=random.choice(randomPrivate)))
+                        sticker_id=random.choice(randomPrivate))])
 
 
 # @handler.add(MessageEvent, message=LocationMessage)
