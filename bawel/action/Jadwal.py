@@ -1,21 +1,14 @@
 from __future__ import unicode_literals
 
 import sys
-from functools import reduce
 import time as t
+
 from datetime import datetime, date, time
+from functools import reduce
 
 from bawel.action.Action import Action
 from bawel.model.Event import Event
-
-def checkInputWaktu(jam, menit):
-    return time(int(jam)-1, int(menit))
-
-def checkInputTanggal(hari, bulan, tahun, jam, menit):
-    d = date(int(tahun), int(bulan), int(hari))
-    t = checkInputWaktu(jam, menit)
-    dt = datetime.combine(d,t)
-    return dt
+from bawel.util import checkInputWaktu, checkInputTanggal
 
 # def normalizeParamJadwal(param, reminder):
 #     if len(param) == 8:
@@ -34,17 +27,18 @@ class TambahJadwal(Action):
             # print("created")
             def job(eid, text, lineid, stickerid=180):
                 reminder.push(text, stickerid, lineid)
-            print (dt.timetuple())
+
             reminder.add(eid, t.mktime(dt.timetuple()), job, ("jangan lupa 1 jam lagi ada "+namajadwal,state['id'], ))
             return (state, "Event successfuly added")
 
         except ValueError:
-            print(sys.exc_info())
+            # print(sys.exc_info())
             return (state, "format penulisan '/tambahjadwal namajadwal hari bulan tahun jam menit'")
+
 
 class LihatJadwal(Action):
     def act(self, state):
-        ev1 = Event(state['id'],"lol",10,1,1,1,1,1,0)
+        ev1 = Event()
         events = ev1.search({"lineid":state['id']})
 
         def printEvent(prev, ev):
@@ -54,6 +48,7 @@ class LihatJadwal(Action):
 
         output = reduce(printEvent, events)
         return (state, output)
+
 
 class UbahJadwal(Action):
     def act(self, namajadwal, hari, bulan, tahun, jam, menit, reminder, state, urgensi=1):
@@ -69,9 +64,10 @@ class UbahJadwal(Action):
         except ValueError:
             return (state, "format penulisan '/ubahjadwal namajadwal hari bulan tahun jam menit'  \nnama jadwal tidak dapat diubah")
 
+
 class HapusJadwal(Action):
     def act(self, namajadwal, reminder, state):
-        ev1 = Event(state['id'],"lol",10,1,1,1,1,1,0)
+        ev1 = Event()
         eid = ev1.searchOne({"lineid":state['id'],"about":namajadwal})
         ev1.removeQuery({"lineid":state['id'],"about":namajadwal})
         reminder.remove(eid)
@@ -87,7 +83,7 @@ class HapusJadwal(Action):
 
 class ReportJadwal(Action):
     def act(self, state):
-        ev1 = Event(state['id'],"lol",10,1,1,1,1,1,0)
+        ev1 = Event()
         events = ev1.search({"lineid":state['id']})
         i = 0
         total = 0

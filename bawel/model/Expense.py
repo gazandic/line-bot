@@ -1,30 +1,22 @@
 # from flask import jsonify
 
+from datetime import datetime, date, time
+
 from bawel.model.BaseMongo import BaseMongo
-from datetime import datetime,date,time
-import pprint
 
 class Expense(BaseMongo):
-    def __init__(self, line_id, _about, _name, dd, mm, yy, hh, _mm, _pathnota):
+    def __init__(self, line_id=0, _about="", _name="", _total=0):
         super().__init__()
         self.lineid = line_id
         self.about = _about
         self.name = _name
-        d = date(int(yy), int(mm), int(dd))
-        t = time(int(hh), int(_mm))
-        self.datetime = datetime.combine(d, t)
-        self.pathnota = _pathnota
+        self.total = _total
 
     def setName(self, _name):
         self.name = _name
 
-    def setDatetime(self, dd, mm, yy, hh, _mm):
-        d = date(yy, mm, dd)
-        t = time(hh, _mm)
-        self.datetime = datetime.combine(d, t)
-
-    def setPathnota(self, _pathnota):
-        self.pathnota = _pathnota
+    def setPathnota(self, _total):
+        self.total = _total
 
     def getLineId(self):
         return self.lineid
@@ -51,7 +43,7 @@ class Expense(BaseMongo):
         expense = self.searchOne({ "lineid" : self.lineid, "about" : self.about })
         self.db.expenses.update(
             {'_id': expense['_id']},
-            { "$set": { "name" : self.name,"datetime" : self.datetime,"pathnota" : self.pathnota}},
+            { "$set": { "name" : self.name,"datetime" : self.datetime,"total" : self.total}},
             upsert=False, multi=True)
         return 0
 
@@ -73,15 +65,13 @@ class Expense(BaseMongo):
         self.lineid = expense['lineid']
         self.about = expense['about']
         self.name = expense['name']
-        self.datetime = expense['datetime']
-        self.pathnota = expense['pathnota']
+        self.total = expense['total']
 
     def makeExpense(self):
         expense = {"lineid": self.lineid,
                   "about" : self.about,
                   "name" : self.name,
-                  "datetime" : self.datetime,
-                  "pathnota" : self.pathnota}
+                  "total" : self.total}
         return expense
 
 # ev1 = expense("2783718371823718","ujian kanji",10,31,3,1997,12,30,-1)

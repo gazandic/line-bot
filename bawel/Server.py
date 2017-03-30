@@ -15,7 +15,6 @@ from flask import Flask, request, abort
 import bawel.util.Sticker
 
 from bawel.action.Action import dispatch_action
-
 from bawel.util.PengeluaranDetector import PengeluaranDetector
 from bawel.util.Reminder import Reminder
 from bawel.util.RequestParser import RequestParser
@@ -23,7 +22,11 @@ from bawel.util.TextProcessor import TextProcessor
 from bawel.util.JsonToQuery import JsonToQuery
 
 from bawel.constant.StateConstant import (
-    ACTION_MAPPER, STATE_ADD_JADWAL, STATE_DELETE_JADWAL)
+    ACTION_MAPPER, 
+    STATE_ADD_JADWAL, 
+    STATE_DELETE_JADWAL,
+    STATE_ADD_PENGELUARAN
+)
 
 from linebot import (
     LineBotApi, WebhookHandler
@@ -66,6 +69,7 @@ state = {}
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
 app = Flask(__name__, static_url_path='', static_folder='static')
 
+
 # function for create tmp dir for download content
 def make_static_tmp_dir():
     try:
@@ -78,13 +82,15 @@ def make_static_tmp_dir():
 
 
 def handle_action(text, state):
-
     state, param = parser.parse(text, state)
 
     if state['state_id'] >= STATE_ADD_JADWAL and \
        state['state_id'] <= STATE_DELETE_JADWAL:
         param.append(reminder)
-    param.append(state)
+    if state['state_id'] == STATE_ADD_PENGELUARAN:
+        param.insert(2, state)
+    else:
+        param.append(state)
 
     return dispatch_action(ACTION_MAPPER[state['state_id']], *param)
     # print(output)
@@ -111,6 +117,7 @@ def callback():
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     text = event.message.text
+
     if isinstance(event.source, SourceUser):
         profile = line_bot_api.get_profile(event.source.user_id)
         line_bot_api.reply_message(
@@ -123,6 +130,7 @@ def handle_text_message(event):
                     sticker_id=random.choice(randomPrivate))
             ]
         )
+
     else:
         id = None
         if isinstance(event.source, SourceGroup):
@@ -141,35 +149,43 @@ def handle_text_message(event):
                 StickerSendMessage(
                     package_id=3,
                     sticker_id=random.choice(randomPrivate))])
+
         elif not 'si bawel' in text:
             pass
+
         else:
-            restext = "tolong ketik 'si bawel tolong' ya kakak kakak"
+            restext = "Tolong ketik 'si bawel tolong' ya kakak kakak"
+
             try:
                 nlptext.processText(event.message.text)
                 jtq = JsonToQuery(nlptext.getJsonToSent())
                 restext = jtq.parseJSON()
 
-                global state
+                if not jtq.json.get('error'):
+                    global state
 
-                if id in state:
-                    user_state = state[id]
-                else:
-                    user_state = { 'id': id }
-                user_state, output = handle_action(restext, user_state)
-                state = {**state, id: user_state}
+                    if id in state:
+                        user_state = state[id]
+                    else:
+                        user_state = { 'id': id }
+
+                    user_state, output = handle_action(text, user_state)
+                    state = {**state, id: user_state}
+
+                else : 
+                    output = restext    
 
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text=output))
 
             except:
-                e = sys.exc_info()
-                print(e)
                 line_bot_api.reply_message(
-                    event.reply_token, [TextSendMessage(text=restext),
-                    StickerSendMessage(
-                        package_id=3,
-                        sticker_id=random.choice(randomPrivate))])
+                    event.reply_token, [
+                        TextSendMessage(text=restext),
+                        StickerSendMessage(
+                            package_id=3,
+                            sticker_id=random.choice(randomPrivate))
+                    ])
 
 
 # @handler.add(MessageEvent, message=LocationMessage)
@@ -196,7 +212,7 @@ def handle_text_message(event):
 
 
 # Other Message Type
-@handler.add(MessageEvent, message=(ImageMessage, VideoMessage, AudioMessage))
+@handler.add(MessageEvent, message=ImageMessage)
 def handle_content_message(event):
     if isinstance(event.source, SourceUser):
         profile = line_bot_api.get_profile(event.source.user_id)
@@ -211,16 +227,15 @@ def handle_content_message(event):
             ]
         )
     else:
-        if isinstance(event.message, ImageMessage):
-            ext = 'jpg'
-        elif isinstance(event.message, VideoMessage):
-            ext = 'mp4'
-        elif isinstance(event.message, AudioMessage):
-            ext = 'm4a'
-        else:
-            return
+        id = None
+        if isinstance(event.source, SourceGroup):
+            id = event.source.group_id
+        elif isinstance(event.source, SourceRoom):
+            id = event.source.room_id
 
-        message_content = line_bot_api.get_message_content(event.message.id)
+        ext = 'jpg'
+        message_content = \
+            line_bot_api.get_message_content(event.message.id)
         with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
             for chunk in message_content.iter_content():
                 tf.write(chunk)
@@ -229,14 +244,26 @@ def handle_content_message(event):
         dist_path = tempfile_path + '.' + ext
         dist_name = os.path.basename(dist_path)
         os.rename(tempfile_path, dist_path)
+
         PD = PengeluaranDetector(str(dist_path))
-        rptotal = str(PD.checkForTotal())
-        if not rptotal:
-            rptotal = 'Save content.'
+        total_amount = PD.checkForTotal()
+
+        if not total_amount:
+            return (state, "Gambar tidak terbaca \nCoba lagi dengan gambar yang lebih baik")
+
+        global state
+        if id in state:
+            user_state = state[id]
+        else:
+            user_state = { 'id': id }
+
+        user_state['state_id'] = STATE_ADD_PENGELUARAN
+        user_state, output = dispatch_action(ACTION_MAPPER[user_state['state_id']], *())
+        state = {**state, id: user_state}
+
         line_bot_api.reply_message(
             event.reply_token, [
-                TextSendMessage(text=rptotal),
-                TextSendMessage(text=request.host_url + os.path.join('tmp', dist_name))
+                TextSendMessage(text=output)
             ])
 
 

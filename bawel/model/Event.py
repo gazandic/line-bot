@@ -5,7 +5,7 @@ from datetime import datetime,date,time
 import pprint
 
 class Event(BaseMongo):
-    def __init__(self, line_id, _about, _urgency, dd, mm, yy, hh, _mm, _fullfiled):
+    def __init__(self, line_id="0", _about="", _urgency="", dd="0", mm="0", yy="0", hh="0", _mm="0", _fullfiled=0):
         super().__init__()
         self.lineid = line_id
         self.about = _about
