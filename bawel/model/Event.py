@@ -1,15 +1,15 @@
 # from flask import jsonify
 
-from bawel.model.BaseMongo import BaseMongo
 from datetime import datetime,date,time
-import pprint
+
+from bawel.model.BaseMongo import BaseMongo
 
 class Event(BaseMongo):
-    def __init__(self, line_id="0", _about="", _urgency="", dd="1", mm="1", yy="2000", hh="0", _mm="0", _fullfiled=0):
+    def __init__(self, line_id="0", _about="", dd="1", mm="1", yy="2000", hh="0", _mm="0", _loc=None, _fullfiled=0):
         super().__init__()
         self.lineid = line_id
         self.about = _about
-        self.urgency = _urgency
+        self.loc = _loc
         d = date(int(yy), int(mm), int(dd))
         t = time(int(hh), int(_mm))
         self.datetime = datetime.combine(d, t)
@@ -20,9 +20,6 @@ class Event(BaseMongo):
 
     # def setAbout(self, _about):
     #     self.about = _about
-
-    def setUrgency(self, _urgency):
-        self.urgency = _urgency
 
     def setDatetime(self, dd, mm, yy, hh, _mm):
         d = date(yy, mm, dd)
@@ -37,9 +34,6 @@ class Event(BaseMongo):
 
     def getAbout(self):
         return self.about
-
-    def getUrgency(self):
-        return self.urgency
 
     def getDatetime(self):
         return self.datetime
@@ -57,7 +51,10 @@ class Event(BaseMongo):
         event = self.searchOne({ "lineid" : self.lineid, "about" : self.about })
         self.db.events.update(
             {'_id': event['_id']},
-            { "$set": { "urgency" : self.urgency,"datetime" : self.datetime,"fullfiled" : self.fullfiled}},
+            { "$set": { 
+                "datetime" : self.datetime,
+                "fullfiled" : self.fullfiled
+            }},
             upsert=False, multi=True)
         # TODO: err handle
         return event
@@ -79,14 +76,13 @@ class Event(BaseMongo):
     def set(self, event):
         self.lineid = event['lineid']
         self.about = event['about']
-        self.urgency = event['urgency']
         self.datetime = event['datetime']
         self.fullfiled = event['fullfiled']
 
     def makeEvent(self):
         event = {"lineid": self.lineid,
                   "about" : self.about,
-                  "urgency" : self.urgency,
+                  "location": self.loc,
                   "datetime" : self.datetime,
                   "fullfiled" : self.fullfiled}
         return event

@@ -58,14 +58,19 @@ class Reminder:
             kwargs={'reminder': self})
         worker_thread.start()
 
-    def push(self, text, stickerid, lineid):
-        self.linebot.push_message(
-            lineid, [
+    def push(self, text, stickerid, lineid, location=None):
+        action_list = [
                 TextSendMessage(text=text),
                 StickerSendMessage(
                     package_id=3,
                     sticker_id=stickerid)
-            ])
+            ]
+        if location is not None:
+            action_list.insert(1, LocationSendMessage(
+                    latitude=location['lat'], 
+                    longitude=location['lng']
+                ))
+        self.linebot.push_message(lineid, action_list)
 
     def remove(self, eid):
         try:
@@ -80,6 +85,3 @@ class Reminder:
     def modify(self, eid, tm):
         job, args = self.remove(eid)
         self.add(eid, tm, job, args[1:])
-
-def job(eid, text, lineid, stickerid=180):
-    reminder.push(text, stickerid, lineid)

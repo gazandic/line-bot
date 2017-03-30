@@ -15,6 +15,7 @@ from flask import Flask, request, abort
 import bawel.util.Sticker
 
 from bawel.action.Action import dispatch_action
+from bawel.util import searchLoc
 from bawel.util.PengeluaranDetector import PengeluaranDetector
 from bawel.util.Reminder import Reminder
 from bawel.util.RequestParser import RequestParser
@@ -81,16 +82,23 @@ def make_static_tmp_dir():
             raise
 
 
-def handle_action(text, state):
+def handle_action(raw_text, text, state):
     state, param = parser.parse(text, state)
 
     if state['state_id'] >= STATE_ADD_JADWAL and \
        state['state_id'] <= STATE_DELETE_JADWAL:
         param.append(reminder)
+
     if state['state_id'] == STATE_ADD_PENGELUARAN:
         param.insert(2, state)
     else:
         param.append(state)
+
+    if state['state_id'] == STATE_ADD_JADWAL:
+        ent = nlptext.checkEntity(raw_text)
+        loc_name = [entity["fragment"] for entity in ent if entity['entity'] == "LOCATION"]
+        loc_coord = searchLoc(loc_name)
+        param.append(loc_coord)
 
     return dispatch_action(ACTION_MAPPER[state['state_id']], *param)
     # print(output)
@@ -154,9 +162,9 @@ def handle_text_message(event):
             pass
 
         else:
-            restext = "Tolong ketik 'si bawel tolong' ya kakak kakak"
+                restext = "Tolong ketik 'si bawel tolong' ya kakak kakak"
 
-            try:
+            # try:
                 nlptext.processText(event.message.text)
                 jtq = JsonToQuery(nlptext.getJsonToSent())
                 restext = jtq.parseJSON()
@@ -167,22 +175,21 @@ def handle_text_message(event):
                         user_state = state[id]
                     else:
                         user_state = { 'id': id }
-                    user_state, output = handle_action(restext, user_state)
+                    user_state, output = handle_action(text, restext, user_state)
                     state = {**state, id: user_state}
                 else:
                     output = restext
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text=output))
 
-            except:
-                print(sys.exc_info())
-                line_bot_api.reply_message(
-                    event.reply_token, [
-                        TextSendMessage(text=restext),
-                        StickerSendMessage(
-                            package_id=3,
-                            sticker_id=random.choice(randomPrivate))
-                    ])
+            # except:
+            #     line_bot_api.reply_message(
+            #         event.reply_token, [
+            #             TextSendMessage(text=restext),
+            #             StickerSendMessage(
+            #                 package_id=3,
+            #                 sticker_id=random.choice(randomPrivate))
+            #         ])
 
 
 # @handler.add(MessageEvent, message=LocationMessage)
