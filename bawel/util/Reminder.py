@@ -28,6 +28,7 @@ def worker_once(reminder):
 
 def worker_repeated(reminder, callback, args):
     worker_once(remainder)
+    callback(*args)
 
 
 class Reminder:
