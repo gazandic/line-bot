@@ -107,7 +107,13 @@ class TextProcessor(object):
 					event_name = event_nameRe.findall(sentence)[0];
 					if action in ["ikut", "gajadi ikut"]:
 						persons = self.checkPerson(sentence);
+						listKataKunciIkutan = ["oleh"];
+						for kataKunciIkutan in listKataKunciIkutan:
+							event_nameRe = re.compile(r'{0}\s+(.*)\s{1}'.format(eventKey,kataKunciIkutan), flags=re.IGNORECASE);
+							if (event_nameRe.findall(sentence)):
+								event_name = event_nameRe.findall(sentence)[0];
 						if persons :
+							print(persons);
 							self.jsonToSend = json.dumps({'type': 'event', 'command': self.listActionInEvent[action], 'data':{'event_name': event_name, 'persons': persons}})
 						else:
 							print("siapa yang "+action+"?"); #nanya yang ikut
@@ -231,5 +237,5 @@ test.checkWhatCommand("si bawel tambah pengeluaran makan sate mas kevin untuk ac
 print(test.getJsonToSent());
 test.checkWhatCommand("si bawel tambah pengeluaran makan sate mas kevin buat acara jalan-jalan ke jogja sebesar 7000 ical dan ginanjar")
 print(test.getJsonToSent());
-# test.checkWhatCommand("si bawel ikut event lari pagi oleh Gazandi");
-# print(test.getJsonToSent());
+test.checkWhatCommand("si bawel ikut jadwal bangun tidur oleh gazandi");
+print(test.getJsonToSent());
