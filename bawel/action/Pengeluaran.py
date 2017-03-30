@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 from bawel.action.Action import Action
 from bawel.util import checkInputWaktu, checkInputTanggal
 
-from bawel.model.Expense import Expense 
+from bawel.model.Expense import Expense
 
 class HelpPengeluaran(Action):
     def __init__(self):
@@ -18,11 +18,12 @@ class TambahPengeluaran(Action):
     def __init__(self):
         super().__init__()
 
-    def act(self, pengeluaran_name, event_name, state, duit=-1):
+    def act(self, event_name, pengeluaran_name,  people_name, state, duit=-1):
         if float(duit) < 0:
-            state = {**state, 
+            state = {**state,
+                'event_name': event_name,
                 'pengeluaran_name': pengeluaran_name,
-                'event_name': event_name
+                'people_name' : people_name
             }
             return (state, "Masukkan jumlah duit \nBisa lewat teks atau input bon")
 
@@ -30,10 +31,11 @@ class TambahPengeluaran(Action):
             ev1 = Expense(state['id'],
                     pengeluaran_name,
                     event_name,
+                    people_name,
                     duit)
             ev1.create()
             return (state, "Expenses successfuly added")
-        except ValueError:
+        except:
             return (state, "format penulisan '/tambahpengeluaran namapengeluaran hari bulan tahun jam menit name'")
 
 
@@ -44,12 +46,14 @@ class ImageTambahPengeluaran(Action):
     def act(self, jumlah, state):
         ev1 = Expense(state['id'],
                 state['pengeluaran_name'],
-                state['event_name'], 
+                state['event_name'],
+                state['people_name'],
                 jumlah)
         ev1.create()
 
         state.pop('pengeluaran_name', None)
         state.pop('event_name', None)
+        state.pop('people_name', None)
         return (state, "Expenses successfuly added")
 
 
@@ -62,7 +66,7 @@ class LihatPengeluaran(Action):
         expenses = ev1.search({"lineid": state['id']})
 
         def printExpense(prev, exp):
-            L = [expense['about'],expense['datetime'],expense['name'],expense['pathnota']]
+            L = [expense['about'],expense['datetime'],expense['name'],expense['peoplename'],expense['pathnota']]
             S = '\n'.join(L)
             return '{0}\n{1}'.format(prev, S)
 
@@ -74,10 +78,10 @@ class UbahPengeluaran(Action):
     def __init__(self):
         super().__init__()
 
-    def act(self, pengeluaran_name, event_name, state):
+    def act(self, pengeluaran_name, event_name, people_name, duit, state):
         try:
-            checkInputTanggal(hari, bulan, tahun, jam, menit)
-            ev1 = Expense(state['id'],pengeluaran_name,event_name,hari,bulan,tahun,jam,menit,0)
+            # checkInputTanggal(hari, bulan, tahun, jam, menit)
+            ev1 = Expense(state['id'],pengeluaran_name,event_name,people_name,duit)
             ev1.update()
             return (state, "Expenses successfuly changed")
         except ValueError:

@@ -10,7 +10,7 @@ class TextProcessor(object):
 		self.keyWordToCall  = "Si Bawel"
 		self.keyWordToEvent = ["jadwal","event","acara"]
 		self.keyWordPengeluaran = ["pengeluaran"]
-		self.listActionInEvent = {"ikut" : "ikut","lihat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "gajadi ikut":"gajadi ikut", "ubah":"ubah", "hapus":"hapus"}
+		self.listActionInEvent = {"lihat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "gajadi ikut":"gajadiikut","ga jadi ikut":"gajadiikut", "gak jadi ikut":"gajadiikut", "gak ikut":"gajadiikut", "ikut" : "ikut", "ubah":"ubah", "hapus":"hapus", "lapor":"report", "liat":"lihat", "report":"report", "eval":"report"}
 		self.listActionInPengeluaran ={"lihat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "ubah":"ubah", "hapus":"hapus"}
 		self.jsonToSend = None
 
@@ -132,7 +132,7 @@ class TextProcessor(object):
 						self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{'date': self.json_serial(datetypedate),'event_name': event_name}}
 						break
 					else:
-						if action in ["ikut", "gajadi ikut"]:
+						if action in ["ikut", "gajadiikut", "gak ikut", "ga jadi ikut", "gajadi ikut","gak jadi ikut"]:
 							persons = self.checkPerson(sentence);
 							if persons :
 								print(sentence)
@@ -150,7 +150,7 @@ class TextProcessor(object):
 								self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'error': ['no persons'],  'data':{'event_name': event_name}}
 								break
 						elif action in ["lihat","liat"]:
-							self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{'event_name': 'lol'}}
+							self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{}}
 						else:
 							try:
 								event_nameRe = re.compile(r'{0}\s(.+)'.format(eventKey), flags=re.IGNORECASE)
@@ -262,7 +262,7 @@ class TextProcessor(object):
 				temp_timeSentence = timeDigits[0] +":" +timeDigits[1]+":00"
 			else:
 				temp_timeSentence = timeDigits[0] +":"+timeDigits[1]+":"+timeDigits[2]
-			# print (temp_dateSentence+temp_timeSentence)
+			print (temp_dateSentence+temp_timeSentence)
 			date = parse(temp_dateSentence+temp_timeSentence)
 		else:
 			date = parse(temp_dateSentence+"00:00:00")
