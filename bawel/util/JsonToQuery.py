@@ -14,9 +14,10 @@ class JsonToQuery():
         precommand = '/'+obj['command']+obj['type']
         finalResult += precommand
         data = obj['data']
-        nama = data['event_name']
-        nama = nama.replace(" ", "_")
-        finalResult += ' '+nama
+        if data.get('event_name'):
+            nama = data['event_name']
+            nama = nama.replace(" ", "_")
+            finalResult += ' '+nama
         if data.get('date'):
             tanggal = datetime.strptime(data['date'],"%Y-%m-%dT%H:%M:%S").strftime(" %d %m %Y %H %M")
             finalResult += tanggal

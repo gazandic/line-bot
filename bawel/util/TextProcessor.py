@@ -150,7 +150,12 @@ class TextProcessor(object):
 								self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'error': ['no persons'],  'data':{'event_name': event_name}}
 								break
 						else:
-							self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{'event_name': event_name}}
+							try:
+								event_nameRe = re.compile(r'{0}\s(.+)'.format(eventKey), flags=re.IGNORECASE)
+								event_name = event_nameRe.findall(sentence)[0]
+								self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{'event_name': event_name}}
+							except:
+								self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{}}
 							break
 				except:
 					self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action] , 'error':'unknown input'}

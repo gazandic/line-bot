@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 import datetime
 import time
 import threading
+import sys
 
 from datetime import datetime as dt
 from sched import scheduler
@@ -47,12 +48,18 @@ class Reminder:
             ])
 
     def remove(self, eid):
-        ev = list(filter(lambda ev: ev.argument[0] == eid, self.scheduler.queue))[0]
-        self.scheduler.cancel(ev)
+        try:
+            ev = list(filter(lambda ev: ev.argument[0] == eid, self.scheduler.queue))[0]
+            job, args = ev.action, ev.argument
+            self.scheduler.cancel(ev)
+            print(args)
+            return (job, args)
+        except:
+            print(sys.exc_info())
 
     def modify(self, eid, tm):
-        self.remove(eid)
-        self.add(eid, tm)
+        job, args = self.remove(eid)
+        self.add(eid, tm, job, args[1:])
 
 def job(eid, text, lineid, stickerid=180):
     reminder.push(text, stickerid, lineid)

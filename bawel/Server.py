@@ -149,16 +149,17 @@ def handle_text_message(event):
                 nlptext.processText(event.message.text)
                 jtq = JsonToQuery(nlptext.getJsonToSent())
                 restext = jtq.parseJSON()
+                if not jtq.json.get('error'):
+                    global state
 
-                global state
-
-                if id in state:
-                    user_state = state[id]
+                    if id in state:
+                        user_state = state[id]
+                    else:
+                        user_state = { 'id': id }
+                    user_state, output = handle_action(restext, user_state)
+                    state = {**state, id: user_state}
                 else:
-                    user_state = { 'id': id }
-                user_state, output = handle_action(restext, user_state)
-                state = {**state, id: user_state}
-
+                    output = restext
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text=output))
 

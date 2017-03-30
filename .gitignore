@@ -29,6 +29,7 @@
 ## File-based project format:
 *.iws
 .envrc
+.devenvrc
 ## Plugin-specific files:
 
 # IntelliJ

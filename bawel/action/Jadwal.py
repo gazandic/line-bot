@@ -30,17 +30,16 @@ class TambahJadwal(Action):
         try:
             dt = checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Event(state['id'],namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
-            eid = ev1.create()
-            # print("created")
+            ev1.create()
             def job(eid, text, lineid, stickerid=180):
                 reminder.push(text, stickerid, lineid)
             print (dt.timetuple())
-            reminder.add(eid, t.mktime(dt.timetuple()), job, ("jangan lupa 1 jam lagi ada "+namajadwal,state['id'], ))
+            reminder.add(namajadwal, t.mktime(dt.timetuple()), job, ("jangan lupa 1 jam lagi ada "+namajadwal,state['id'], ))
             return (state, "Event successfuly added")
 
         except ValueError:
             print(sys.exc_info())
-            return (state, "format penulisan '/tambahjadwal namajadwal hari bulan tahun jam menit'")
+            return (state, "Maaf kak, bawel ga ngerti, coba nambahjadwalnya kaya gini ya kak'si bawel tolong tambah acara/event/jadwal nonton bareng tanggal 29 Maret jam 5.50 sore'")
 
 class LihatJadwal(Action):
     def act(self, state):
@@ -48,22 +47,29 @@ class LihatJadwal(Action):
         events = ev1.search({"lineid":state['id']})
 
         def printEvent(prev, ev):
-            L = [event['about'],event['datetime'],event['urgency'],event['fullfiled']]
+            L = [ev['about'],str(ev['datetime']),str(ev['fullfiled'])]
             S = '\n'.join(L)
             return '{0}\n{1}'.format(prev, S)
 
-        output = reduce(printEvent, events)
+        if events.count() == 1:
+            ev = events[0]
+            L = [ev['about'],str(ev['datetime']),str(ev['fullfiled'])]
+            S = '\n'.join(L)
+            output = '{0}'.format(S)
+        elif events.count() > 1:
+            output = reduce(printEvent, events)
+        else :
+            output = "Maaf tidak ada jadwal di database bawel :("
+
         return (state, output)
 
 class UbahJadwal(Action):
     def act(self, namajadwal, hari, bulan, tahun, jam, menit, reminder, state, urgensi=1):
         try:
-            checkInputTanggal(hari, bulan, tahun, jam, menit)
+            dtime = checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Event(state['id'],namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
-            eid = ev1.update()
-            dtime = ev1.searchOne({ "_id": eid })["datetime"]
-            tm = dt.strptime(str(dtime), "%Y-%m-%d %H:%M:%S")
-            reminder.modify(eid, tm)
+            ev1.update()
+            reminder.modify(namajadwal, t.mktime(dtime.timetuple()))
             return (state, "Event changed successfully")
 
         except ValueError:
@@ -71,10 +77,9 @@ class UbahJadwal(Action):
 
 class HapusJadwal(Action):
     def act(self, namajadwal, reminder, state):
-        ev1 = Event(state['id'],"lol",10,1,1,1,1,1,0)
-        eid = ev1.searchOne({"lineid":state['id'],"about":namajadwal})
+        ev1 = Event(state['id'],namajadwal,10,1,1,1,1,1,0)
         ev1.removeQuery({"lineid":state['id'],"about":namajadwal})
-        reminder.remove(eid)
+        reminder.remove(namajadwal)
         return (state, "Event removed successfully")
 
 # class SelesaiJadwal(Action):
