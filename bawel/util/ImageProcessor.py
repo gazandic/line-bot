@@ -1,17 +1,21 @@
 import pytesseract
 import requests
 import re
-from PIL import Image
-from PIL import ImageFilter
+
 from os import listdir
 from os.path import isfile, join
+from PIL import Image
+from PIL import ImageFilter
+
 try:
     from BytesIO import BytesIO
 except ImportError:
     from io import BytesIO
+
 class ImageProcessor(object):
     NEWIMAGESIZE = 1200
     path = ""
+
     def __init__(self):
         self.image = 0
 
@@ -35,13 +39,13 @@ class ImageProcessor(object):
         image = self._resize_image(image, 13)
         image.filter(ImageFilter.GaussianBlur(2))
         image.filter(ImageFilter.SMOOTH)
-        image.filter(ImageFilter.Kernel((3,3), [1,1,1,0,0,0,-1,-1,-1]));
+        image.filter(ImageFilter.Kernel((3,3), [1,1,1,0,0,0,-1,-1,-1]))
+        print(image)
         s = pytesseract.image_to_string(image)
         return self.normalize(s)
 
     # get the image
     def _get_image(self, url):
-        print(url)
         if "http" in url:
             return Image.open(requests.get(url),'rb')
         return Image.open(url)

@@ -1,21 +1,14 @@
 from __future__ import unicode_literals
 
 import sys
-from functools import reduce
 import time as t
+
 from datetime import datetime, date, time
+from functools import reduce
 
 from bawel.action.Action import Action
 from bawel.model.Event import Event
-
-def checkInputWaktu(jam, menit):
-    return time(int(jam)-1, int(menit))
-
-def checkInputTanggal(hari, bulan, tahun, jam, menit):
-    d = date(int(tahun), int(bulan), int(hari))
-    t = checkInputWaktu(jam, menit)
-    dt = datetime.combine(d,t)
-    return dt
+from bawel.util import checkInputWaktu, checkInputTanggal
 
 # def normalizeParamJadwal(param, reminder):
 #     if len(param) == 8:
@@ -33,17 +26,16 @@ class TambahJadwal(Action):
             ev1.create()
             def job(eid, text, lineid, stickerid=180):
                 reminder.push(text, stickerid, lineid)
-            print (dt.timetuple())
-            reminder.add(namajadwal, t.mktime(dt.timetuple()), job, ("jangan lupa 1 jam lagi ada "+namajadwal,state['id'], ))
-            return (state, "Event successfuly added")
-
-        except ValueError:
+            reminder.add(namajadwal, dt, job, ("jangan lupa 1 jam lagi ada "+namajadwal,state['id'], ))
+            namajadwal = namajadwal.replace("_"," ")
+            return (state, "acara "+namajadwal+" telah ditambah")
+        except:
             print(sys.exc_info())
             return (state, "Maaf kak, bawel ga ngerti, coba nambahjadwalnya kaya gini ya kak'si bawel tolong tambah acara/event/jadwal nonton bareng tanggal 29 Maret jam 5.50 sore'")
 
 class LihatJadwal(Action):
     def act(self, state):
-        ev1 = Event(state['id'],"lol",10,1,1,1,1,1,0)
+        ev1 = Event()
         events = ev1.search({"lineid":state['id']})
 
         def printEvent(prev, ev):
@@ -63,24 +55,32 @@ class LihatJadwal(Action):
 
         return (state, output)
 
+
 class UbahJadwal(Action):
     def act(self, namajadwal, hari, bulan, tahun, jam, menit, reminder, state, urgensi=1):
         try:
             dtime = checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Event(state['id'],namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
             ev1.update()
-            reminder.modify(namajadwal, t.mktime(dtime.timetuple()))
-            return (state, "Event changed successfully")
+            reminder.modify(namajadwal, dtime)
+            namajadwal = namajadwal.replace("_"," ")
+            return (state, "acara "+namajadwal+" telah diubah")
 
-        except ValueError:
-            return (state, "format penulisan '/ubahjadwal namajadwal hari bulan tahun jam menit'  \nnama jadwal tidak dapat diubah")
+        except :
+            print(sys.exc_info())
+            return (state, "Maaf kak, bawel ga ngerti, coba nambahjadwalnya kaya gini ya kak'si bawel tolong ubah acara/event/jadwal nonton bareng tanggal 29 Maret jam 5.50 sore'")
+
 
 class HapusJadwal(Action):
     def act(self, namajadwal, reminder, state):
-        ev1 = Event(state['id'],namajadwal,10,1,1,1,1,1,0)
-        ev1.removeQuery({"lineid":state['id'],"about":namajadwal})
-        reminder.remove(namajadwal)
-        return (state, "Event removed successfully")
+        try:
+            ev1 = Event()
+            ev1.removeQuery({"lineid":state['id'],"about":namajadwal})
+            reminder.remove(namajadwal)
+            return (state, "Event removed successfully")
+        except:
+            namajadwal = namajadwal.replace("_"," ")
+            return (state, "Maaf kak, jadwal "+namajadwal+" tidak ada :( ")
 
 # class SelesaiJadwal(Action):
 #     def act(self, namajadwal, state):
@@ -92,7 +92,7 @@ class HapusJadwal(Action):
 
 class ReportJadwal(Action):
     def act(self, state):
-        ev1 = Event(state['id'],"lol",10,1,1,1,1,1,0)
+        ev1 = Event()
         events = ev1.search({"lineid":state['id']})
         i = 0
         total = 0
