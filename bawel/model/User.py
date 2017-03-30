@@ -1,11 +1,12 @@
 # from flask import jsonify
 
-from bawel.model.BaseMongo import BaseMongo
-# from datetime import datetime,date,time
 import pprint
 
+from bawel.constant.StateConstant import STATE_NOTHING
+from bawel.model.BaseMongo import BaseMongo
+
 class User(BaseMongo):
-    def __init__(self, line_id, _name, _location, _state):
+    def __init__(self, line_id="0", _name="", _location="", _state=STATE_NOTHING):
         super().__init__()
         self.lineid = line_id
         self.name = _name

@@ -1,10 +1,11 @@
 from __future__ import unicode_literals
 
-from datetime import datetime,date,time
+from datetime import (
+    datetime, date, time
+)
 
 from bawel.action.Action import dispatch_action
 from bawel.constant.StateConstant import *
-
 from bawel.model.User import User
 from bawel.model.Event import Event
 from bawel.model.Expense import Expense
@@ -13,7 +14,7 @@ class RequestParser:
 
     def parse(self, text, state):
         lineid = state['id']
-        us = User(lineid, "undefined", "undefined", STATE_NOTHING)
+        us = User()
         user = us.searchOne({"lineid":lineid})
 
         # TODO

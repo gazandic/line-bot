@@ -30,4 +30,5 @@ class JsonToQuery():
                     personstring = ' '+person
                     break
             finalResult += personstring
+        print(finalResult)
         return finalResult
