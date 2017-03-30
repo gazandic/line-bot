@@ -9,6 +9,7 @@ class TextProcessor(object):
 		self.keyWordToCall  = "Si Bawel";
 		self.keyWordToEvent = ["jadwal", "acara", "jadwal", "event"];
 		self.keyWordPengeluaran = ["pengeluaran"];
+		self.listActionDetection = ["untuk", "bagi", "buat"]
 		self.listActionInEvent = {"ikut" : "ikut", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "gajadi ikut":"gajadiikut", "ubah":"ubah", "hapus":"hapus"};
 		self.listActionInPengeluaran =["tambah", "ubah", "hapus", "lihat"];  
 		self.jsonToSend = None;
@@ -44,28 +45,39 @@ class TextProcessor(object):
 		for action in self.listActionInPengeluaran:
 			isContain = re.compile(r'\b({0})\b'.format(action), flags=re.IGNORECASE)
 			persons = self.checkPerson(sentence);
+			event_name = None;
+			pengeluaran_name = None;
 			if(isContain.findall(sentence)):
 				if action == "tambah":	
 					if(self.checkAmount(sentence) != None):
 						amount = self.checkAmount(sentence);
-						print(amount);
-						event_nameRe = re.compile(r'{0}\s+(.*)\s+{1}'.format(pengeluaranKey, "sebesar"), flags=re.IGNORECASE);
-						if (event_nameRe.findall(sentence)):
-							event_name = event_nameRe.findall(sentence);
-						else:
-							print("nama event ngga dapet")
-						if persons:
-							self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': action, 'data':{'amount': amount,'event_name': event_name, 'persons':persons}});
+						for eventkey in self.keyWordToEvent:	
+							for actiondetection in self.listActionDetection:
+								kataKunciEvent = actiondetection + " "+ eventkey; 
+								pengeluaran_nameRe = re.compile(r'{0}\s+(.+)\s+{1}'.format(pengeluaranKey, kataKunciEvent))
+								
+								event_nameRe = re.compile(r'{0}\s+(.+)\s+{1}'.format(kataKunciEvent, "sebesar"), flags=re.IGNORECASE);
+								if (event_nameRe.findall(sentence) and pengeluaran_nameRe.findall(sentence)):
+									event_name = event_nameRe.findall(sentence);
+									pengeluaran_name = pengeluaran_nameRe.findall(sentence);
+									break;
+						if persons and event_name and pengeluaran_name:
+							self.jsonToSend = json.dumps({'type': 'pengeluaran', 'command': action, 'data':{'amount': amount,'event_name': event_name, 'pengeluaran_name': pengeluaran_name, 'persons':persons}});
 						else:
 							print("nama orangnya siapa?")
 						break;
 					else:	
 						print("minta jumlah duit boss")#minta jumlah duit atau bisa jadi dia mau kasi pake gambar
 				else:
-					event_nameRe = re.compile(r'{0}\s(.+)'.format(pengeluaranKey));
-					event_name = event_nameRe.findall(sentence)[0];
-					if persons:
-						self.jsonToSend = json.dump({'type': u'pengeluaran', 'command': action, 'data':{'event_name': event_name, 'persons':persons}});
+					for eventkey in self.keyWordToEvent:
+						for actiondetection in self.listActionDetection:	
+							kataKunciEvent = actiondetection+ " " + eventkey; 
+							pengeluaran_nameRe = re.compile(r'{0}\s+(.+)\s+{1}'.format(pengeluaranKey, kataKunciEvent));
+							pengeluaran_name = pengeluaran_nameRe.findTime(sentence)[0];
+							event_nameRe = re.compile(r'{0}\s(.+)'.format(kataKunciEvent));
+							event_name = event_nameRe.findall(sentence)[0];
+					if persons and event_name and pengeluaran_name:
+						self.jsonToSend = json.dump({'type': u'pengeluaran', 'command': action, 'data':{'event_name': event_name, 'persons':persons, 'pengeluaran_name': pengeluaran_name}});
 
 	def checkActionEvent(self, sentence, eventKey):
 		keyTime = ["pukul", "jam"];
@@ -215,7 +227,9 @@ class TextProcessor(object):
 		return self.jsonToSend;
 
 test = TextProcessor();
-test.checkWhatCommand("si bawel tambah pengeluaran sate mas kevin sebesar 7000 ical dan ginanjar")
+test.checkWhatCommand("si bawel tambah pengeluaran makan sate mas kevin untuk acara ke jogja sebesar 7000 ical dan ginanjar")
 print(test.getJsonToSent());
-test.checkWhatCommand("si bawel ikut event lari pagi oleh Gazandi");
+test.checkWhatCommand("si bawel tambah pengeluaran makan sate mas kevin buat acara jalan-jalan ke jogja sebesar 7000 ical dan ginanjar")
 print(test.getJsonToSent());
+# test.checkWhatCommand("si bawel ikut event lari pagi oleh Gazandi");
+# print(test.getJsonToSent());
