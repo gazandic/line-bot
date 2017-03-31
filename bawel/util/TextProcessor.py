@@ -18,15 +18,15 @@ errorUnknownInput = "bawel ga paham :( ketik help ya kaak buat pake si bawel"
 
 class TextProcessor(object):
     def __init__(self):
-      self.keyWordToCall  = "Si Bawel"
-      self.keyWordToEvent = ["jadwal","event","acara"]
-      self.keyWordPengeluaran = ["pengeluaran"]
-      self.listActionDetection = ["untuk", "bagi", "buat"]
-      self.listActionInEvent = {"lihat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "gajadi ikut":"gajadiikut","ga jadi ikut":"gajadiikut", "gak jadi ikut":"gajadiikut", "gak ikut":"gajadiikut", "ikut" : "ikut", "ubah":"ubah", "hapus":"hapus", "lapor":"report", "liat":"lihat", "report":"report", "eval":"report"}
-      self.listActionInPengeluaran ={"lihat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "ubah":"ubah", "hapus":"hapus", "lapor":"report", "liat":"lihat", "report":"report", "eval":"report"}
-		self.listErrorInEvent={"lihat" : errorLiatJadwal, "ikut":errorIkutJadwal, "hapus":errorHapusJadwal, "ubah":errorCreateUpdateJadwal, "tambah":errorCreateUpdateJadwal}
-		self.listErrorType={"jadwal":errorJadwal, "pengeluaran":errorPengeluaran}
-      self.jsonToSend = None
+        self.keyWordToCall  = "Si Bawel"
+        self.keyWordToEvent = ["jadwal","event","acara"]
+        self.keyWordPengeluaran = ["pengeluaran"]
+        self.listActionDetection = ["untuk", "bagi", "buat"]
+        self.listActionInEvent = {"lihat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "gajadi ikut":"gajadiikut","ga jadi ikut":"gajadiikut", "gak jadi ikut":"gajadiikut", "gak ikut":"gajadiikut", "ikut" : "ikut", "ubah":"ubah", "hapus":"hapus", "lapor":"report", "liat":"lihat", "report":"report", "eval":"report"}
+        self.listActionInPengeluaran ={"lihat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "ubah":"ubah", "hapus":"hapus", "lapor":"report", "liat":"lihat", "report":"report", "eval":"report"}
+        self.listErrorInEvent={"lihat" : errorLiatJadwal, "ikut":errorIkutJadwal, "hapus":errorHapusJadwal, "ubah":errorCreateUpdateJadwal, "tambah":errorCreateUpdateJadwal}
+        self.listErrorType={"jadwal":errorJadwal, "pengeluaran":errorPengeluaran}
+        self.jsonToSend = None
 
     def isCalled(self, sentence):
         checkifCalled = re.compile(
@@ -167,68 +167,68 @@ class TextProcessor(object):
               except:
                 self.jsonToSend = {'type': u'pengeluaran', 'command': action, 'data':{}}
 
-	def checkActionEvent(self, sentence, eventKey):
-		keyTime = ["pukul", "jam"]
-		temp_sentence = str(sentence)
-		timeSentence = None
-		for key in keyTime:
-			findTime = re.compile(r'{0}\W(\d+.\d+.\w+|\d+.\w+)'.format(key, flags=re.IGNORECASE))
-			timeFound = findTime.findall(temp_sentence)
-			if(timeFound):
-				timeSentence = timeFound[0]
-				timeSentenceToExclude = key +" "+ timeSentence
-				# print(timeSentenceToExclude)
-				excludeTimeSentence = re.compile(r'{0}'.format(timeSentenceToExclude))
-				temp_sentence = excludeTimeSentence.sub('', temp_sentence)
-				break
-		dateSentence = self.checkDate(temp_sentence)
-		if dateSentence :
-			datetypedate =self.dateParser(dateSentence, timeSentence)
-		for action in self.listActionInEvent:
-			isContain = re.compile(r'\b({0})\b'.format(action), flags=re.IGNORECASE)
-			if(isContain.findall(temp_sentence)):
-				try:
-					if action in ["buat", "tambah", "bikin", "ubah", "ganti"]:
-						event_nameRe = re.compile(r'{0}\s(.+)\s{1}'.format(eventKey, "tanggal"), flags=re.IGNORECASE)
-						event_name = event_nameRe.findall(sentence)[0]
-						self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{'date': datetypedate,'event_name': event_name}}
-						break
-					else:
-						if action in ["ikut", "gajadiikut", "gak ikut", "ga jadi ikut", "gajadi ikut","gak jadi ikut"]:
-							persons = self.checkPerson(sentence)
-							if persons :
-								print(sentence)
-								try:
-									event_nameRe = re.compile(r'{0}\s+(.*)\s+{1}'.format(eventKey, "oleh"), flags=re.IGNORECASE)
-									event_name = event_nameRe.findall(sentence)[0]
-								except:
-									event_nameRe = re.compile(r'{0}\s(.+)\s'.format(eventKey), flags=re.IGNORECASE)
-									event_name = event_nameRe.findall(sentence)[0]
-								self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{'event_name': event_name, 'persons': persons}}
-								break
-							else:
-								event_nameRe = re.compile(r'{0}\s(.+)'.format(eventKey), flags=re.IGNORECASE)
-								event_name = event_nameRe.findall(sentence)[0]
-								self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'error': errorIkutOrangJadwal,  'data':{'event_name': event_name}}
-								break
-						elif action in ["lihat","liat"]:
-							self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{}}
-							break
-						else:
-							try:
-								event_nameRe = re.compile(r'{0}\s(.+)'.format(eventKey), flags=re.IGNORECASE)
-								event_name = event_nameRe.findall(sentence)[0]
-								self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{'event_name': event_name}}
-							except:
-								self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{}}
-							break
-				except:
-					print(sys.exc_info())
-					command = self.listActionInEvent[action]
-					self.jsonToSend = {'type': 'jadwal', 'command': command, 'error':self.listErrorInEvent[command]}
-					break
-			else:
-				self.jsonToSend = {'type': 'jadwal', 'error':self.listErrorType['jadwal']}
+    def checkActionEvent(self, sentence, eventKey):
+        keyTime = ["pukul", "jam"]
+        temp_sentence = str(sentence)
+        timeSentence = None
+        for key in keyTime:
+        	findTime = re.compile(r'{0}\W(\d+.\d+.\w+|\d+.\w+)'.format(key, flags=re.IGNORECASE))
+        	timeFound = findTime.findall(temp_sentence)
+        	if(timeFound):
+        		timeSentence = timeFound[0]
+        		timeSentenceToExclude = key +" "+ timeSentence
+        		# print(timeSentenceToExclude)
+        		excludeTimeSentence = re.compile(r'{0}'.format(timeSentenceToExclude))
+        		temp_sentence = excludeTimeSentence.sub('', temp_sentence)
+        		break
+        dateSentence = self.checkDate(temp_sentence)
+        if dateSentence :
+        	datetypedate =self.dateParser(dateSentence, timeSentence)
+        for action in self.listActionInEvent:
+        	isContain = re.compile(r'\b({0})\b'.format(action), flags=re.IGNORECASE)
+        	if(isContain.findall(temp_sentence)):
+        		try:
+        			if action in ["buat", "tambah", "bikin", "ubah", "ganti"]:
+        				event_nameRe = re.compile(r'{0}\s(.+)\s{1}'.format(eventKey, "tanggal"), flags=re.IGNORECASE)
+        				event_name = event_nameRe.findall(sentence)[0]
+        				self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{'date': datetypedate,'event_name': event_name}}
+        				break
+        			else:
+        				if action in ["ikut", "gajadiikut", "gak ikut", "ga jadi ikut", "gajadi ikut","gak jadi ikut"]:
+        					persons = self.checkPerson(sentence)
+        					if persons :
+        						print(sentence)
+        						try:
+        							event_nameRe = re.compile(r'{0}\s+(.*)\s+{1}'.format(eventKey, "oleh"), flags=re.IGNORECASE)
+        							event_name = event_nameRe.findall(sentence)[0]
+        						except:
+        							event_nameRe = re.compile(r'{0}\s(.+)\s'.format(eventKey), flags=re.IGNORECASE)
+        							event_name = event_nameRe.findall(sentence)[0]
+        						self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{'event_name': event_name, 'persons': persons}}
+        						break
+        					else:
+        						event_nameRe = re.compile(r'{0}\s(.+)'.format(eventKey), flags=re.IGNORECASE)
+        						event_name = event_nameRe.findall(sentence)[0]
+        						self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'error': errorIkutOrangJadwal,  'data':{'event_name': event_name}}
+        						break
+        				elif action in ["lihat","liat"]:
+        					self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{}}
+        					break
+        				else:
+        					try:
+        						event_nameRe = re.compile(r'{0}\s(.+)'.format(eventKey), flags=re.IGNORECASE)
+        						event_name = event_nameRe.findall(sentence)[0]
+        						self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{'event_name': event_name}}
+        					except:
+        						self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{}}
+        					break
+        		except:
+        			print(sys.exc_info())
+        			command = self.listActionInEvent[action]
+        			self.jsonToSend = {'type': 'jadwal', 'command': command, 'error':self.listErrorInEvent[command]}
+        			break
+        	else:
+        		self.jsonToSend = {'type': 'jadwal', 'error':self.listErrorType['jadwal']}
 
     def checkTanggal(self, sentence):
       keyTime = ["pukul", "jam"]
@@ -250,22 +250,22 @@ class TextProcessor(object):
         return datetypedate
       return {'error':'no date'}
 
-	def checkWhatCommand(self, sentence):
-		if (self.getCommands(sentence)):
-			for command in self.getCommands(sentence):
-				for key in self.keyWordPengeluaran:
-					isContain = re.compile(r'\b({0})\b'.format(key), flags=re.IGNORECASE)
-					if (isContain.findall(sentence)):
-						self.checkActionPengeluaran(sentence,key)
-			if (self.jsonToSend == None):
-				for key in self.keyWordToEvent:
-					isContain = re.compile(r'\b({0})\b'.format(key), flags=re.IGNORECASE)
-					if (isContain.findall(sentence)):
-						self.checkActionEvent(sentence,key)
-			if self.jsonToSend == None:
-				self.jsonToSend = {'error': errorUnknownInput}
-		else:
-			self.jsonToSend = {'error': errorUnknownInput}
+    def checkWhatCommand(self, sentence):
+    	if (self.getCommands(sentence)):
+    		for command in self.getCommands(sentence):
+    			for key in self.keyWordPengeluaran:
+    				isContain = re.compile(r'\b({0})\b'.format(key), flags=re.IGNORECASE)
+    				if (isContain.findall(sentence)):
+    					self.checkActionPengeluaran(sentence,key)
+    		if (self.jsonToSend == None):
+    			for key in self.keyWordToEvent:
+    				isContain = re.compile(r'\b({0})\b'.format(key), flags=re.IGNORECASE)
+    				if (isContain.findall(sentence)):
+    					self.checkActionEvent(sentence,key)
+    		if self.jsonToSend == None:
+    			self.jsonToSend = {'error': errorUnknownInput}
+    	else:
+    		self.jsonToSend = {'error': errorUnknownInput}
 
     def dateParser(self, dateSentence, timeSentence):
       bulanDetected = False
@@ -336,19 +336,19 @@ class TextProcessor(object):
       date = str(datetime.strptime(datestr,"%d %m %Y %H:%M:%S").strftime("%Y-%m-%dT%H:%M:%S"))
       return date
 
-	def checkDate(self, sentence):
-		sentence = sentence.lower()
-		token = os.getenv('TOKEN_KATA', None)
-		parameters = {'m': sentence, 'api_token': token}
-		r = requests.get('https://api.kata.ai/v1/insights', params = parameters)
-		result = r.json()
-		entities = result["entities"]
-		# print (result)
-		finalResult = None
-		for entity in entities:
-			if entity["entity"] == "DATE":
-				 finalResult = entity["fragment"]
-		return finalResult
+    def checkDate(self, sentence):
+    	sentence = sentence.lower()
+    	token = os.getenv('TOKEN_KATA', None)
+    	parameters = {'m': sentence, 'api_token': token}
+    	r = requests.get('https://api.kata.ai/v1/insights', params = parameters)
+    	result = r.json()
+    	entities = result["entities"]
+    	# print (result)
+    	finalResult = None
+    	for entity in entities:
+    		if entity["entity"] == "DATE":
+    			 finalResult = entity["fragment"]
+    	return finalResult
 
     def checkEntity(self, sentence):
         token = os.getenv('TOKEN_KATA', None)
@@ -358,15 +358,15 @@ class TextProcessor(object):
         entities = result["entities"]
         return entities
 
-	def processText(self,sentence):
-		sentence = sentence.replace(":", " ")
-		sentence = sentence.replace("-", " ")
-		sentence = sentence.replace(".", " ")
-		sentence = sentence.replace(",", " ")
-		if (self.isCalled(sentence)):
-			self.checkWhatCommand(sentence)
-		else:
-			self.jsonToSend = {'error': errorUnknownInput}
+    def processText(self,sentence):
+    	sentence = sentence.replace(":", " ")
+    	sentence = sentence.replace("-", " ")
+    	sentence = sentence.replace(".", " ")
+    	sentence = sentence.replace(",", " ")
+    	if (self.isCalled(sentence)):
+    		self.checkWhatCommand(sentence)
+    	else:
+    		self.jsonToSend = {'error': errorUnknownInput}
 
     def getJsonToSent(self):
         js = self.jsonToSend

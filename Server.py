@@ -164,6 +164,7 @@ def handle_text_message(event):
         if user_state.get('before_state'):
             if user_state['before_state'] == STATE_ADD_PENGELUARAN :
                 cm = str(CheckMoney().processText(text))
+                print(cm)
                 if not cm == "None" :
                     user_state['state_id'] = STATE_IMAGE_ADD_PENGELUARAN
                     user_state, output = dispatch_action(ACTION_MAPPER[user_state['state_id']], *(cm, "", user_state))
@@ -172,7 +173,7 @@ def handle_text_message(event):
                         event.reply_token, [
                             TextSendMessage(text=output)
                         ])
-                    return
+                return
 
         elif text == '@bye':
             line_bot_api.reply_message(

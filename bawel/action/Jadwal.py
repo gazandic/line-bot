@@ -31,7 +31,7 @@ class TambahJadwal(Action):
 
             reminder.add(namajadwal, dt, job, ("jangan lupa 1 jam lagi ada "+namajadwal, state['id'], location,))
             namajadwal = namajadwal.replace("_"," ")
-            return (state, "acara "+namajadwal+" telah ditambah")   
+            return (state, "acara "+namajadwal+" telah ditambah")
 
         except:
             return (state, "Maaf kak, bawel ga ngerti, coba nambahjadwalnya kaya gini ya kak'si bawel tolong tambah acara/event/jadwal nonton bareng tanggal 29 Maret jam 5.50 sore'")
@@ -116,14 +116,18 @@ class UbahJadwal(Action):
             dtime = checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Event(state['id'],namajadwal,hari,bulan,tahun,jam,menit,0)
             ev1.update()
-            reminder.modify(namajadwal, dtime)
-            namajadwal = namajadwal.replace("_"," ")
-            return (state, "acara "+namajadwal+" telah diubah")
-
+            print('nande')
         except :
             print(sys.exc_info())
             return (state, "Maaf kak, bawel ga ngerti, coba nambahjadwalnya kaya gini ya kak'si bawel tolong ubah acara/event/jadwal nonton bareng tanggal 29 Maret jam 5.50 sore'")
-
+        try:
+            reminder.modify(namajadwal, dtime)
+            namajadwal = namajadwal.replace("_"," ")
+            return (state, "acara "+namajadwal+" telah diubah")
+        except:
+            print(sys.exc_info())
+            namajadwal = namajadwal.replace("_"," ")
+            return (state, "acara "+namajadwal+" telah diubah")
 
 class HapusJadwal(Action):
     def act(self, namajadwal, reminder, state):

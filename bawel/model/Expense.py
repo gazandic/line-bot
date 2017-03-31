@@ -11,7 +11,7 @@ class Expense(BaseMongo):
         self.about = _about
         self.name = _name
         self.peoplename = _peoplename
-        self.total = _total
+        self.total = float(_total)
 
     def setName(self, _name):
         self.name = _name

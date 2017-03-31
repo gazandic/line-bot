@@ -67,7 +67,7 @@ class Reminder:
             ]
         if location is not None:
             action_list.insert(1, LocationSendMessage(
-                    latitude=location['lat'], 
+                    latitude=location['lat'],
                     longitude=location['lng']
                 ))
         self.linebot.push_message(lineid, action_list)

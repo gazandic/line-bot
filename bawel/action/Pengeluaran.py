@@ -101,16 +101,21 @@ class LihatPengeluaran(Action):
             ite = 0
             liexpenses = []
             for expense in expenses:
+                if expense['about'] == "ikut":
+                    continue
                 ite += 1
-                about = expense['about'].replace("_"," ")
-                event_name = expense['name'].replace("_"," ")
-                amount = str(expense['total'])
-                people_name = str(expense['peoplename'])
-                text = "Pengeluaran pada acara "+event_name+" sebesar "+amount+ " oleh "+people_name
-                print(text)
-                cc = CarouselColumn(text=text, title=about, actions=[
+                about = "Pengeluaran "+expense['about'].replace("_"," ")
+                event_name = expense['name'].replace("_"," ")[0:20]
+                amount = str(expense['total'])[0:10]
+                people_name = str(expense['peoplename'])[0:10]
+                text = "acara "+event_name+" sebesar "+amount+ " oleh "+people_name
+                actionli = [
                     URITemplateAction(label='Go to line.me', uri='https://line.me'),
-                    PostbackTemplateAction(label='ping', data='ping')])
+                    PostbackTemplateAction(label='ping', data='ping')
+                ]
+                if expense.get('pathnota') and expense['pathnota'] != "":
+                    actionli.append(URITemplateAction(label='go to nota', uri=expense['pathnota']))
+                cc = CarouselColumn(text=text, title=about, actions=actionli)
                 licc.append(cc)
                 if ite == 4:
                     carousel_template = CarouselTemplate(columns=licc)
@@ -178,10 +183,17 @@ class ReportPengeluaran(Action):
         pipeline = [{'$match': {'name': event_name}}, {'$group': {'_id': "$peoplename", 'total': {'$sum': "$total"}}}]
 
         res = list(exp.aggregate(pipeline))
+        if len(res) == 0:
+            event_name = event_name.replace("_"," ")
+            out = "maaf, tidak ada pengeluaran untuk "+event_name + " :("
+            return (state, out)
+        print(res)
         avg = reduce(lambda x,y: x+float(y['total']), res, 0) / len(res)
-
+        print(avg)
         def reducer(prev, cur):
             diff = cur['total'] - avg
+            if (diff > 0) :
+                return prev+'\n'+'Piutang si {0} = {1}'.format(cur['_id'], diff)
             return prev+'\n'+'Utang si {0} = {1}'.format(cur['_id'], diff)
         out = reduce(reducer, res, '')
 
