@@ -21,6 +21,7 @@ from bawel.util.Reminder import Reminder
 from bawel.util.RequestParser import RequestParser
 from bawel.util.TextProcessor import TextProcessor
 from bawel.util.JsonToQuery import JsonToQuery
+from bawel.util.CheckMoney import CheckMoney
 
 from bawel.constant.StateConstant import (
     ACTION_MAPPER,
@@ -28,7 +29,8 @@ from bawel.constant.StateConstant import (
     STATE_DELETE_JADWAL,
     STATE_ADD_PENGELUARAN,
     STATE_SHOW_PENGELUARAN,
-    STATE_DELETE_PENGELUARAN
+    STATE_DELETE_PENGELUARAN,
+    STATE_IMAGE_ADD_PENGELUARAN
 )
 
 from linebot import (
@@ -135,15 +137,15 @@ def handle_text_message(event):
     if isinstance(event.source, SourceUser):
         profile = line_bot_api.get_profile(event.source.user_id)
         line_bot_api.reply_message(
-            event.reply_token,
-            [
+            event.reply_token, [
                 TextSendMessage(
-                    text='Maaf, kak ' +
-                    profile.display_name +
-                    ' bot ini fokus pada asisten grup, undang bawel ke grup kak'),
+                    text='Maaf, kak ' + profile.display_name + ' bot ini fokus pada asisten grup, undang bawel ke grup kak'
+                ),
                 StickerSendMessage(
                     package_id=3,
-                    sticker_id=random.choice(randomPrivate))])
+                    sticker_id=random.choice(randomPrivate))
+            ]
+        )
 
     else:
         id = None
@@ -152,7 +154,27 @@ def handle_text_message(event):
         elif isinstance(event.source, SourceRoom):
             id = event.source.room_id
 
-        if text == '@bye':
+        global state
+
+        if id in state:
+            user_state = state[id]
+        else:
+            user_state = { 'id': id }
+
+        if user_state.get('before_state'):
+            if user_state['before_state'] == STATE_ADD_PENGELUARAN :
+                cm = str(CheckMoney().processText(text))
+                if not cm == "None" :
+                    user_state['state_id'] = STATE_IMAGE_ADD_PENGELUARAN
+                    user_state, output = dispatch_action(ACTION_MAPPER[user_state['state_id']], *(cm, "", user_state))
+                    state = {**state, id: user_state}
+                    line_bot_api.reply_message(
+                        event.reply_token, [
+                            TextSendMessage(text=output)
+                        ])
+                    return
+
+        elif text == '@bye':
             line_bot_api.reply_message(
                 event.reply_token, TextMessage(text='Leaving group'))
             line_bot_api.leave_group(id)
@@ -160,11 +182,10 @@ def handle_text_message(event):
         elif text == 'si bawel tolong':
             line_bot_api.reply_message(
                 event.reply_token, [TextSendMessage(text='lagi dibuat hehe'),
-                                    StickerSendMessage(
+                StickerSendMessage(
                     package_id=3,
                     sticker_id=random.choice(randomPrivate))])
-
-        elif 'si bawel' not in text.lower():
+        elif not 'si bawel' in text.lower():
             pass
 
         else:
@@ -175,20 +196,17 @@ def handle_text_message(event):
                 jtq = JsonToQuery(nlptext.getJsonToSent())
                 restext = jtq.parseJSON()
                 if not jtq.json.get('error'):
-                    global state
-
-                    if id in state:
-                        user_state = state[id]
-                    else:
-                        user_state = { 'id': id }
                     user_state, output = handle_action(text, restext, user_state)
                     state = {**state, id: user_state}
                 else:
                     output = restext
-                line_bot_api.reply_message(
-                    event.reply_token, TextMessage(text=output))
+                if type(output[0]) == TemplateSendMessage :
+                    line_bot_api.reply_message(event.reply_token, output)
+                else :
+                    line_bot_api.reply_message(
+                        event.reply_token, TextMessage(text=output))
 
-            except BaseException:
+            except:
                 print(sys.exc_info())
                 line_bot_api.reply_message(
                     event.reply_token, [
@@ -209,34 +227,21 @@ def handle_location_message(event):
         )
     )
 
-
-# @handler.add(MessageEvent, message=StickerMessage)
-# def handle_sticker_message(event):
-#     print("package_id:"+event.message.package_id)
-#     print("sticker_id:"+event.message.sticker_id)
-#     line_bot_api.reply_message(
-#         event.reply_token,
-#         StickerSendMessage(
-#             package_id=event.message.package_id,
-#             sticker_id=event.message.sticker_id)
-#     )
-
-
 # Image Message Type
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_content_message(event):
     if isinstance(event.source, SourceUser):
         profile = line_bot_api.get_profile(event.source.user_id)
         line_bot_api.reply_message(
-            event.reply_token,
-            [
+            event.reply_token, [
                 TextSendMessage(
-                    text='Maaf, kak ' +
-                    profile.display_name +
-                    ' bot ini fokus pada asisten grup, undang bawel ke grup kak'),
+                    text='Maaf, kak ' + profile.display_name + ' bot ini fokus pada asisten grup, undang bawel ke grup kak'
+                ),
                 StickerSendMessage(
                     package_id=3,
-                    sticker_id=random.choice(randomPrivate))])
+                    sticker_id=random.choice(randomPrivate))
+            ]
+        )
     else:
         id = None
         if isinstance(event.source, SourceGroup):
@@ -244,41 +249,42 @@ def handle_content_message(event):
         elif isinstance(event.source, SourceRoom):
             id = event.source.room_id
 
-        ext = 'jpg'
-        message_content = \
-            line_bot_api.get_message_content(event.message.id)
-        with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
-            for chunk in message_content.iter_content():
-                tf.write(chunk)
-            tempfile_path = tf.name
-
-        dist_path = tempfile_path + '.' + ext
-        dist_name = os.path.basename(dist_path)
-        os.rename(tempfile_path, dist_path)
-
-        PD = PengeluaranDetector(str(dist_path))
-        total_amount = PD.checkForTotal()
-
-        if not total_amount:
-            return (
-                state,
-                "Gambar tidak terbaca \nCoba lagi dengan gambar yang lebih baik")
-
         global state
         if id in state:
             user_state = state[id]
         else:
-            user_state = {'id': id}
+            user_state = { 'id': id }
 
-        user_state['state_id'] = STATE_ADD_PENGELUARAN
-        user_state, output = dispatch_action(
-            ACTION_MAPPER[user_state['state_id']], *())
-        state = {**state, id: user_state}
+        if user_state.get('before_state'):
+            ext = 'jpg'
+            message_content = \
+                line_bot_api.get_message_content(event.message.id)
+            with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
+                for chunk in message_content.iter_content():
+                    tf.write(chunk)
+                tempfile_path = tf.name
 
-        line_bot_api.reply_message(
-            event.reply_token, [
-                TextSendMessage(text=output)
-            ])
+            dist_path = tempfile_path + '.' + ext
+            dist_name = os.path.basename(dist_path)
+            os.rename(tempfile_path, dist_path)
+            try :
+                PD = PengeluaranDetector(str(dist_path))
+                total_amount = PD.checkForTotal()
+                if not total_amount:
+                    user_state, output = user_state, "Gambar tidak terbaca \nCoba lagi dengan gambar yang lebih baik"
+                    state = {**state, id: user_state}
+                else:
+                    user_state['state_id'] = STATE_IMAGE_ADD_PENGELUARAN
+                    user_state, output = dispatch_action(ACTION_MAPPER[user_state['state_id']], *(total_amount, request.host_url + os.path.join('tmp', dist_name), user_state))
+                    state = {**state, id: user_state}
+            except:
+                print(sys.exc_info())
+                user_state, output = user_state, "Gambar tidak bisa dibaca \nCoba lagi dengan gambar yang lebih baik"
+                state = {**state, id: user_state}
+            line_bot_api.reply_message(
+                event.reply_token, [
+                    TextSendMessage(text=output)
+                ])
 
 
 # @handler.add(FollowEvent)
