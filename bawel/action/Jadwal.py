@@ -150,14 +150,22 @@ class HapusJadwal(Action):
 #         ev1.update()
 
 class ReportJadwal(Action):
-    def act(self, state):
-        ev1 = Event()
-        events = ev1.search({"lineid":state['id']})
-        i = 0
-        total = 0
-        for event in events:
-            total += 1
-            if int(event['fullfiled']) == 1:
-                i += 1
-        percentage = i / total * 100
-        return (state, "%.2f".format(percentage))
+    def act(self, event_name, state):
+        exp = Expense()
+        pipeline = [{'$match': {'name': event_name}}, {'$group': {'_id': "$peoplename", 'total': {'$sum': "$total"}}}]
+
+        res = list(exp.aggregate(pipeline))
+        if len(res) == 0:
+            event_name = event_name.replace("_"," ")
+            out = "maaf, tidak ada yang ikut acara "+event_name + " :("
+            return (state, out)
+
+        # avg = reduce(lambda x,y: x+float(y['total']), res, 0) / len(res)
+        # print(avg)
+        def reducer(prev, cur):
+            if prev == "":
+                prev = "List ikut ("+str(len(res))+" orang)"
+            return prev+'\n'+'{0} ikut'.format(cur['_id'])
+        out = reduce(reducer, res, '')
+
+        return (state, out)
