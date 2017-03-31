@@ -38,7 +38,7 @@ class HelpPengeluaran(Action):
             atau lihat pembagian pengeluaran pake 'si bawel aku mau report pengeluaran pergi ke jogja(namapengeluaran)'
             dan hapus pengeluaran 'si bawel kita mau hapus pengeluaran pergi ke jakarta(namapengeluaran)' """
 
-        return (state, "ntaran")
+        return (state, S)
 
 class HelpHabit(Action):
     def __init__(self):
