@@ -193,7 +193,7 @@ def handle_text_message(event):
                 event.reply_token, TextMessage(text='Leaving group'))
             line_bot_api.leave_group(id)
 
-        elif text == 'si bawel tolong':
+        elif 'si bawel tolong' in text.lower():
             text = '/help'
             print(user_state)
             user_state, output = handle_action(text, text, user_state)
