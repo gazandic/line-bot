@@ -17,14 +17,6 @@ from linebot.models import (
 
 errorCreateUpdatePengeluaran = "coba lagi kak, coba tulis kaya gini 'si bawel tolong tambah/ubah pengeluaran makan siang untuk acara pergi ke jogja sebesar 50000 oleh gazandi' hehe"
 
-class HelpPengeluaran(Action):
-    def __init__(self):
-        super().__init__()
-
-    def act(self, state):
-        # TODO:
-        return (state, "ntaran")
-
 class TambahPengeluaran(Action):
     def __init__(self):
         super().__init__()
