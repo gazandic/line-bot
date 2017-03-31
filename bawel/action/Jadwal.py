@@ -11,6 +11,11 @@ from bawel.action.Action import Action
 from bawel.model.Event import Event
 from bawel.util import checkInputWaktu, checkInputTanggal
 
+from linebot.models import (
+    TemplateSendMessage,
+    CarouselTemplate, CarouselColumn, PostbackTemplateAction, URITemplateAction
+)
+
 # def normalizeParamJadwal(param, reminder):
 #     if len(param) == 8:
 #         param.append(1)         # default
@@ -36,25 +41,39 @@ class TambahJadwal(Action):
 
 class LihatJadwal(Action):
     def act(self, state):
-        ev1 = Event()
-        events = ev1.search({"lineid":state['id']})
-
-        def printEvent(prev, ev):
-            L = [ev['about'],str(ev['datetime']),str(ev['fullfiled'])]
-            S = '\n'.join(L)
-            return '{0}\n{1}'.format(prev, S)
-
-        if events.count() == 1:
-            ev = events[0]
-            L = [ev['about'],str(ev['datetime']),str(ev['fullfiled'])]
-            S = '\n'.join(L)
-            output = '{0}'.format(S)
-        elif events.count() > 1:
-            output = reduce(printEvent, events)
-        else :
-            output = "Maaf tidak ada jadwal di database bawel :("
-
-        return (state, output)
+        try:
+            ev1 = Event()
+            events = ev1.search({"lineid":state['id']})
+            if events.count() == 0 :
+                output = "Maaf tidak ada jadwal di database bawel :("
+                return (state, output)
+            licc = []
+            ite = 0
+            lievent = []
+            for event in events:
+                ite += 1
+                about = event['about'].replace("_"," ")
+                date = str(datetime.strptime(str(event['datetime']),"%Y-%m-%d %H:%M:%S").strftime("%d-%m %H:%M"))
+                text = "Acara tentang "+about+" diadakan pada "+str(date)
+                cc = CarouselColumn(text=text, title=about, actions=[
+                    URITemplateAction(label='Go to line.me', uri='https://line.me'),
+                    PostbackTemplateAction(label='ping', data='ping')])
+                licc.append(cc)
+                if ite == 4:
+                    carousel_template = CarouselTemplate(columns=licc)
+                    template_message = TemplateSendMessage(
+                        alt_text='List jadwal', template=carousel_template)
+                    ite = 0
+                    lievent.append(template_message)
+                    licc = []
+            if ite > 0:
+                carousel_template = CarouselTemplate(columns=licc)
+                template_message = TemplateSendMessage(
+                    alt_text='List jadwal', template=carousel_template)
+                lievent.append(template_message)
+            return (state, lievent)
+        except:
+            print (sys.exc_info())
 
 class IkutJadwal(Action):
     def act(self, event_name, people_name, state):

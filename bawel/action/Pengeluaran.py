@@ -9,6 +9,11 @@ from bawel.util import checkInputWaktu, checkInputTanggal
 from bawel.model.Expense import Expense
 from bawel.model.Event import Event
 
+from linebot.models import (
+    TemplateSendMessage,
+    CarouselTemplate, CarouselColumn, PostbackTemplateAction, URITemplateAction
+)
+
 errorCreateUpdatePengeluaran = "coba lagi kak, coba tulis kaya gini 'si bawel tolong tambah/ubah pengeluaran makan siang untuk acara pergi ke jogja sebesar 50000 oleh gazandi' hehe"
 
 class HelpPengeluaran(Action):
@@ -77,34 +82,50 @@ class LihatPengeluaran(Action):
         super().__init__()
 
     def act(self, state, event_name=""):
-        ex1 = Expense()
-        if event_name == "":
-            expenses = ex1.search({"lineid": state['id']})
-        else:
-            expenses = ex1.search({"lineid": state['id'], "name":event_name})
-
-        def printExpense(prev, expense):
-            L = [expense['about'],expense['name'],expense['peoplename'],expense['total']]
-            S = '\n'.join(L)
-            return '{0}\n{1}'.format(prev, S)
-
-        if expenses.count() == 1:
-            expense = expenses[0]
-            L = [expense['about'],expense['name'],expense['peoplename'],expense['total']]
-            S = '\n'.join(L)
-            output = '{0}'.format(S)
-
-        elif expenses.count() > 1:
-            output = reduce(printExpense, expenses)
-
-        else :
+        try:
+            ex1 = Expense()
             if event_name == "":
-                output = "Maaf tidak ada pengeluaran di database bawel :("
+                expenses = ex1.search({"lineid": state['id']})
             else:
-                event_name = event_name.replace("_"," ")
-                output = "Maaf tidak ada pengeluaran di acara "+event_name+" di database bawel :("
-        return (state, output)
+                expenses = ex1.search({"lineid": state['id'], "name":event_name})
 
+            if expenses.count() == 0 :
+                if event_name == "":
+                    output = "Maaf tidak ada pengeluaran di database bawel :("
+                else:
+                    event_name = event_name.replace("_"," ")
+                    output = "Maaf tidak ada pengeluaran di acara "+event_name+" di database bawel :("
+                return (state, output)
+            licc = []
+            ite = 0
+            liexpenses = []
+            for expense in expenses:
+                ite += 1
+                about = expense['about'].replace("_"," ")
+                event_name = expense['name'].replace("_"," ")
+                amount = str(expense['total'])
+                people_name = str(expense['peoplename'])
+                text = "Pengeluaran pada acara "+event_name+" sebesar "+amount+ " oleh "+people_name
+                print(text)
+                cc = CarouselColumn(text=text, title=about, actions=[
+                    URITemplateAction(label='Go to line.me', uri='https://line.me'),
+                    PostbackTemplateAction(label='ping', data='ping')])
+                licc.append(cc)
+                if ite == 4:
+                    carousel_template = CarouselTemplate(columns=licc)
+                    template_message = TemplateSendMessage(
+                        alt_text='List pengeluaran', template=carousel_template)
+                    ite = 0
+                    liexpenses.append(template_message)
+                    licc = []
+            if ite > 0:
+                carousel_template = CarouselTemplate(columns=licc)
+                template_message = TemplateSendMessage(
+                    alt_text='List pengeluaran', template=carousel_template)
+                liexpenses.append(template_message)
+            return (state, liexpenses)
+        except:
+            print (sys.exc_info())
 
 class UbahPengeluaran(Action):
     def __init__(self):
