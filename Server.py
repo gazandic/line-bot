@@ -174,6 +174,12 @@ def handle_text_message(event):
                         event.reply_token, [
                             TextSendMessage(text=output)
                         ])
+                else :
+                    output = 'masukkan bon atau gambar'
+                    line_bot_api.reply_message(
+                        event.reply_token, [
+                            TextSendMessage(text=output)
+                        ])
                 return
         elif REQUEST_STATE.get(s[0]):
             try:
