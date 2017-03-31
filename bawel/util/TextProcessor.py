@@ -2,14 +2,17 @@ import re
 import requests
 import json
 import os
+import sys
 from datetime import datetime
 from dateutil.parser import parse
+errorCreateUpdatePengeluaran = "coba lagi kak, coba tulis kaya gini 'si bawel tolong tambah/ubah pengeluaran makan siang untuk acara pergi ke jogja sebesar 50000 oleh gazandi' hehe"
 
 class TextProcessor(object):
 	def __init__(self):
 		self.keyWordToCall  = "Si Bawel"
 		self.keyWordToEvent = ["jadwal","event","acara"]
 		self.keyWordPengeluaran = ["pengeluaran"]
+		self.listActionDetection = ["untuk", "bagi", "buat"]
 		self.listActionInEvent = {"lihat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "gajadi ikut":"gajadiikut","ga jadi ikut":"gajadiikut", "gak jadi ikut":"gajadiikut", "gak ikut":"gajadiikut", "ikut" : "ikut", "ubah":"ubah", "hapus":"hapus", "lapor":"report", "liat":"lihat", "report":"report", "eval":"report"}
 		self.listActionInPengeluaran ={"lihat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "ubah":"ubah", "hapus":"hapus"}
 		self.jsonToSend = None
@@ -48,62 +51,108 @@ class TextProcessor(object):
 			else:
 				return None
 
-	def json_serial(self,obj):
-		if isinstance(obj,datetime):
-			serial = obj.isoformat()
-			return serial
-		raise TypeError("Type not serializable")
+	# def json_serial(self,obj):
+	# 	if isinstance(obj,datetime):
+	# 		serial = obj.isoformat()
+	# 		return serial
+	# 	raise TypeError("Type not serializable")
 
 	def checkActionPengeluaran(self, sentence, pengeluaranKey):
 		for action in self.listActionInPengeluaran:
 			isContain = re.compile(r'\b({0})\b'.format(action), flags=re.IGNORECASE)
 			persons = self.checkPerson(sentence)
-			if(isContain.findall(sentence)):
+			if isContain.findall(sentence):
 				if action in ["buat", "tambah", "bikin"]:
-					if(self.checkAmount(sentence) != None):
+					if self.checkAmount(sentence):
 						amount = self.checkAmount(sentence)
-						pengeluaran_nameRe = re.compile(r'{0}\s+(.*)\s+{1}'.format(pengeluaranKey, "sebesar"), flags=re.IGNORECASE)
-						pengeluaran_name = 'unknown'
-						if (pengeluaran_nameRe.findall(sentence)):
-							pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
-						if persons:
-							self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'data':{'amount': amount,'event_name': pengeluaran_name, 'persons':persons}}
-						else:
-							self.jsonToSend = {'type': 'pengeluaran', 'error': ['no persons'], 'command': action, 'data':{'amount': amount,'event_name': pengeluaran_name}}
+						try:
+							event_name , pengeluaran_name = None, None
+							for eventkey in self.keyWordToEvent:
+								for actiondetection in self.listActionDetection:
+									kataKunciEvent = actiondetection + " "+ eventkey
+									pengeluaran_nameRe = re.compile(r'{0}\s+(.+)\s+{1}'.format(pengeluaranKey, kataKunciEvent))
+
+									event_nameRe = re.compile(r'{0}\s+(.+)\s+{1}'.format(kataKunciEvent, "sebesar"), flags=re.IGNORECASE)
+									if (event_nameRe.findall(sentence) and pengeluaran_nameRe.findall(sentence)):
+										event_name = event_nameRe.findall(sentence)[0]
+										pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
+										break
+							self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'data':{'amount': amount,'event_name': event_name, 'pengeluaran_name': pengeluaran_name, 'persons':persons}}
+						except:
+							self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':errorCreateUpdatePengeluaran,'data':{}}
 						break
 					else:
 						if persons:
-							pengeluaran_nameRe = re.compile(r'{0}\s+(.*)\s+{1}'.format(pengeluaranKey, "oleh"), flags=re.IGNORECASE)
-							pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
-							self.jsonToSend = {'type': 'pengeluaran', 'error': ['no amount'], 'command': action, 'data':{'amount': 0,'event_name': pengeluaran_name, 'persons':persons}}
+							try:
+								for eventkey in self.keyWordToEvent:
+									for actiondetection in self.listActionDetection:
+										kataKunciEvent = actiondetection + " "+ eventkey
+										pengeluaran_nameRe = re.compile(r'{0}\s+(.+)\s+{1}'.format(pengeluaranKey, kataKunciEvent))
+
+										event_nameRe = re.compile(r'{0}\s+(.+)\s+{1}'.format(kataKunciEvent, "oleh"), flags=re.IGNORECASE)
+										if (event_nameRe.findall(sentence) and pengeluaran_nameRe.findall(sentence)):
+											event_name = event_nameRe.findall(sentence)[0]
+											pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
+											break
+								self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'data':{'amount': '-1','event_name': event_name, 'pengeluaran_name': pengeluaran_name, 'persons':persons}}
+							except:
+								print(sys.exc_info())
+								self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':errorCreateUpdatePengeluaran,'data':{}}
 						else:
-							pengeluaran_nameRe = re.compile(r'{0}\s+(.*)\s+{1}'.format(pengeluaranKey), flags=re.IGNORECASE)
-							pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
-							self.jsonToSend = {'type': 'pengeluaran', 'error': ['no persons', 'no amount'], 'command': action, 'data':{'amount': 0,'event_name': pengeluaran_name}}
+							self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':errorCreateUpdatePengeluaran,'data':{}}
+					break
 				elif action in ["ubah", "ganti"]:
 					amount = self.checkAmount(sentence)
 					person = self.checkPerson(sentence)
-					if  amount != None :
-						pengeluaran_nameRe = re.compile(r'{0}\s+(.*)\s+{1}'.format(pengeluaranKey, "sebesar"), flags=re.IGNORECASE)
-						if (pengeluaran_nameRe.findall(sentence)):
-							pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
-							self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'data':{'amount': amount,'event_name': pengeluaran_name}}
-						else:
-							self.jsonToSend = {'type': 'pengeluaran', 'command': action,'error':'unknown input'}
-					elif person != None:
-						pengeluaran_nameRe = re.compile(r'{0}\s+(.*)\s+{1}'.format(pengeluaranKey, "oleh"), flags=re.IGNORECASE)
-						pengeluaran_name = 'unknown'
-						if (pengeluaran_nameRe.findall(sentence)):
-							pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
-							self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'data':{'persons': person,'event_name': pengeluaran_name}}
-						else:
-							self.jsonToSend = {'type': 'pengeluaran', 'command': action,'error':'unknown input'}
+					if amount and person :
+						try:
+							for eventkey in self.keyWordToEvent:
+								for actiondetection in self.listActionDetection:
+									kataKunciEvent = actiondetection + " "+ eventkey
+									pengeluaran_nameRe = re.compile(r'{0}\s+(.+)\s+{1}'.format(pengeluaranKey, kataKunciEvent))
+
+									event_nameRe = re.compile(r'{0}\s+(.+)\s+{1}'.format(kataKunciEvent, "seberapa"), flags=re.IGNORECASE)
+									if (event_nameRe.findall(sentence) and pengeluaran_nameRe.findall(sentence)):
+										event_name = event_nameRe.findall(sentence)[0]
+										pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
+										break
+							self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'data':{'amount': amount,'event_name': event_name, 'pengeluaran_name':pengeluaran_name, 'persons':person}}
+						except:
+							self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':errorCreateUpdatePengeluaran,'data':{}}
+					# elif person != None:
+					# 	pengeluaran_nameRe = re.compile(r'{0}\s+(.*)\s+{1}'.format(pengeluaranKey, "oleh"), flags=re.IGNORECASE)
+					# 	pengeluaran_name = 'unknown'
+					# 	if (pengeluaran_nameRe.findall(sentence)):
+					# 		pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
+					# 		self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'data':{'persons': person,'event_name': pengeluaran_name}}
+					# 	else:
+					# 		self.jsonToSend = {'type': 'pengeluaran', 'command': action,'error':'unknown input'}
+					# 	break
 					else:
-						self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':'unknown input'}
+						self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':errorCreateUpdatePengeluaran,'data':{}}
+					break
 				else:
-					pengeluaran_nameRe = re.compile(r'{0}\s(.+)'.format(pengeluaranKey))
-					pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
-					self.jsonToSend = {'type': u'Pengeluaran', 'command': action, 'data':{'event_name': pengeluaran_name}}
+					try:
+						if not action in ["hapus"]:
+							raise ValueError
+						for eventkey in self.keyWordToEvent:
+							for actiondetection in self.listActionDetection:
+								kataKunciEvent = actiondetection + " "+ eventkey
+								pengeluaran_nameRe = re.compile(r'{0}\s+(.+)\s+{1}'.format(pengeluaranKey, kataKunciEvent))
+
+								event_nameRe = re.compile(r'{0}\s+(.+)'.format(kataKunciEvent), flags=re.IGNORECASE)
+								if (event_nameRe.findall(sentence) and pengeluaran_nameRe.findall(sentence)):
+									event_name = event_nameRe.findall(sentence)[0]
+									pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
+									break
+						self.jsonToSend = {'type': u'pengeluaran', 'command': action, 'data':{'event_name': event_name, 'pengeluaran_name':pengeluaran_name}}
+					except:
+						try :
+							event_nameRe = re.compile(r'{0}\s(.+)'.format(pengeluaranKey))
+							event_name = event_nameRe.findall(sentence)[0]
+							self.jsonToSend = {'type': u'pengeluaran', 'command': action, 'data':{'event_name': event_name}}
+						except:
+							self.jsonToSend = {'type': u'pengeluaran', 'command': action, 'data':{}}
 
 	def checkActionEvent(self, sentence, eventKey):
 		keyTime = ["pukul", "jam"]
@@ -129,11 +178,11 @@ class TextProcessor(object):
 					if action in ["buat", "tambah", "bikin", "ubah", "ganti"]:
 						event_nameRe = re.compile(r'{0}\s(.+)\s{1}'.format(eventKey, "tanggal"), flags=re.IGNORECASE)
 						event_name = event_nameRe.findall(sentence)[0]
-						self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{'date': self.json_serial(datetypedate),'event_name': event_name}}
+						self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{'date': datetypedate,'event_name': event_name}}
 						break
 					else:
 						if action in ["ikut", "gajadiikut", "gak ikut", "ga jadi ikut", "gajadi ikut","gak jadi ikut"]:
-							persons = self.checkPerson(sentence);
+							persons = self.checkPerson(sentence)
 							if persons :
 								print(sentence)
 								try:
@@ -151,6 +200,7 @@ class TextProcessor(object):
 								break
 						elif action in ["lihat","liat"]:
 							self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{}}
+							break
 						else:
 							try:
 								event_nameRe = re.compile(r'{0}\s(.+)'.format(eventKey), flags=re.IGNORECASE)
@@ -160,6 +210,7 @@ class TextProcessor(object):
 								self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{}}
 							break
 				except:
+					print(sys.exc_info())
 					self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action] , 'error':'unknown input'}
 					break
 			else:
@@ -182,7 +233,7 @@ class TextProcessor(object):
 		dateSentence = self.checkDate(temp_sentence)
 		if dateSentence :
 			datetypedate =self.dateParser(dateSentence, timeSentence)
-			return self.json_serial(datetypedate)
+			return datetypedate
 		return {'error':'no date'}
 
 	def checkWhatCommand(self, sentence):
@@ -213,7 +264,9 @@ class TextProcessor(object):
 				dateSentence = re.sub(monthname, str(monthNameToNumber[monthname]), dateSentence, flags = re.IGNORECASE)
 		digitSplit = re.compile(r'\W+(\d+)')
 		takeDigitOnly = re.compile(r'\b(\d+)\b')
+		print(dateSentence)
 		digits = takeDigitOnly.findall(dateSentence)
+		print(digits)
 		temp_dateSentence = ""
 		for digit in digits:
 			if int(digit) > 31:
@@ -263,9 +316,10 @@ class TextProcessor(object):
 			else:
 				temp_timeSentence = timeDigits[0] +":"+timeDigits[1]+":"+timeDigits[2]
 			print (temp_dateSentence+temp_timeSentence)
-			date = parse(temp_dateSentence+temp_timeSentence)
+			datestr = temp_dateSentence+temp_timeSentence
 		else:
-			date = parse(temp_dateSentence+"00:00:00")
+			datestr = temp_dateSentence+"00:00:00"
+		date = str(datetime.strptime(datestr,"%d %m %Y %H:%M:%S").strftime("%Y-%m-%dT%H:%M:%S"))
 		return date
 
 	def checkDate(self, sentence):

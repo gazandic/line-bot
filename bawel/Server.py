@@ -25,7 +25,9 @@ from bawel.constant.StateConstant import (
     ACTION_MAPPER,
     STATE_ADD_JADWAL,
     STATE_DELETE_JADWAL,
-    STATE_ADD_PENGELUARAN
+    STATE_ADD_PENGELUARAN,
+    STATE_DELETE_PENGELUARAN,
+    STATE_SHOW_PENGELUARAN
 )
 
 from linebot import (
@@ -88,7 +90,11 @@ def handle_action(text, state):
        state['state_id'] <= STATE_DELETE_JADWAL:
         param.append(reminder)
     if state['state_id'] == STATE_ADD_PENGELUARAN:
-        param.insert(2, state)
+        param.insert(3, state)
+    elif state['state_id'] == STATE_DELETE_PENGELUARAN:
+        param.insert(1, state)
+    elif state['state_id'] == STATE_SHOW_PENGELUARAN:
+        param.insert(0, state)
     else:
         param.append(state)
 
