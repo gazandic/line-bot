@@ -93,7 +93,7 @@ class TextProcessor(object):
                 self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'data':{'amount': amount,'event_name': event_name, 'pengeluaran_name': pengeluaran_name, 'persons':persons}}
               except:
                 self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':errorCreateUpdatePengeluaran,'data':{}}
-              return
+              break
             else:
               if persons:
                 try:
@@ -113,7 +113,7 @@ class TextProcessor(object):
                   self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':errorCreateUpdatePengeluaran,'data':{}}
               else:
                 self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':errorCreateUpdatePengeluaran,'data':{}}
-              return
+              break
           elif action in ["ubah", "ganti"]:
             amount = self.checkAmount(sentence)
             person = self.checkPerson(sentence)
@@ -143,7 +143,7 @@ class TextProcessor(object):
             #   break
             else:
               self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':errorCreateUpdatePengeluaran,'data':{}}
-            return
+            break
           else:
             try:
               if not action in ["hapus"]:
@@ -159,16 +159,17 @@ class TextProcessor(object):
                     pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
                     break
               self.jsonToSend = {'type': u'pengeluaran', 'command': action, 'data':{'event_name': event_name, 'pengeluaran_name':pengeluaran_name}}
-              return
+              break
             except:
               try :
                 event_nameRe = re.compile(r'{0}\s(.+)'.format(pengeluaranKey))
                 event_name = event_nameRe.findall(sentence)[0]
                 self.jsonToSend = {'type': u'pengeluaran', 'command': action, 'data':{'event_name': event_name}}
-                return
+                break
               except:
                 self.jsonToSend = {'type': u'pengeluaran', 'command': action, 'data':{}}
-                return
+                break
+
     def checkActionEvent(self, sentence, eventKey):
         keyTime = ["pukul", "jam"]
         temp_sentence = str(sentence)

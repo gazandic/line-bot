@@ -21,7 +21,7 @@ class RequestParser:
         # if 'id' not in state:
 
         if not user:
-            return us.create()
+            us.create()
         us.set(user)
 
         state, param = self.chooseMenu(text, state)
