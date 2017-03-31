@@ -192,9 +192,11 @@ class ReportPengeluaran(Action):
         print(avg)
         def reducer(prev, cur):
             diff = cur['total'] - avg
+            if prev == "":
+                prev = "List bayar membayar"
             if (diff > 0) :
-                return prev+'\n'+'Piutang si {0} = {1}'.format(cur['_id'], diff)
-            return prev+'\n'+'Utang si {0} = {1}'.format(cur['_id'], diff)
+                return prev +'\n'+'si {0} dapet {1}'.format(cur['_id'], "%.0f" % diff)
+            return prev+'\n'+' si {0} harus bayar {1}'.format(cur['_id'], "%.0f" % abs(diff))
         out = reduce(reducer, res, '')
 
         return (state, out)

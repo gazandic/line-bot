@@ -72,7 +72,7 @@ state = {}
 
 
 static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
-app = Flask(__name__, static_url_path='', static_folder='static')
+app = Flask(__name__, static_url_path='', static_folder='bawel/static')
 
 
 # function for create tmp dir for download content
