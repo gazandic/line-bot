@@ -17,14 +17,18 @@ class JsonToQuery():
         if data.get('event_name'):
             nama = data['event_name']
             nama = nama.replace(" ", "_")
-            finalResult += ' ' + nama
+            finalResult += ' '+nama
+
+        if data.get('pengeluaran_name'):
+            nama = data['pengeluaran_name']
+            nama = nama.replace(" ", "_")
+            finalResult += ' '+nama
+
         if data.get('date'):
             tanggal = datetime.strptime(
                 data['date'], "%Y-%m-%dT%H:%M:%S").strftime(" %d %m %Y %H %M")
             finalResult += tanggal
-        elif data.get('amount'):
-            amount = ' ' + data['amount']
-            finalResult += amount
+
         if data.get('persons'):
             personstring = ''
             for person in data['persons']:
@@ -32,5 +36,9 @@ class JsonToQuery():
                     personstring = ' ' + person
                     break
             finalResult += personstring
+
+        if data.get('amount'):
+            amount = ' '+data['amount']
+            finalResult += amount
         print(finalResult)
         return finalResult

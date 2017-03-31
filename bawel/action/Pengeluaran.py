@@ -1,9 +1,15 @@
 from __future__ import unicode_literals
 
+import sys
+
+from functools import reduce
+
 from bawel.action.Action import Action
 from bawel.util import checkInputWaktu, checkInputTanggal
-
 from bawel.model.Expense import Expense
+from bawel.model.Event import Event
+
+errorCreateUpdatePengeluaran = "coba lagi kak, coba tulis kaya gini 'si bawel tolong tambah/ubah pengeluaran makan siang untuk acara pergi ke jogja sebesar 50000 oleh gazandi' hehe"
 
 class HelpPengeluaran(Action):
     def __init__(self):
@@ -13,64 +19,88 @@ class HelpPengeluaran(Action):
         # TODO:
         return (state, "ntaran")
 
-
 class TambahPengeluaran(Action):
     def __init__(self):
         super().__init__()
 
-    def act(self, event_name, pengeluaran_name,  people_name, state, duit=-1):
-        if float(duit) < 0:
-            state = {**state,
-                'event_name': event_name,
-                'pengeluaran_name': pengeluaran_name,
-                'people_name' : people_name
-            }
-            return (state, "Masukkan jumlah duit \nBisa lewat teks atau input bon")
+    def act(self, event_name, pengeluaran_name, people_name, state, duit=-1):
+        if Event().searchOne({"lineid":state['id'], "about":event_name}):
+            duit = float(duit)
+            if duit < 0:
+                state = {**state,
+                    'pengeluaran_name': pengeluaran_name,
+                    'event_name': event_name,
+                    'people_name' : people_name
+                }
+                return (state, "Masukkan jumlah duit \nBisa lewat teks atau input bon")
 
-        try:
-            ev1 = Expense(state['id'],
-                    pengeluaran_name,
-                    event_name,
-                    people_name,
-                    duit)
-            ev1.create()
-            return (state, "Expenses successfuly added")
-        except:
-            return (state, "format penulisan '/tambahpengeluaran namapengeluaran hari bulan tahun jam menit name'")
-
+            try:
+                ev1 = Expense(state['id'],
+                        pengeluaran_name,
+                        event_name,
+                        people_name,
+                        duit)
+                ev1.create()
+                event_name = event_name.replace("_", " ")
+                pengeluaran_name = pengeluaran_name.replace("_", " ")
+                return (state, "Pengeluaran "+pengeluaran_name+" telah ditambahkan di acara "+event_name)
+            except:
+                print(sys.exc_info())
+                return (state, errorCreateUpdatePengeluaran)
+        else:
+            event_name = event_name.replace("_"," ")
+            return (state, "acara "+event_name+" belum ada :( ")
 
 class ImageTambahPengeluaran(Action):
     def __init__(self):
         super().__init__()
 
-    def act(self, jumlah, state):
+    def act(self, jumlah, path, state):
         ev1 = Expense(state['id'],
                 state['pengeluaran_name'],
                 state['event_name'],
                 state['people_name'],
                 jumlah)
         ev1.create()
-
+        ev1.updatePathNota(str(path))
+        pengeluaran_name = state['pengeluaran_name'].replace("_"," ")
         state.pop('pengeluaran_name', None)
         state.pop('event_name', None)
         state.pop('people_name', None)
-        return (state, "Expenses successfuly added")
+        return (state, "Pengeluaran "+pengeluaran_name+" berhasil ditambahkan dengan senilai "+jumlah)
 
 
 class LihatPengeluaran(Action):
     def __init__(self):
         super().__init__()
 
-    def act(self, state):
-        ev1 = Expense()
-        expenses = ev1.search({"lineid": state['id']})
+    def act(self, state, event_name=""):
+        ex1 = Expense()
+        if event_name == "":
+            expenses = ex1.search({"lineid": state['id']})
+        else:
+            expenses = ex1.search({"lineid": state['id'], "name":event_name})
 
-        def printExpense(prev, exp):
-            L = [expense['about'],expense['datetime'],expense['name'],expense['peoplename'],expense['pathnota']]
+        def printExpense(prev, expense):
+            L = [expense['about'],expense['name'],expense['peoplename'],expense['total']]
             S = '\n'.join(L)
             return '{0}\n{1}'.format(prev, S)
 
-        output = reduce(printExpense, expenses)
+        if expenses.count() == 1:
+            expense = expenses[0]
+            L = [expense['about'],expense['name'],expense['peoplename'],expense['total']]
+            S = '\n'.join(L)
+            output = '{0}'.format(S)
+
+        elif expenses.count() > 1:
+            output = reduce(printExpense, expenses)
+
+        else :
+            if event_name == "":
+                output = "Maaf tidak ada pengeluaran di database bawel :("
+            else:
+                event_name = event_name.replace("_"," ")
+                output = "Maaf tidak ada pengeluaran di acara "+event_name+" di database bawel :("
         return (state, output)
 
 
@@ -79,34 +109,49 @@ class UbahPengeluaran(Action):
         super().__init__()
 
     def act(self, pengeluaran_name, event_name, people_name, duit, state):
-        try:
-            # checkInputTanggal(hari, bulan, tahun, jam, menit)
-            ev1 = Expense(state['id'],pengeluaran_name,event_name,people_name,duit)
-            ev1.update()
-            return (state, "Expenses successfuly changed")
-        except ValueError:
-            return (state, "format penulisan '/ubahpengeluaran nama_pengeluaran nama_event hari bulan tahun jam menit name'  \nnama_pengeluaran tidak dapat diubah")
+
+        if Event().searchOne({"lineid":state['id'], "about":event_name}):
+            try:
+                ex1 = Expense(state['id'],pengeluaran_name,event_name,people_name,duit)
+                ex1.update()
+
+                pengeluaran_name = pengeluaran_name.replace("_", " ")
+                return (state, "Pengeluaran "+pengeluaran_name+" berhasil dirubah")
+            except :
+                print(sys.exc_info())
+                return (state, errorCreateUpdatePengeluaran)
+        else:
+            event_name = event_name.replace("_"," ")
+            return (state, "acara "+event_name+" belum ada :( ")
 
 
 class HapusPengeluaran(Action):
     def __init__(self):
         super().__init__()
 
-    def act(self, nama_pengeluaran, state):
-        ev1 = Expense()
-        ev1.removeQuery({"lineid":state['id'],
-            "about":nama_pengeluaran})
-        return (state, "Expenses successfuly removed")
-
+    def act(self, event_name, state, pengeluaran_name=""):
+        ex1 = Expense()
+        if pengeluaran_name == "":
+            ex1.removeQuery({"lineid":state['id'],
+                "name": event_name})
+            event_name = event_name.replace("_", " ")
+            return (state, "Semua pengeluaran untuk acara "+event_name+" telah dihapus")
+        else :
+            ex1.removeQuery({"lineid":state['id'],
+                "about" : pengeluaran_name,
+                "name": event_name})
+            event_name = event_name.replace("_", " ")
+            pengeluaran_name = pengeluaran_name.replace("_", " ")
+            return (state, "Pengeluaran "+pengeluaran_name+" untuk acara "+event_name+" telah dihapus")
 
 class ReportPengeluaran(Action):
     def __init__(self):
         super().__init__()
 
-    def act(self, state):
+    def act(self, event_name, state):
         ev1 = Expense()
-        # TODO
-        # expenses = ev1.search({"lineid":state['id']})
+        # TODO ICAL
+        expenses = ev1.search({"lineid":state['id'],"name":event_name})
         # i = 0
         # total = 0
         # for expense in expenses:

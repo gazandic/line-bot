@@ -5,7 +5,7 @@ from datetime import datetime, date, time
 from bawel.model.BaseMongo import BaseMongo
 
 class Expense(BaseMongo):
-    def __init__(self, line_id=0, _about="", _name="", _peoplename="", _total=0):
+    def __init__(self, line_id="", _about="", _name="", _peoplename="", _total=0):
         super().__init__()
         self.lineid = line_id
         self.about = _about
@@ -44,7 +44,15 @@ class Expense(BaseMongo):
         expense = self.searchOne({ "lineid" : self.lineid, "about" : self.about })
         self.db.expenses.update(
             {'_id': expense['_id']},
-            { "$set": { "peoplename" : self.peoplename,"datetime" : self.datetime,"total" : self.total}},
+            { "$set": { "peoplename" : self.peoplename,"name" : self.name,"total" : self.total}},
+            upsert=False, multi=True)
+        return 0
+
+    def updatePathNota(self, path):
+        expense = self.searchOne({ "lineid" : self.lineid, "about" : self.about, "name" : self.name})
+        self.db.expenses.update(
+            {'_id': expense['_id']},
+            { "$set": { "peoplename" : self.peoplename,"total" : self.total, "pathnota" : path}},
             upsert=False, multi=True)
         return 0
 
