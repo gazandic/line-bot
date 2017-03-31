@@ -1,3 +1,4 @@
+
 from __future__ import unicode_literals
 
 import sys
@@ -144,19 +145,21 @@ class HapusPengeluaran(Action):
             pengeluaran_name = pengeluaran_name.replace("_", " ")
             return (state, "Pengeluaran "+pengeluaran_name+" untuk acara "+event_name+" telah dihapus")
 
+
 class ReportPengeluaran(Action):
     def __init__(self):
         super().__init__()
 
     def act(self, event_name, state):
-        ev1 = Expense()
-        # TODO ICAL
-        expenses = ev1.search({"lineid":state['id'],"name":event_name})
-        # i = 0
-        # total = 0
-        # for expense in expenses:
-        #     total += 1
-        #     if int(expense['pathnota']) == 1:
-        #         i += 1
-        # percentage = i / total * 100
-        # print("%.2f",percentage)
+        exp = Expense()
+        pipeline = [{'$match': {'name': event_name}}, {'$group': {'_id': "$peoplename", 'total': {'$sum': "$total"}}}]
+
+        res = list(exp.aggregate(pipeline))
+        avg = reduce(lambda x,y: x+float(y['total']), res, 0) / len(res)
+
+        def reducer(prev, cur):
+            diff = cur['total'] - avg
+            return prev+'\n'+'Utang si {0} = {1}'.format(cur['_id'], diff)
+        out = reduce(reducer, res, '')
+
+        return (state, out)

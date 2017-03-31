@@ -85,6 +85,10 @@ class Expense(BaseMongo):
                   "total" : self.total}
         return expense
 
+    def aggregate(self, pipeline):
+        return self.db.expenses.aggregate(pipeline
+            )
+
 # ev1 = expense("2783718371823718","ujian kanji",10,31,3,1997,12,30,-1)
 # ev1.create()
 # # ev1.removeSelf()
