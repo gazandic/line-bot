@@ -30,7 +30,8 @@ from bawel.constant.StateConstant import (
     STATE_ADD_PENGELUARAN,
     STATE_SHOW_PENGELUARAN,
     STATE_DELETE_PENGELUARAN,
-    STATE_IMAGE_ADD_PENGELUARAN
+    STATE_IMAGE_ADD_PENGELUARAN,
+    REQUEST_STATE
 )
 
 from linebot import (
@@ -88,7 +89,6 @@ def make_static_tmp_dir():
 
 def handle_action(raw_text, text, state):
     state, param = parser.parse(text, state)
-
     if state['state_id'] >= STATE_ADD_JADWAL and \
        state['state_id'] <= STATE_DELETE_JADWAL:
         param.append(reminder)
@@ -161,6 +161,7 @@ def handle_text_message(event):
         else:
             user_state = { 'id': id }
 
+        s = text.split(" ")
         if user_state.get('before_state'):
             if user_state['before_state'] == STATE_ADD_PENGELUARAN :
                 cm = str(CheckMoney().processText(text))
@@ -174,6 +175,18 @@ def handle_text_message(event):
                             TextSendMessage(text=output)
                         ])
                 return
+        elif REQUEST_STATE.get(s[0]):
+            try:
+                user_state, output = handle_action(text, text, user_state)
+                state = {**state, id: user_state}
+                if type(output[0]) == TemplateSendMessage:
+                    line_bot_api.reply_message(event.reply_token, output)
+                else :
+                    line_bot_api.reply_message(
+                        event.reply_token, TextMessage(text=output))
+            except:
+                line_bot_api.reply_message(
+                    event.reply_token, TextMessage(text="ketik 'si bawel tolong' kak"))
 
         elif text == '@bye':
             line_bot_api.reply_message(
@@ -181,11 +194,11 @@ def handle_text_message(event):
             line_bot_api.leave_group(id)
 
         elif text == 'si bawel tolong':
+            text = '/help'
+            user_state, output = handle_action(text, text, user_state)
+            state = {**state, id: user_state}
             line_bot_api.reply_message(
-                event.reply_token, [TextSendMessage(text='lagi dibuat hehe'),
-                StickerSendMessage(
-                    package_id=3,
-                    sticker_id=random.choice(randomPrivate))])
+                event.reply_token, TextMessage(text=output))
         elif not 'si bawel' in text.lower():
             pass
 
