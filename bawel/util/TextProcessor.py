@@ -12,8 +12,8 @@ errorIkutOrangJadwal = "siapa yang ikut kak ? coba tulis mirip gini kak 'si bawe
 errorIkutJadwal = "kaya gini kak 'si bawel tolong ikut acara pergi ke jogja oleh Kevin' hehe"
 errorLiatJadwal = "coba tulis mirip gini kak 'si bawel lihat acara'"
 errorHapusJadwal = "tolong tulis mirip gini ya kak 'si bawel hapus acara pergi ke jogja'"
-errorJadwal = "ketik helpJadwal ya kak"
-errorPengeluaran = "ketik HelpPengeluaran ya kak"
+errorJadwal = "ketik /jadwal ya kak"
+errorPengeluaran = "ketik /pengeluaran ya kak"
 errorUnknownInput = "bawel ga paham :( ketik 'si bawel tolong' atau '/help' ya kaak buat pake si bawel"
 
 class TextProcessor(object):
