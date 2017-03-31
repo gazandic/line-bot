@@ -86,7 +86,7 @@ def handle_action(raw_text, text, state):
     state, param = parser.parse(text, state)
 
     if state['state_id'] >= STATE_ADD_JADWAL and \
-       state['state_id'] <= STATE_DELETE_JADWAL:
+       state['state_id'] <= STATE_DLEETE_JADWAL:
         param.append(reminder)
 
     if state['state_id'] == STATE_ADD_PENGELUARAN:
@@ -162,9 +162,9 @@ def handle_text_message(event):
             pass
 
         else:
-                restext = "Tolong ketik 'si bawel tolong' ya kakak kakak"
+            restext = "Tolong ketik 'si bawel tolong' ya kakak kakak"
 
-            # try:
+            try:
                 nlptext.processText(event.message.text)
                 jtq = JsonToQuery(nlptext.getJsonToSent())
                 restext = jtq.parseJSON()
