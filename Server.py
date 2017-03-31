@@ -175,7 +175,7 @@ def handle_text_message(event):
                             TextSendMessage(text=output)
                         ])
                 else :
-                    output = 'masukkan bon atau gambar'
+                    output = 'masukkan tulisan harga atau gambar bon'
                     line_bot_api.reply_message(
                         event.reply_token, [
                             TextSendMessage(text=output)
