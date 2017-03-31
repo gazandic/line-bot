@@ -5,7 +5,16 @@ import os
 import sys
 from datetime import datetime
 from dateutil.parser import parse
-errorCreateUpdatePengeluaran = "coba lagi kak, coba tulis kaya gini 'si bawel tolong tambah/ubah pengeluaran makan siang untuk acara pergi ke jogja sebesar 50000 oleh gazandi' hehe"
+
+errorCreateUpdatePengeluaran = "coba lagi kak, coba tulis mirip gini kak 'si bawel tolong tambah/ubah pengeluaran makan siang untuk acara pergi ke jogja sebesar 50000 oleh Kevin' hehe"
+errorCreateUpdateJadwal = "coba lagi kak, coba tulis mirip gini kak 'si bawel tolong tambah/ubah jadwal pergi ke jogja tanggal 5 April jam 3:50 sore' yaaa"
+errorIkutOrangJadwal = "siapa yang ikut kak ? coba tulis mirip gini kak 'si bawel tolong ikut acara pergi ke jogja oleh Kevin' hehehe"
+errorIkutJadwal = "kaya gini kak 'si bawel tolong ikut acara pergi ke jogja oleh Kevin' hehe"
+errorLiatJadwal = "coba tulis mirip gini kak 'si bawel lihat acara'"
+errorHapusJadwal = "tolong tulis mirip gini ya kak 'si bawel hapus acara pergi ke jogja'"
+errorJadwal = "ketik helpJadwal ya kak"
+errorPengeluaran = "ketik HelpPengeluaran ya kak"
+errorUnknownInput = "bawel ga paham :( ketik help ya kaak buat pake si bawel"
 
 class TextProcessor(object):
 	def __init__(self):
@@ -14,7 +23,9 @@ class TextProcessor(object):
 		self.keyWordPengeluaran = ["pengeluaran"]
 		self.listActionDetection = ["untuk", "bagi", "buat"]
 		self.listActionInEvent = {"lihat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "gajadi ikut":"gajadiikut","ga jadi ikut":"gajadiikut", "gak jadi ikut":"gajadiikut", "gak ikut":"gajadiikut", "ikut" : "ikut", "ubah":"ubah", "hapus":"hapus", "lapor":"report", "liat":"lihat", "report":"report", "eval":"report"}
-		self.listActionInPengeluaran ={"lihat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "ubah":"ubah", "hapus":"hapus"}
+		self.listActionInPengeluaran ={"lihat" : "lihat", "liat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "ubah":"ubah", "hapus":"hapus"}
+		self.listErrorInEvent={"lihat" : errorLiatJadwal, "ikut":errorIkutJadwal, "hapus":errorHapusJadwal, "ubah":errorCreateUpdateJadwal, "tambah":errorCreateUpdateJadwal}
+		self.listErrorType={"jadwal":errorJadwal, "pengeluaran":errorPengeluaran}
 		self.jsonToSend = None
 
 	def isCalled(self, sentence):
@@ -159,7 +170,7 @@ class TextProcessor(object):
 		temp_sentence = str(sentence)
 		timeSentence = None
 		for key in keyTime:
-			findTime = re.compile(r'{0}\W(\d+.\d+.\w+|\d+.\w+)'.format(key,))
+			findTime = re.compile(r'{0}\W(\d+.\d+.\w+|\d+.\w+)'.format(key, flags=re.IGNORECASE))
 			timeFound = findTime.findall(temp_sentence)
 			if(timeFound):
 				timeSentence = timeFound[0]
@@ -194,9 +205,9 @@ class TextProcessor(object):
 								self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{'event_name': event_name, 'persons': persons}}
 								break
 							else:
-								event_nameRe = re.compile(r'{0}\s(.+)\s'.format(eventKey), flags=re.IGNORECASE)
+								event_nameRe = re.compile(r'{0}\s(.+)'.format(eventKey), flags=re.IGNORECASE)
 								event_name = event_nameRe.findall(sentence)[0]
-								self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'error': ['no persons'],  'data':{'event_name': event_name}}
+								self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'error': errorIkutOrangJadwal,  'data':{'event_name': event_name}}
 								break
 						elif action in ["lihat","liat"]:
 							self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{}}
@@ -211,10 +222,11 @@ class TextProcessor(object):
 							break
 				except:
 					print(sys.exc_info())
-					self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action] , 'error':'unknown input'}
+					command = self.listActionInEvent[action]
+					self.jsonToSend = {'type': 'jadwal', 'command': command, 'error':self.listErrorInEvent[command]}
 					break
 			else:
-				self.jsonToSend = {'type': 'jadwal', 'error':'unknown input'}
+				self.jsonToSend = {'type': 'jadwal', 'error':self.listErrorType['jadwal']}
 
 	def checkTanggal(self, sentence):
 		keyTime = ["pukul", "jam"]
@@ -249,9 +261,9 @@ class TextProcessor(object):
 					if (isContain.findall(sentence)):
 						self.checkActionEvent(sentence,key)
 			if self.jsonToSend == None:
-				self.jsonToSend = {'error': 'unknown input'}
+				self.jsonToSend = {'error': errorUnknownInput}
 		else:
-			self.jsonToSend = {'error': 'unknown input'}
+			self.jsonToSend = {'error': errorUnknownInput}
 
 	def dateParser(self, dateSentence, timeSentence):
 		bulanDetected = False
@@ -323,6 +335,7 @@ class TextProcessor(object):
 		return date
 
 	def checkDate(self, sentence):
+		sentence = sentence.lower()
 		token = os.getenv('TOKEN_KATA', None)
 		parameters = {'m': sentence, 'api_token': token}
 		r = requests.get('https://api.kata.ai/v1/insights', params = parameters)
@@ -356,7 +369,7 @@ class TextProcessor(object):
 		if (self.isCalled(sentence)):
 			self.checkWhatCommand(sentence)
 		else:
-			self.jsonToSend = {'error': 'unknown input'}
+			self.jsonToSend = {'error': errorUnknownInput}
 
 	def getJsonToSent(self):
 		js = self.jsonToSend

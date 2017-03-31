@@ -20,7 +20,7 @@ from bawel.util.Reminder import Reminder
 from bawel.util.RequestParser import RequestParser
 from bawel.util.TextProcessor import TextProcessor
 from bawel.util.JsonToQuery import JsonToQuery
-
+from bawel.util.CheckMoney import CheckMoney
 from bawel.constant.StateConstant import (
     ACTION_MAPPER,
     STATE_ADD_JADWAL,
@@ -145,7 +145,27 @@ def handle_text_message(event):
         elif isinstance(event.source, SourceRoom):
             id = event.source.room_id
 
-        if text == '@bye':
+        global state
+
+        if id in state:
+            user_state = state[id]
+        else:
+            user_state = { 'id': id }
+
+        if user_state.get('before_state'):
+            if user_state['before_state'] == STATE_ADD_PENGELUARAN :
+                cm = str(CheckMoney().processText(text))
+                if not cm == "None" :
+                    user_state['state_id'] = STATE_IMAGE_ADD_PENGELUARAN
+                    user_state, output = dispatch_action(ACTION_MAPPER[user_state['state_id']], *(cm, "", user_state))
+                    state = {**state, id: user_state}
+                    line_bot_api.reply_message(
+                        event.reply_token, [
+                            TextSendMessage(text=output)
+                        ])
+                    return
+
+        elif text == '@bye':
             line_bot_api.reply_message(
                 event.reply_token, TextMessage(text='Leaving group'))
             line_bot_api.leave_group(id)
@@ -168,12 +188,6 @@ def handle_text_message(event):
                 jtq = JsonToQuery(nlptext.getJsonToSent())
                 restext = jtq.parseJSON()
                 if not jtq.json.get('error'):
-                    global state
-
-                    if id in state:
-                        user_state = state[id]
-                    else:
-                        user_state = { 'id': id }
                     user_state, output = handle_action(restext, user_state)
                     state = {**state, id: user_state}
                 else:
@@ -243,9 +257,7 @@ def handle_content_message(event):
         else:
             user_state = { 'id': id }
 
-        if user_state.get('pengeluaran_name') and \
-                 user_state.get('event_name') and \
-                 user_state.get('people_name'):
+        if user_state.get('before_state'):
             ext = 'jpg'
             message_content = \
                 line_bot_api.get_message_content(event.message.id)

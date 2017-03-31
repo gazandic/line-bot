@@ -30,7 +30,8 @@ class TambahPengeluaran(Action):
                 state = {**state,
                     'pengeluaran_name': pengeluaran_name,
                     'event_name': event_name,
-                    'people_name' : people_name
+                    'people_name' : people_name,
+                    'before_state' : state['state_id']
                 }
                 return (state, "Masukkan jumlah duit \nBisa lewat teks atau input bon")
 
@@ -67,6 +68,7 @@ class ImageTambahPengeluaran(Action):
         state.pop('pengeluaran_name', None)
         state.pop('event_name', None)
         state.pop('people_name', None)
+        state.pop('before_state', None)
         return (state, "Pengeluaran "+pengeluaran_name+" berhasil ditambahkan dengan senilai "+jumlah)
 
 

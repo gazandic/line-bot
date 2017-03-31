@@ -1,7 +1,7 @@
 import re
 import math
 
-class checkMoney(object):
+class CheckMoney(object):
 	def processText(self, sentence):
 		checkMoneyRe = re.compile(r"((\d[\.,]|\d)+)", flags= re.IGNORECASE)
 		moneyL = checkMoneyRe.findall(sentence)
@@ -15,3 +15,6 @@ class checkMoney(object):
 				return None
 		else:
 			return None
+
+# cm = checkMoney()
+# print(cm.processText("100000 aja bawel"))
