@@ -314,11 +314,12 @@ def handle_content_message(event):
 #     app.logger.info("Got Unfollow event")
 
 
-# @handler.add(JoinEvent)
-# def handle_join(event):
-#     line_bot_api.reply_message(
-#         event.reply_token,
-#         TextSendMessage(text='Joined this ' + event.source.type))
+@handler.add(JoinEvent)
+def handle_join(event):
+    line_bot_api.reply_message(
+        event.reply_token,
+        TextSendMessage(text='Hai, si bawel telah join ' + event.source.type + \
+            ' ini. Mohon bantuannya, ketik "si bawel tolong" atau "/help" ya kak'))
 
 
 # @handler.add(LeaveEvent)
@@ -328,9 +329,37 @@ def handle_content_message(event):
 
 @handler.add(PostbackEvent)
 def handle_postback(event):
-    if event.postback.data == 'ping':
-        line_bot_api.reply_message(
-            event.reply_token, TextSendMessage(text='pong'))
+    text = event.postback.data
+    id = None
+    if isinstance(event.source, SourceGroup):
+        id = event.source.group_id
+    elif isinstance(event.source, SourceRoom):
+        id = event.source.room_id
+
+    global state
+
+    if id in state:
+        user_state = state[id]
+    else:
+        user_state = { 'id': id }
+
+    s = text.split(" ")
+
+    if REQUEST_STATE.get(s[0]):
+        try:
+            user_state, output = handle_action(text, text, user_state)
+            state = {**state, id: user_state}
+            if type(output[0]) == TemplateSendMessage:
+                line_bot_api.reply_message(event.reply_token, output)
+            else :
+                line_bot_api.reply_message(
+                    event.reply_token, TextMessage(text=output))
+        except:
+            line_bot_api.reply_message(
+                event.reply_token, TextMessage(text="ketik 'si bawel tolong' kak"))
+    # if event.postback.data == 'ping':
+    #     line_bot_api.reply_message(
+    #         event.reply_token, TextSendMessage(text='pong'))
 
 
 # @handler.add(BeaconEvent)

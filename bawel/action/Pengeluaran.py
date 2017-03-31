@@ -91,6 +91,7 @@ class LihatPengeluaran(Action):
                 return (state, output)
             licc = []
             ite = 0
+            ikut = 9
             liexpenses = []
             for expense in expenses:
                 if expense['about'] == "ikut":
@@ -101,9 +102,11 @@ class LihatPengeluaran(Action):
                 amount = str(expense['total'])[0:10]
                 people_name = str(expense['peoplename'])[0:10]
                 text = "acara "+event_name+" sebesar "+amount+ " oleh "+people_name
+                report = '/reportpengeluaran ' + expense['name']
+                hapus = '/hapuspengeluaran ' + expense['name'] + " " + expense['about']
                 actionli = [
-                    URITemplateAction(label='Go to line.me', uri='https://line.me'),
-                    PostbackTemplateAction(label='ping', data='ping')
+                    PostbackTemplateAction(label='Report Pengeluaran', data=report),
+                    PostbackTemplateAction(label='Hapus Pengeluaran', data=hapus)
                 ]
                 if expense.get('pathnota') and expense['pathnota'] != "":
                     actionli.append(URITemplateAction(label='go to nota', uri=expense['pathnota']))
@@ -116,6 +119,13 @@ class LihatPengeluaran(Action):
                     ite = 0
                     liexpenses.append(template_message)
                     licc = []
+            if len(licc) == 0 and len(liexpenses) == 0:
+                if event_name == "":
+                    output = "Maaf tidak ada pengeluaran di database bawel :("
+                else:
+                    event_name = event_name.replace("_"," ")
+                    output = "Maaf tidak ada pengeluaran di acara "+event_name+" di database bawel :("
+                return (state, output)
             if ite > 0:
                 carousel_template = CarouselTemplate(columns=licc)
                 template_message = TemplateSendMessage(
