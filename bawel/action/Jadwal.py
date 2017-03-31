@@ -29,7 +29,7 @@ class TambahJadwal(Action):
             ev1 = Event(state['id'],namajadwal,hari,bulan,tahun,jam,menit,location,0)
             ev1.create()
 
-            reminder.add(namajadwal, dt, job, ("jangan lupa 1 jam lagi ada "+namajadwal, state['id'], location,))
+            reminder.add(namajadwal+str(state['id']), dt, job, ("jangan lupa 1 jam lagi ada "+namajadwal, state['id'], location,))
             namajadwal = namajadwal.replace("_"," ")
             return (state, "acara "+namajadwal+" telah ditambah")
 
@@ -121,7 +121,7 @@ class UbahJadwal(Action):
             print(sys.exc_info())
             return (state, "Maaf kak, bawel ga ngerti, coba nambahjadwalnya kaya gini ya kak'si bawel tolong ubah acara/event/jadwal nonton bareng tanggal 29 Maret jam 5.50 sore'")
         try:
-            reminder.modify(namajadwal, dtime)
+            reminder.modify(namajadwal+str(state['id']), dtime)
             namajadwal = namajadwal.replace("_"," ")
             return (state, "acara "+namajadwal+" telah diubah")
         except:
@@ -134,7 +134,7 @@ class HapusJadwal(Action):
         try:
             ev1 = Event()
             ev1.removeQuery({"lineid":state['id'],"about":namajadwal})
-            reminder.remove(namajadwal)
+            reminder.remove(namajadwal+str(state['id']))
             namajadwal = namajadwal.replace("_"," ")
             return (state, "acara "+namajadwal+" telah dihapus")
         except:

@@ -76,8 +76,8 @@ class TextProcessor(object):
         persons = self.checkPerson(sentence)
         if isContain.findall(sentence):
           if action in ["buat", "tambah", "bikin"]:
-            if self.checkAmount(sentence):
-              amount = self.checkAmount(sentence)
+            amount = self.checkAmount(sentence)
+            if amount :
               try:
                 event_name , pengeluaran_name = None, None
                 for eventkey in self.keyWordToEvent:
@@ -93,7 +93,7 @@ class TextProcessor(object):
                 self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'data':{'amount': amount,'event_name': event_name, 'pengeluaran_name': pengeluaran_name, 'persons':persons}}
               except:
                 self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':errorCreateUpdatePengeluaran,'data':{}}
-              break
+              return
             else:
               if persons:
                 try:
@@ -113,7 +113,7 @@ class TextProcessor(object):
                   self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':errorCreateUpdatePengeluaran,'data':{}}
               else:
                 self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':errorCreateUpdatePengeluaran,'data':{}}
-            break
+              return
           elif action in ["ubah", "ganti"]:
             amount = self.checkAmount(sentence)
             person = self.checkPerson(sentence)
@@ -143,7 +143,7 @@ class TextProcessor(object):
             #   break
             else:
               self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':errorCreateUpdatePengeluaran,'data':{}}
-            break
+            return
           else:
             try:
               if not action in ["hapus"]:
@@ -159,14 +159,16 @@ class TextProcessor(object):
                     pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
                     break
               self.jsonToSend = {'type': u'pengeluaran', 'command': action, 'data':{'event_name': event_name, 'pengeluaran_name':pengeluaran_name}}
+              return
             except:
               try :
                 event_nameRe = re.compile(r'{0}\s(.+)'.format(pengeluaranKey))
                 event_name = event_nameRe.findall(sentence)[0]
                 self.jsonToSend = {'type': u'pengeluaran', 'command': action, 'data':{'event_name': event_name}}
+                return
               except:
                 self.jsonToSend = {'type': u'pengeluaran', 'command': action, 'data':{}}
-
+                return
     def checkActionEvent(self, sentence, eventKey):
         keyTime = ["pukul", "jam"]
         temp_sentence = str(sentence)
@@ -372,3 +374,8 @@ class TextProcessor(object):
         js = self.jsonToSend
         self.jsonToSend = None
         return js
+
+# TP = TextProcessor()
+# TP.processText('si bawel lihat pengeluaran main bola')
+# json = TP.getJsonToSent()
+# print(json)
