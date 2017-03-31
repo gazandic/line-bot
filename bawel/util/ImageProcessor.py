@@ -12,6 +12,7 @@ try:
 except ImportError:
     from io import BytesIO
 
+
 class ImageProcessor(object):
     NEWIMAGESIZE = 1200
     path = ""
@@ -26,9 +27,9 @@ class ImageProcessor(object):
 
     # process list image to string and print it
     def process_images(self, listUrl):
-        s =  {}
+        s = {}
         for url in listUrl:
-            s[url] = self.process_image(self.path+url)+"\n"
+            s[url] = self.process_image(self.path + url) + "\n"
         return s
 
     # process the image to string with tesseract library
@@ -39,7 +40,10 @@ class ImageProcessor(object):
         image = self._resize_image(image, 13)
         image.filter(ImageFilter.GaussianBlur(2))
         image.filter(ImageFilter.SMOOTH)
-        image.filter(ImageFilter.Kernel((3,3), [1,1,1,0,0,0,-1,-1,-1]))
+        image.filter(
+            ImageFilter.Kernel(
+                (3, 3), [
+                    1, 1, 1, 0, 0, 0, -1, -1, -1]))
         print(image)
         s = pytesseract.image_to_string(image)
         return self.normalize(s)
@@ -47,7 +51,7 @@ class ImageProcessor(object):
     # get the image
     def _get_image(self, url):
         if "http" in url:
-            return Image.open(requests.get(url),'rb')
+            return Image.open(requests.get(url), 'rb')
         return Image.open(url)
 
    # resize image with magnitude
@@ -55,7 +59,10 @@ class ImageProcessor(object):
         xDim = image.size[0] * magnitude
         yDim = image.size[1] * magnitude
         newSize = self.aspectRatio(xDim, yDim)
-        return image.resize((int(newSize[0]),int(newSize[1])),Image.ANTIALIAS)
+        return image.resize(
+            (int(
+                newSize[0]), int(
+                newSize[1])), Image.ANTIALIAS)
 
    # normalize indonesian string for small email picture
     def normalize(self, string):
@@ -86,9 +93,9 @@ class ImageProcessor(object):
         ss = "".join(s)
         if self.isEmail(ss):
             # is_valid = validate_email(ss)
-            if is_valid :
+            if is_valid:
                 return ss
-            else :
+            else:
                 return ""
         else:
             return ss
@@ -107,26 +114,27 @@ class ImageProcessor(object):
     def isNumber(self, c, search=re.compile(r'[^0-9.+-]').search):
         return not bool(search(c))
 
-
     # check the char is number and - or not
-    def isEmail(self, c, search=re.compile(r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)').search):
+    def isEmail(self, c, search=re.compile(
+            r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)').search):
         return bool(search(c))
 
     # calculate aspectRatio from dimension x and y
     def aspectRatio(self, xDim, yDim):
-        if xDim <= self.NEWIMAGESIZE and yDim <= self.NEWIMAGESIZE: #ensures images already correct size are not enlarged.
+        # ensures images already correct size are not enlarged.
+        if xDim <= self.NEWIMAGESIZE and yDim <= self.NEWIMAGESIZE:
             return(xDim, yDim)
 
         elif xDim > yDim:
-            divider = xDim/float(self.NEWIMAGESIZE)
-            xDim = float(xDim/divider)
-            yDim = float(yDim/divider)
+            divider = xDim / float(self.NEWIMAGESIZE)
+            xDim = float(xDim / divider)
+            yDim = float(yDim / divider)
             return(xDim, yDim)
 
         elif yDim > xDim:
-            divider = yDim/float(self.NEWIMAGESIZE)
-            xDim = float(xDim/divider)
-            yDim = float(yDim/divider)
+            divider = yDim / float(self.NEWIMAGESIZE)
+            xDim = float(xDim / divider)
+            yDim = float(yDim / divider)
             return(xDim, yDim)
 
         elif xDim == yDim:

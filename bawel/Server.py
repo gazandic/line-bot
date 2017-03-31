@@ -129,15 +129,15 @@ def handle_text_message(event):
     if isinstance(event.source, SourceUser):
         profile = line_bot_api.get_profile(event.source.user_id)
         line_bot_api.reply_message(
-            event.reply_token, [
+            event.reply_token,
+            [
                 TextSendMessage(
-                    text='Maaf, kak ' + profile.display_name + ' bot ini fokus pada asisten grup, undang bawel ke grup kak'
-                ),
+                    text='Maaf, kak ' +
+                    profile.display_name +
+                    ' bot ini fokus pada asisten grup, undang bawel ke grup kak'),
                 StickerSendMessage(
                     package_id=3,
-                    sticker_id=random.choice(randomPrivate))
-            ]
-        )
+                    sticker_id=random.choice(randomPrivate))])
 
     else:
         id = None
@@ -154,11 +154,11 @@ def handle_text_message(event):
         elif text == 'si bawel tolong':
             line_bot_api.reply_message(
                 event.reply_token, [TextSendMessage(text='lagi dibuat hehe'),
-                StickerSendMessage(
+                                    StickerSendMessage(
                     package_id=3,
                     sticker_id=random.choice(randomPrivate))])
 
-        elif not 'si bawel' in text.lower():
+        elif 'si bawel' not in text.lower():
             pass
 
         else:
@@ -182,25 +182,26 @@ def handle_text_message(event):
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text=output))
 
-            # except:
-            #     line_bot_api.reply_message(
-            #         event.reply_token, [
-            #             TextSendMessage(text=restext),
-            #             StickerSendMessage(
-            #                 package_id=3,
-            #                 sticker_id=random.choice(randomPrivate))
-            #         ])
+            except BaseException:
+                print(sys.exc_info())
+                line_bot_api.reply_message(
+                    event.reply_token, [
+                        TextSendMessage(text=restext),
+                        StickerSendMessage(
+                            package_id=3,
+                            sticker_id=random.choice(randomPrivate))
+                    ])
 
 
-# @handler.add(MessageEvent, message=LocationMessage)
-# def handle_location_message(event):
-#     line_bot_api.reply_message(
-#         event.reply_token,
-#         LocationSendMessage(
-#             title=event.message.title, address=event.message.address,
-#             latitude=event.message.latitude, longitude=event.message.longitude
-#         )
-#     )
+@handler.add(MessageEvent, message=LocationMessage)
+def handle_location_message(event):
+    line_bot_api.reply_message(
+        event.reply_token,
+        LocationSendMessage(
+            title=event.message.title, address=event.message.address,
+            latitude=event.message.latitude, longitude=event.message.longitude
+        )
+    )
 
 
 # @handler.add(MessageEvent, message=StickerMessage)
@@ -215,21 +216,21 @@ def handle_text_message(event):
 #     )
 
 
-# Other Message Type
+# Image Message Type
 @handler.add(MessageEvent, message=ImageMessage)
 def handle_content_message(event):
     if isinstance(event.source, SourceUser):
         profile = line_bot_api.get_profile(event.source.user_id)
         line_bot_api.reply_message(
-            event.reply_token, [
+            event.reply_token,
+            [
                 TextSendMessage(
-                    text='Maaf, kak ' + profile.display_name + ' bot ini fokus pada asisten grup, undang bawel ke grup kak'
-                ),
+                    text='Maaf, kak ' +
+                    profile.display_name +
+                    ' bot ini fokus pada asisten grup, undang bawel ke grup kak'),
                 StickerSendMessage(
                     package_id=3,
-                    sticker_id=random.choice(randomPrivate))
-            ]
-        )
+                    sticker_id=random.choice(randomPrivate))])
     else:
         id = None
         if isinstance(event.source, SourceGroup):
@@ -253,16 +254,19 @@ def handle_content_message(event):
         total_amount = PD.checkForTotal()
 
         if not total_amount:
-            return (state, "Gambar tidak terbaca \nCoba lagi dengan gambar yang lebih baik")
+            return (
+                state,
+                "Gambar tidak terbaca \nCoba lagi dengan gambar yang lebih baik")
 
         global state
         if id in state:
             user_state = state[id]
         else:
-            user_state = { 'id': id }
+            user_state = {'id': id}
 
         user_state['state_id'] = STATE_ADD_PENGELUARAN
-        user_state, output = dispatch_action(ACTION_MAPPER[user_state['state_id']], *())
+        user_state, output = dispatch_action(
+            ACTION_MAPPER[user_state['state_id']], *())
         state = {**state, id: user_state}
 
         line_bot_api.reply_message(
@@ -271,27 +275,27 @@ def handle_content_message(event):
             ])
 
 
-@handler.add(FollowEvent)
-def handle_follow(event):
-    line_bot_api.reply_message(
-        event.reply_token, TextSendMessage(text='Got follow event'))
+# @handler.add(FollowEvent)
+# def handle_follow(event):
+#     line_bot_api.reply_message(
+#         event.reply_token, TextSendMessage(text='Got follow event'))
 
 
-@handler.add(UnfollowEvent)
-def handle_unfollow():
-    app.logger.info("Got Unfollow event")
+# @handler.add(UnfollowEvent)
+# def handle_unfollow():
+#     app.logger.info("Got Unfollow event")
 
 
-@handler.add(JoinEvent)
-def handle_join(event):
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text='Joined this ' + event.source.type))
+# @handler.add(JoinEvent)
+# def handle_join(event):
+#     line_bot_api.reply_message(
+#         event.reply_token,
+#         TextSendMessage(text='Joined this ' + event.source.type))
 
 
-@handler.add(LeaveEvent)
-def handle_leave():
-    app.logger.info("Got leave event")
+# @handler.add(LeaveEvent)
+# def handle_leave():
+#     app.logger.info("Got leave event")
 
 
 @handler.add(PostbackEvent)
@@ -301,11 +305,11 @@ def handle_postback(event):
             event.reply_token, TextSendMessage(text='pong'))
 
 
-@handler.add(BeaconEvent)
-def handle_beacon(event):
-    line_bot_api.reply_message(
-        event.reply_token,
-        TextSendMessage(text='Got beacon event. hwid=' + event.beacon.hwid))
+# @handler.add(BeaconEvent)
+# def handle_beacon(event):
+#     line_bot_api.reply_message(
+#         event.reply_token,
+#         TextSendMessage(text='Got beacon event. hwid=' + event.beacon.hwid))
 
 
 if __name__ == "__main__":
@@ -319,6 +323,5 @@ if __name__ == "__main__":
     # create tmp dir for download content
     make_static_tmp_dir()
     jadwaler.run()
-
 
     app.run(debug=options.debug, port=options.port)
