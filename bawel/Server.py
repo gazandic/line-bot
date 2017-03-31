@@ -27,7 +27,8 @@ from bawel.constant.StateConstant import (
     STATE_DELETE_JADWAL,
     STATE_ADD_PENGELUARAN,
     STATE_DELETE_PENGELUARAN,
-    STATE_SHOW_PENGELUARAN
+    STATE_SHOW_PENGELUARAN,
+    STATE_IMAGE_ADD_PENGELUARAN
 )
 
 from linebot import (
@@ -236,39 +237,44 @@ def handle_content_message(event):
         elif isinstance(event.source, SourceRoom):
             id = event.source.room_id
 
-        ext = 'jpg'
-        message_content = \
-            line_bot_api.get_message_content(event.message.id)
-        with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
-            for chunk in message_content.iter_content():
-                tf.write(chunk)
-            tempfile_path = tf.name
-
-        dist_path = tempfile_path + '.' + ext
-        dist_name = os.path.basename(dist_path)
-        os.rename(tempfile_path, dist_path)
-
-        PD = PengeluaranDetector(str(dist_path))
-        total_amount = PD.checkForTotal()
-
-        if not total_amount:
-            return (state, "Gambar tidak terbaca \nCoba lagi dengan gambar yang lebih baik")
-
         global state
         if id in state:
             user_state = state[id]
         else:
             user_state = { 'id': id }
 
-        user_state['state_id'] = STATE_ADD_PENGELUARAN
-        user_state, output = dispatch_action(ACTION_MAPPER[user_state['state_id']], *())
-        state = {**state, id: user_state}
+        if user_state.get('pengeluaran_name') and \
+                 user_state.get('event_name') and \
+                 user_state.get('people_name'):
+            ext = 'jpg'
+            message_content = \
+                line_bot_api.get_message_content(event.message.id)
+            with tempfile.NamedTemporaryFile(dir=static_tmp_path, prefix=ext + '-', delete=False) as tf:
+                for chunk in message_content.iter_content():
+                    tf.write(chunk)
+                tempfile_path = tf.name
 
-        line_bot_api.reply_message(
-            event.reply_token, [
-                TextSendMessage(text=output)
-            ])
-
+            dist_path = tempfile_path + '.' + ext
+            dist_name = os.path.basename(dist_path)
+            os.rename(tempfile_path, dist_path)
+            try :
+                PD = PengeluaranDetector(str(dist_path))
+                total_amount = PD.checkForTotal()
+                if not total_amount:
+                    user_state, output = user_state, "Gambar tidak terbaca \nCoba lagi dengan gambar yang lebih baik"
+                    state = {**state, id: user_state}
+                else:
+                    user_state['state_id'] = STATE_IMAGE_ADD_PENGELUARAN
+                    user_state, output = dispatch_action(ACTION_MAPPER[user_state['state_id']], *(total_amount, request.host_url + os.path.join('tmp', dist_name), user_state))
+                    state = {**state, id: user_state}
+            except:
+                print(sys.exc_info())
+                user_state, output = user_state, "Gambar tidak bisa dibaca \nCoba lagi dengan gambar yang lebih baik"
+                state = {**state, id: user_state}
+            line_bot_api.reply_message(
+                event.reply_token, [
+                    TextSendMessage(text=output)
+                ])
 
 @handler.add(FollowEvent)
 def handle_follow(event):

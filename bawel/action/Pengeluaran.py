@@ -55,18 +55,19 @@ class ImageTambahPengeluaran(Action):
     def __init__(self):
         super().__init__()
 
-    def act(self, jumlah, state):
+    def act(self, jumlah, path, state):
         ev1 = Expense(state['id'],
                 state['pengeluaran_name'],
                 state['event_name'],
                 state['people_name'],
                 jumlah)
         ev1.create()
+        ev1.updatePathNota(str(path))
         pengeluaran_name = state['pengeluaran_name'].replace("_"," ")
         state.pop('pengeluaran_name', None)
         state.pop('event_name', None)
         state.pop('people_name', None)
-        return (state, "Pengeluaran "+pengeluaran_name+" berhasil ditambahkan dengan senilai "+amount)
+        return (state, "Pengeluaran "+pengeluaran_name+" berhasil ditambahkan dengan senilai "+jumlah)
 
 
 class LihatPengeluaran(Action):
@@ -81,13 +82,13 @@ class LihatPengeluaran(Action):
             expenses = ex1.search({"lineid": state['id'], "name":event_name})
 
         def printExpense(prev, expense):
-            L = [expense['about'],expense['name'],expense['peoplename']]
+            L = [expense['about'],expense['name'],expense['peoplename'],expense['total']]
             S = '\n'.join(L)
             return '{0}\n{1}'.format(prev, S)
 
         if expenses.count() == 1:
             expense = expenses[0]
-            L = [expense['about'],expense['name'],expense['peoplename']]
+            L = [expense['about'],expense['name'],expense['peoplename'],expense['total']]
             S = '\n'.join(L)
             output = '{0}'.format(S)
 

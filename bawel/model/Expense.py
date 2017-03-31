@@ -48,6 +48,14 @@ class Expense(BaseMongo):
             upsert=False, multi=True)
         return 0
 
+    def updatePathNota(self, path):
+        expense = self.searchOne({ "lineid" : self.lineid, "about" : self.about, "name" : self.name})
+        self.db.expenses.update(
+            {'_id': expense['_id']},
+            { "$set": { "peoplename" : self.peoplename,"total" : self.total, "pathnota" : path}},
+            upsert=False, multi=True)
+        return 0
+
     def search(self, query):
         expenses =  self.db.expenses.find(query)
         return expenses
