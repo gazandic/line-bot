@@ -102,14 +102,16 @@ class LihatPengeluaran(Action):
             for expense in expenses:
                 ite += 1
                 about = expense['about'].replace("_"," ")
-                event_name = expense['name'].replace("_"," ")
+                event_name = expense['name'].replace("_"," ")[0:20]
                 amount = str(expense['total'])
                 people_name = str(expense['peoplename'])
-                text = "Pengeluaran pada acara "+event_name+" sebesar "+amount+ " oleh "+people_name
-                print(text)
-                cc = CarouselColumn(text=text, title=about, actions=[
+                text = "acara "+event_name+" sebesar "+amount+ " oleh "+people_name
+                liact = [
                     URITemplateAction(label='Go to line.me', uri='https://line.me'),
-                    PostbackTemplateAction(label='ping', data='ping')])
+                    PostbackTemplateAction(label='ping', data='ping')]
+                if expense.get('pathnota') and expense['pathnota'] != "":
+                    liact.append(URITemplateAction(label='Go to nota', uri=expense['pathnota']))
+                cc = CarouselColumn(text=text, title="Pengeluaran "+about, actions=liact)
                 licc.append(cc)
                 if ite == 4:
                     carousel_template = CarouselTemplate(columns=licc)
