@@ -34,18 +34,18 @@ def checkForTotal(self):
                         if (not getByKeyWord):
                             getByKeyWord = True
                     break
-        if totalCandidate == 0 and not getByKeyWord :
-            searchSpended = re.compile(r'RP\D*((\d[\.,]|\d)+)', flags= re.IGNORECASE)
-            spended = searchSpended.findall(line)
-            if (spended):
-                for spent in spended:
-                    print(spent)
-                    spent = re.sub(r'([\.,]\d{2})\b','',spent[0])
-                    spent = re.sub(r'([\.|,])', "", spent)
-                    print(spent)
-                    spent = float(spent)
-                    if totalCandidate < spent :
-                        totalCandidate = spent
+            if not getByKeyWord :
+                searchSpended = re.compile(r'RP\D*((\d[\.,]|\d)+)', flags= re.IGNORECASE)
+                spended = searchSpended.findall(line)
+                if (spended):
+                    for spent in spended:
+                        print(spent)
+                        spent = re.sub(r'([\.,]\d{2})\b','',spent[0])
+                        spent = re.sub(r'([\.|,])', "", spent)
+                        print(spent)
+                        spent = float(spent)
+                        if totalCandidate < spent :
+                            totalCandidate = spent
         return str(totalCandidate)
 # PD = PengeluaranDetector("/home/gazandic/5845125959350.jpg")
 # fl = str(PD.checkForTotal())
