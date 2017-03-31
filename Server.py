@@ -195,6 +195,7 @@ def handle_text_message(event):
 
         elif text == 'si bawel tolong':
             text = '/help'
+            print(user_state)
             user_state, output = handle_action(text, text, user_state)
             state = {**state, id: user_state}
             line_bot_api.reply_message(
@@ -210,6 +211,7 @@ def handle_text_message(event):
                 jtq = JsonToQuery(nlptext.getJsonToSent())
                 restext = jtq.parseJSON()
                 if not jtq.json.get('error'):
+                    print(user_state)
                     user_state, output = handle_action(text, restext, user_state)
                     state = {**state, id: user_state}
                 else:

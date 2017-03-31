@@ -21,8 +21,10 @@ class RequestParser:
         # if 'id' not in state:
 
         if not user:
+            us.setLineId({"lineid":lineid})
             us.create()
-        us.set(user)
+        else :
+            us.set(user)
 
         state, param = self.chooseMenu(text, state)
         # if state['state_id'] == STATE_UNKNOWN:

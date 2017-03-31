@@ -14,8 +14,8 @@ class User(BaseMongo):
         self.state = _state
         # self.jointime = datetime.datetime.now()
 
-    # def setLineId(self, line_id):
-    #     self.lineid = line_id
+    def setLineId(self, line_id):
+        self.lineid = line_id
 
     def setName(self, _name):
         self.name = _name
