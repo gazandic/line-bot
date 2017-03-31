@@ -14,7 +14,7 @@ errorLiatJadwal = "coba tulis mirip gini kak 'si bawel lihat acara'"
 errorHapusJadwal = "tolong tulis mirip gini ya kak 'si bawel hapus acara pergi ke jogja'"
 errorJadwal = "ketik helpJadwal ya kak"
 errorPengeluaran = "ketik HelpPengeluaran ya kak"
-errorUnknownInput = "bawel ga paham :( ketik help ya kaak buat pake si bawel"
+errorUnknownInput = "bawel ga paham :( ketik 'si bawel tolong' atau '/help' ya kaak buat pake si bawel"
 
 class TextProcessor(object):
     def __init__(self):
