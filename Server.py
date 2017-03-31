@@ -71,7 +71,7 @@ randomPrivate = [181, 183, 187, 188]
 state = {}
 
 
-static_tmp_path = os.path.join(os.path.dirname(__file__), 'static', 'tmp')
+static_tmp_path = os.path.join(os.path.dirname(__file__), 'bawel', 'static', 'tmp')
 app = Flask(__name__, static_url_path='', static_folder='bawel/static')
 
 
