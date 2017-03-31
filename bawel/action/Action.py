@@ -6,5 +6,3 @@ class Action:
 
 def dispatch_action(action, *args):
     return action().dispatch(*args)
-
-# dispatch_action(Action(), {}, (jancok, makanbeling,))

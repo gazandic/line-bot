@@ -16,28 +16,26 @@ from linebot.models import (
     CarouselTemplate, CarouselColumn, PostbackTemplateAction, URITemplateAction
 )
 
-# def normalizeParamJadwal(param, reminder):
-#     if len(param) == 8:
-#         param.append(1)         # default
-#     param.append(reminder)
-#     return param
 
-# TODO: import job yang dilakukan
 
 class TambahJadwal(Action):
-    def act(self, namajadwal, hari, bulan, tahun, jam, menit, reminder, state, urgensi=1):
+    def act(self, namajadwal, hari, bulan, tahun, jam, menit, reminder, state, location=None):
+
+        def job(eid, text, lineid, location=None, stickerid=180):
+            reminder.push(text, stickerid, lineid, location)
+
         try:
             dt = checkInputTanggal(hari, bulan, tahun, jam, menit)
-            ev1 = Event(state['id'],namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
+            ev1 = Event(state['id'],namajadwal,hari,bulan,tahun,jam,menit,location,0)
             ev1.create()
-            def job(eid, text, lineid, stickerid=180):
-                reminder.push(text, stickerid, lineid)
-            reminder.add(namajadwal, dt, job, ("jangan lupa 1 jam lagi ada "+namajadwal,state['id'], ))
+
+            reminder.add(namajadwal, dt, job, ("jangan lupa 1 jam lagi ada "+namajadwal, state['id'], location,))
             namajadwal = namajadwal.replace("_"," ")
-            return (state, "acara "+namajadwal+" telah ditambah")
+            return (state, "acara "+namajadwal+" telah ditambah")   
+
         except:
-            print(sys.exc_info())
             return (state, "Maaf kak, bawel ga ngerti, coba nambahjadwalnya kaya gini ya kak'si bawel tolong tambah acara/event/jadwal nonton bareng tanggal 29 Maret jam 5.50 sore'")
+
 
 class LihatJadwal(Action):
     def act(self, state):
@@ -94,6 +92,7 @@ class IkutJadwal(Action):
             print(sys.exc_info())
             return (state, "Maaf kak, bawel ga ngerti, coba nambahjadwalnya kaya gini ya kak'si bawel ikut acara/event/jadwal nonton bareng oleh kevin'")
 
+
 class TakIkutJadwal(Action):
     def act(self, event_name, people_name, state):
         try:
@@ -112,10 +111,10 @@ class TakIkutJadwal(Action):
 
 
 class UbahJadwal(Action):
-    def act(self, namajadwal, hari, bulan, tahun, jam, menit, reminder, state, urgensi=1):
+    def act(self, namajadwal, hari, bulan, tahun, jam, menit, reminder, state):
         try:
             dtime = checkInputTanggal(hari, bulan, tahun, jam, menit)
-            ev1 = Event(state['id'],namajadwal,urgensi,hari,bulan,tahun,jam,menit,0)
+            ev1 = Event(state['id'],namajadwal,hari,bulan,tahun,jam,menit,0)
             ev1.update()
             reminder.modify(namajadwal, dtime)
             namajadwal = namajadwal.replace("_"," ")

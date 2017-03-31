@@ -1,17 +1,17 @@
 from datetime import datetime
 
+
 class JsonToQuery():
     def __init__(self, _json):
         self.json = _json
 
-
     def parseJSON(self):
         obj = self.json
         finalResult = ""
-        print (obj)
+        print(obj)
         if obj.get('error'):
             return str(obj['error'])
-        precommand = '/'+obj['command']+obj['type']
+        precommand = '/' + obj['command'] + obj['type']
         finalResult += precommand
         data = obj['data']
         if data.get('event_name'):
@@ -25,14 +25,15 @@ class JsonToQuery():
             finalResult += ' '+nama
 
         if data.get('date'):
-            tanggal = datetime.strptime(data['date'],"%Y-%m-%dT%H:%M:%S").strftime(" %d %m %Y %H %M")
+            tanggal = datetime.strptime(
+                data['date'], "%Y-%m-%dT%H:%M:%S").strftime(" %d %m %Y %H %M")
             finalResult += tanggal
 
         if data.get('persons'):
             personstring = ''
             for person in data['persons']:
-                if not 'bawel' in person:
-                    personstring = ' '+person
+                if 'bawel' not in person:
+                    personstring = ' ' + person
                     break
             finalResult += personstring
 
