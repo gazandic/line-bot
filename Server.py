@@ -191,7 +191,7 @@ def handle_text_message(event):
                     line_bot_api.push_message(
                         id, TextMessage(text=output))
             except:
-                line_bot_api.reply_message(
+                line_bot_api.push_message(
                     id, TextMessage(text="ketik 'si bawel tolong' kak"))
 
         elif text == '@bye':
