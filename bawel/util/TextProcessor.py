@@ -123,7 +123,7 @@ class TextProcessor(object):
                     kataKunciEvent = actiondetection + " "+ eventkey
                     pengeluaran_nameRe = re.compile(r'{0}\s+(.+)\s+{1}'.format(pengeluaranKey, kataKunciEvent))
 
-                    event_nameRe = re.compile(r'{0}\s+(.+)\s+{1}'.format(kataKunciEvent, "seberapa"), flags=re.IGNORECASE)
+                    event_nameRe = re.compile(r'{0}\s+(.+)\s+{1}'.format(kataKunciEvent, "sebesar"), flags=re.IGNORECASE)
                     if (event_nameRe.findall(sentence) and pengeluaran_nameRe.findall(sentence)):
                       event_name = event_nameRe.findall(sentence)[0]
                       pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
