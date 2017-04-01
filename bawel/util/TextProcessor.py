@@ -73,9 +73,9 @@ class TextProcessor(object):
     def checkActionPengeluaran(self, sentence, pengeluaranKey):
       for action in self.listActionInPengeluaran:
         isContain = re.compile(r'\b({0})\b'.format(action), flags=re.IGNORECASE)
-        persons = self.checkPerson(sentence)
         if isContain.findall(sentence):
           if action in ["buat", "tambah", "bikin"]:
+            persons = self.checkPerson(sentence)
             amount = self.checkAmount(sentence)
             if amount :
               try:
