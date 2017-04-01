@@ -139,7 +139,7 @@ class UbahPengeluaran(Action):
     def __init__(self):
         super().__init__()
 
-    def act(self, pengeluaran_name, event_name, people_name, duit, state):
+    def act(self, event_name, pengeluaran_name, people_name, duit, state):
 
         if Event().searchOne({"lineid":state['id'], "about":event_name}):
             try:
