@@ -111,7 +111,7 @@ class LihatPengeluaran(Action):
                 if expense.get('pathnota') and expense['pathnota'] != "":
                     actionli.append(URITemplateAction(label='go to nota', uri=expense['pathnota']))
                 else:
-                    actionli.append(URITemplateAction(label='tidak ada nota', uri='google.com'))
+                    actionli.append(URITemplateAction(label='tidak ada nota', uri='http://google.com'))
 
                 cc = CarouselColumn(text=text, title=about, actions=actionli)
                 licc.append(cc)
