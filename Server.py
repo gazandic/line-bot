@@ -170,14 +170,14 @@ def handle_text_message(event):
                     user_state['state_id'] = STATE_IMAGE_ADD_PENGELUARAN
                     user_state, output = dispatch_action(ACTION_MAPPER[user_state['state_id']], *(cm, "", user_state))
                     state = {**state, id: user_state}
-                    line_bot_api.reply_message(
-                        event.reply_token, [
+                    line_bot_api.push_message(
+                        id, [
                             TextSendMessage(text=output)
                         ])
                 else :
                     output = 'masukkan tulisan harga atau gambar bon'
-                    line_bot_api.reply_message(
-                        event.reply_token, [
+                    line_bot_api.push_message(
+                        id, [
                             TextSendMessage(text=output)
                         ])
                 return
@@ -186,13 +186,13 @@ def handle_text_message(event):
                 user_state, output = handle_action(text, text, user_state)
                 state = {**state, id: user_state}
                 if type(output[0]) == TemplateSendMessage:
-                    line_bot_api.reply_message(event.reply_token, output)
+                    line_bot_api.push_message(id, output)
                 else :
-                    line_bot_api.reply_message(
-                        event.reply_token, TextMessage(text=output))
+                    line_bot_api.push_message(
+                        id, TextMessage(text=output))
             except:
                 line_bot_api.reply_message(
-                    event.reply_token, TextMessage(text="ketik 'si bawel tolong' kak"))
+                    id, TextMessage(text="ketik 'si bawel tolong' kak"))
 
         elif text == '@bye':
             line_bot_api.reply_message(
@@ -223,7 +223,7 @@ def handle_text_message(event):
                 else:
                     output = restext
                 if type(output[0]) == TemplateSendMessage :
-                    line_bot_api.reply_message(event.reply_token, output)
+                    line_bot_api.push_message(id, output)
                 else :
                     line_bot_api.reply_message(
                         event.reply_token, TextMessage(text=output))
@@ -303,8 +303,8 @@ def handle_content_message(event):
                 print(sys.exc_info())
                 user_state, output = user_state, "Gambar tidak bisa dibaca \nCoba lagi dengan gambar yang lebih baik"
                 state = {**state, id: user_state}
-            line_bot_api.reply_message(
-                event.reply_token, [
+            line_bot_api.push_message(
+                id, [
                     TextSendMessage(text=output)
                 ])
 
@@ -356,7 +356,7 @@ def handle_postback(event):
             user_state, output = handle_action(text, text, user_state)
             state = {**state, id: user_state}
             if type(output[0]) == TemplateSendMessage:
-                line_bot_api.reply_message(event.reply_token, output)
+                line_bot_api.push_message(id, output)
             else :
                 line_bot_api.reply_message(
                     event.reply_token, TextMessage(text=output))

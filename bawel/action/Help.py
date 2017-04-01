@@ -10,7 +10,8 @@ class HelpAll(Action):
         S = """Halo kak, bingung si bawel bisa ngapain aja ?
 si bawel bisa ngatur acara kakak dan ingetin kakaknya kalo udah 1 jam sebelumnya, untuk lebih keponya bisa dengan ketik '/jadwal'
 bisa juga ngatur pengeluaran bos,  untuk lebih keponya ketik '/pengeluaran'
-bisa juga baca foto pengeluaran yang kakak berikan dengan upload fotonyaa pas input pengeluaran hehe """
+bisa juga baca foto pengeluaran yang kakak berikan dengan upload fotonyaa pas input pengeluaran hehe
+bisa kick bawel dengan @bye """
         return (state, S)
 
 class HelpJadwal(Action):
