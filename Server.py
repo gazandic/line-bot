@@ -305,7 +305,8 @@ def handle_content_message(event):
                 state = {**state, id: user_state}
             line_bot_api.push_message(
                 id, [
-                    TextSendMessage(text=output)
+                    TextSendMessage(text=output),
+                    TextSendMessage(text='jika ada kesalahan bisa diubah kok kak :)')
                 ])
 
 
