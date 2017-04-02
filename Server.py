@@ -211,7 +211,7 @@ def handle_text_message(event):
 
         else:
             restext = "Tolong ketik 'si bawel tolong' ya kakak kakak"
-
+            print(text)
             try:
                 nlptext.processText(event.message.text)
                 jtq = JsonToQuery(nlptext.getJsonToSent())
