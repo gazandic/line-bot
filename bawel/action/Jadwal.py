@@ -3,7 +3,7 @@ from __future__ import unicode_literals
 import sys
 import time as t
 
-from datetime import datetime, date, time
+from datetime import datetime, date, time, timedelta
 from functools import reduce
 
 from bawel.model.Expense import Expense
@@ -28,12 +28,16 @@ class TambahJadwal(Action):
             dt = checkInputTanggal(hari, bulan, tahun, jam, menit)
             ev1 = Event(state['id'],namajadwal,hari,bulan,tahun,jam,menit,location,0)
             ev1.create()
-
-            reminder.add(namajadwal+str(state['id']), dt, job, ("jangan lupa 1 jam lagi ada "+namajadwal, state['id'], location,))
-            namajadwal = namajadwal.replace("_"," ")
-            return (state, "acara "+namajadwal+" telah ditambah")
+            dta = dt + timedelta(hours=8)
+            print(dta)
+            date = str(datetime.strptime(str(dta),"%Y-%m-%d %H:%M:%S").strftime("tanggal %d/%m jam %H:%M WIB"))
+            namajadwal1 = namajadwal.replace("_"," ")
+            reminding = "jangan lupa "+date+" ada jadwal "+namajadwal1
+            reminder.add(namajadwal+str(state['id']), dt, job, (reminding, state['id'], location,))
+            return (state, "acara "+namajadwal1+" telah ditambah")
 
         except:
+            print(sys.exc_info())
             return (state, "Maaf kak, bawel ga ngerti, coba nambahjadwalnya kaya gini ya kak'si bawel tolong tambah acara/event/jadwal nonton bareng tanggal 29 Maret jam 5.50 sore'")
 
 
