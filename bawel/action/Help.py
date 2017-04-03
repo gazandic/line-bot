@@ -27,13 +27,13 @@ class HelpJadwal(Action):
 
 bisa juga lihat acara yang ada dengan kaya gini 'si bawel kita mau lihat jadwal'
 
-lihat yang ikut acara siapa saja dengan gini 'si bawel aku mau report event namaevent'
+lihat yang ikut acara siapa saja dengan gini 'si bawel aku mau report event <namaevent>'
 
-atau ikut acara pake 'si bawel mau nih ikut acara namajadwal oleh Kevin(nama kakak)'
+atau ikut acara pake 'si bawel mau nih ikut acara <namajadwal> oleh Kevin(nama kakak)'
 
-bisa juga ga jadi ikut acara 'si bawel aku gajadi ikut jadwal namajadwal oleh Kevin(nama kakak)'
+bisa juga ga jadi ikut acara 'si bawel aku gajadi ikut jadwal <namajadwal> oleh Kevin(nama kakak)'
 
-dan hapus acara 'si bawel kita mau hapus jadwal namajadwal' """
+dan hapus acara 'si bawel kita mau hapus jadwal <namajadwal>' """
 
         return (state, S)
 
@@ -43,13 +43,13 @@ class HelpPengeluaran(Action):
 
     def act(self, state):
         # TODO:
-        S = """Si bawel bisa bantu nambah atau ubah pengeluaran bisa ketik kaya 'si bawel tolong dong tambah/ubah pengeluaran makan siang untuk acara pergi ke jogja sebesar 50000 oleh Kevin'
+        S = """Si bawel bisa bantu nambah atau ubah pengeluaran untuk acara tertentu bisa ketik kaya 'si bawel tolong dong tambah/ubah <pengeluaran makan siang> (nama pengeluaran) untuk <acara pergi ke jogja> (nama acara) sebesar 50000 oleh Kevin'
 
-bisa juga lihat acara yang ada dengan ketik 'si bawel kita mau lihat jadwal'
+bisa juga lihat pengeluaran yang ada dengan ketik 'si bawel kita mau lihat pengeluaran <nama acara>'
 
-atau lihat pembagian pengeluaran pake 'si bawel aku mau report pengeluaran pergi ke jogja(namapengeluaran)'
+atau lihat pembagian pengeluaran pake 'si bawel aku mau report pengeluaran <pergi ke jogja>(namapengeluaran)'
 
-dan hapus pengeluaran 'si bawel kita mau hapus pengeluaran pergi ke jakarta(namapengeluaran)' """
+dan hapus pengeluaran 'si bawel kita mau hapus pengeluaran <pergi ke jakarta>(nama acara)' """
 
         return (state, S)
 
