@@ -29,7 +29,6 @@ class TambahJadwal(Action):
             ev1 = Event(state['id'],namajadwal,hari,bulan,tahun,jam,menit,location,0)
             ev1.create()
             dta = dt + timedelta(hours=8)
-            print(dta)
             date = str(datetime.strptime(str(dta),"%Y-%m-%d %H:%M:%S").strftime("tanggal %d/%m jam %H:%M WIB"))
             namajadwal1 = namajadwal.replace("_"," ")
             reminding = "jangan lupa "+date+" ada jadwal "+namajadwal1

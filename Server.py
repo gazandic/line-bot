@@ -22,6 +22,7 @@ from bawel.util.RequestParser import RequestParser
 from bawel.util.TextProcessor import TextProcessor
 from bawel.util.JsonToQuery import JsonToQuery
 from bawel.util.CheckMoney import CheckMoney
+from bawel.util.Cycling import Cycling
 
 from bawel.constant.StateConstant import (
     ACTION_MAPPER,
@@ -68,6 +69,7 @@ nlptext = TextProcessor()
 parser = RequestParser()
 jadwaler = sched.scheduler(time.time, time.sleep)
 reminder = Reminder(jadwaler, line_bot_api)
+cycling  = Cycling(reminder)
 randomPrivate = [181, 183, 187, 188]
 state = {}
 
@@ -387,5 +389,5 @@ if __name__ == "__main__":
     # create tmp dir for download content
     make_static_tmp_dir()
     jadwaler.run()
-
+    cycling.process()
     app.run(debug=options.debug, port=options.port)

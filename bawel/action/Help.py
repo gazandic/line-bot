@@ -11,7 +11,7 @@ class HelpAll(Action):
 
 si bawel bisa ngatur acara kakak dan ingetin kakaknya kalo udah 1 jam sebelumnya, untuk lebih keponya bisa dengan ketik '/jadwal'
 
-bisa juga ngatur pengeluaran bos,  untuk lebih keponya ketik '/pengeluaran'
+bisa juga ngatur pengeluaran acara kakak,  untuk lebih keponya ketik '/pengeluaran'
 
 bisa juga baca foto pengeluaran yang kakak berikan dengan upload fotonyaa pas input pengeluaran hehe
 

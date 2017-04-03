@@ -15,7 +15,7 @@ from linebot.models import (
     CarouselTemplate, CarouselColumn, PostbackTemplateAction, URITemplateAction
 )
 
-errorCreateUpdatePengeluaran = "coba lagi kak, coba tulis kaya gini 'si bawel tolong tambah/ubah pengeluaran makan siang untuk acara pergi ke jogja sebesar 50000 oleh gazandi' hehe"
+errorCreateUpdatePengeluaran = "coba lagi kak, coba tulis kaya gini 'si bawel tolong tambah/ubah pengeluaran <makan siang>(nama_pengeluaran) untuk acara <pergi ke jogja>(nama_acara) sebesar 50000 oleh Kevin' hehe"
 
 class TambahPengeluaran(Action):
     def __init__(self):

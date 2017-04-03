@@ -6,7 +6,7 @@ import sys
 from datetime import datetime
 from dateutil.parser import parse
 
-errorCreateUpdatePengeluaran = "coba lagi kak, coba tulis mirip gini kak 'si bawel tolong tambah/ubah pengeluaran makan siang untuk acara pergi ke jogja sebesar 50000 oleh Kevin' hehe"
+errorCreateUpdatePengeluaran = "coba lagi kak, coba tulis mirip gini kak 'si bawel tolong tambah/ubah pengeluaran <makan siang>(nama_pengeluaran) untuk acara <pergi ke jogja>(nama_acara) sebesar 50000 oleh Kevin' hehe"
 errorCreateUpdateJadwal = "coba lagi kak, coba tulis mirip gini kak 'si bawel tolong tambah/ubah jadwal pergi ke jogja tanggal 5 April jam 3:50 sore' yaaa"
 errorIkutOrangJadwal = "siapa yang ikut kak ? coba tulis mirip gini kak 'si bawel tolong ikut acara pergi ke jogja oleh Kevin' hehehe"
 errorIkutJadwal = "kaya gini kak 'si bawel tolong ikut acara pergi ke jogja oleh Kevin' hehe"
