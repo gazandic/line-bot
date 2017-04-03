@@ -20,7 +20,7 @@ class Cycling(object):
         end = datetime.today() + timedelta(days=2)
         events = eventManager.search({"datetime": {"$gte": start, "$lt": end}})
         for event in events:
-            if event["datetime"] > (datetime.now()+timedelta(hours=8)):
+            if event["datetime"] > (datetime.now()+timedelta(hours=6)):
                 location = None
                 if event.get("loc"):
                     location = event["loc"]

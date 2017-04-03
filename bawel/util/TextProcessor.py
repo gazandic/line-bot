@@ -89,7 +89,7 @@ class TextProcessor(object):
                       event_name = event_nameRe.findall(sentence)[0]
                       pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
                       break
-                self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'data':{'amount': amount,'event_name': event_name, 'pengeluaran_name': pengeluaran_name, 'persons':persons}}
+                self.jsonToSend = {'type': 'pengeluaran', 'command': self.listActionInPengeluaran[action], 'data':{'amount': amount,'event_name': event_name, 'pengeluaran_name': pengeluaran_name, 'persons':persons}}
               except:
                 self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':errorCreateUpdatePengeluaran,'data':{}}
               break
@@ -106,7 +106,7 @@ class TextProcessor(object):
                         event_name = event_nameRe.findall(sentence)[0]
                         pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
                         break
-                  self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'data':{'amount': '-1','event_name': event_name, 'pengeluaran_name': pengeluaran_name, 'persons':persons}}
+                  self.jsonToSend = {'type': 'pengeluaran', 'command': self.listActionInPengeluaran[action], 'data':{'amount': '-1','event_name': event_name, 'pengeluaran_name': pengeluaran_name, 'persons':persons}}
                 except:
                   print(sys.exc_info())
                   self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':errorCreateUpdatePengeluaran,'data':{}}
@@ -128,9 +128,9 @@ class TextProcessor(object):
                       event_name = event_nameRe.findall(sentence)[0]
                       pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
                       break
-                self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'data':{'amount': amount,'event_name': event_name, 'pengeluaran_name':pengeluaran_name, 'persons':person}}
+                self.jsonToSend = {'type': 'pengeluaran', 'command': self.listActionInPengeluaran[action], 'data':{'amount': amount,'event_name': event_name, 'pengeluaran_name':pengeluaran_name, 'persons':person}}
               except:
-                self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':errorCreateUpdatePengeluaran,'data':{}}
+                self.jsonToSend = {'type': 'pengeluaran', 'command': self.listActionInPengeluaran[action], 'error':errorCreateUpdatePengeluaran,'data':{}}
             # elif person != None:
             #   pengeluaran_nameRe = re.compile(r'{0}\s+(.*)\s+{1}'.format(pengeluaranKey, "oleh"), flags=re.IGNORECASE)
             #   pengeluaran_name = 'unknown'
@@ -141,7 +141,7 @@ class TextProcessor(object):
             #     self.jsonToSend = {'type': 'pengeluaran', 'command': action,'error':'unknown input'}
             #   break
             else:
-              self.jsonToSend = {'type': 'pengeluaran', 'command': action, 'error':errorCreateUpdatePengeluaran,'data':{}}
+              self.jsonToSend = {'type': 'pengeluaran', 'command': self.listActionInPengeluaran[action], 'error':errorCreateUpdatePengeluaran,'data':{}}
             break
           else:
             try:
@@ -157,16 +157,16 @@ class TextProcessor(object):
                     event_name = event_nameRe.findall(sentence)[0]
                     pengeluaran_name = pengeluaran_nameRe.findall(sentence)[0]
                     break
-              self.jsonToSend = {'type': u'pengeluaran', 'command': action, 'data':{'event_name': event_name, 'pengeluaran_name':pengeluaran_name}}
+              self.jsonToSend = {'type': u'pengeluaran', 'command': self.listActionInPengeluaran[action], 'data':{'event_name': event_name, 'pengeluaran_name':pengeluaran_name}}
               break
             except:
               try :
                 event_nameRe = re.compile(r'{0}\s(.+)'.format(pengeluaranKey))
                 event_name = event_nameRe.findall(sentence)[0]
-                self.jsonToSend = {'type': u'pengeluaran', 'command': action, 'data':{'event_name': event_name}}
+                self.jsonToSend = {'type': u'pengeluaran', 'command': self.listActionInPengeluaran[action], 'data':{'event_name': event_name}}
                 break
               except:
-                self.jsonToSend = {'type': u'pengeluaran', 'command': action, 'data':{}}
+                self.jsonToSend = {'type': u'pengeluaran', 'command': self.listActionInPengeluaran[action], 'data':{}}
                 break
 
     def checkActionEvent(self, sentence, eventKey):

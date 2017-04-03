@@ -235,7 +235,7 @@ def handle_text_message(event):
                 print(sys.exc_info())
                 line_bot_api.reply_message(
                     event.reply_token, [
-                        TextSendMessage(text=restext),
+                        TextSendMessage(text="Keyword tidak ditemukan, tolong ketik 'si bawel tolong' atau '/help'"),
                         StickerSendMessage(
                             package_id=3,
                             sticker_id=random.choice(randomPrivate))
