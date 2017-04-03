@@ -17,10 +17,10 @@ class Cycling(object):
             self.reminder.push(text, stickerid, lineid, location)
         eventManager = Event()
         start = datetime.today() + timedelta(days=-1)
-        end = start + timedelta(days=2)
+        end = datetime.today() + timedelta(days=2)
         events = eventManager.search({"datetime": {"$gte": start, "$lt": end}})
         for event in events:
-            if event["datetime"] > datetime.now():
+            if event["datetime"] > (datetime.now()+timedelta(hours=8)):
                 location = None
                 if event.get("loc"):
                     location = event["loc"]
