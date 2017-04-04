@@ -106,7 +106,7 @@ class LihatPengeluaran(Action):
                 hapus = '/hapuspengeluaran ' + expense['name'] + " " + expense['about']
                 actionli = [
                     PostbackTemplateAction(label='Report Pengeluaran', data=report),
-                    PostbackTemplateAction(label='Hapus Pengeluaran', data=hapus)
+                    # PostbackTemplateAction(label='Hapus Pengeluaran', data=hapus)
                 ]
                 if expense.get('pathnota') and expense['pathnota'] != "":
                     actionli.append(URITemplateAction(label='go to nota', uri=expense['pathnota']))

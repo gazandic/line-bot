@@ -53,13 +53,13 @@ class LihatJadwal(Action):
             lievent = []
             for event in events:
                 ite += 1
-                about = event['about'].replace("_"," ")
+                about = event['about'].replace("_"," ")[0:15]
                 date = str(datetime.strptime(str(event['datetime']),"%Y-%m-%d %H:%M:%S").strftime("%d-%m %H:%M"))
                 text = "Acara tentang "+about+" diadakan pada "+str(date)
                 cc = CarouselColumn(text=text, title=about, actions=[
                     PostbackTemplateAction(label='Lihat pengeluaran', data='/lihatpengeluaran '+event['about']),
                     PostbackTemplateAction(label='Lihat daftar ikut', data='/reportjadwal '+event['about']),
-                    PostbackTemplateAction(label='Hapus jadwal', data='/hapusjadwal '+event['about']),
+                    # PostbackTemplateAction(label='Hapus jadwal', data='/hapusjadwal '+event['about']),
                 ])
                 licc.append(cc)
                 if ite == 4:
