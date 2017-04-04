@@ -53,7 +53,7 @@ class LihatJadwal(Action):
             lievent = []
             for event in events:
                 ite += 1
-                about = event['about'].replace("_"," ")[0:15]
+                about = event['about'].replace("_"," ")[0:20]
                 date = str(datetime.strptime(str(event['datetime']),"%Y-%m-%d %H:%M:%S").strftime("%d-%m %H:%M"))
                 text = "Acara tentang "+about+" diadakan pada "+str(date)
                 cc = CarouselColumn(text=text, title=about, actions=[
