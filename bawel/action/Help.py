@@ -31,7 +31,7 @@ lihat yang ikut acara siapa saja dengan gini 'si bawel aku mau report event <nam
 
 atau ikut acara pake 'si bawel mau nih ikut acara <namajadwal> oleh Kevin(nama kakak)'
 
-bisa juga ga jadi ikut acara 'si bawel aku gajadi ikut jadwal <namajadwal> oleh Kevin(nama kakak)'
+bisa juga batal ikut acara 'si bawel aku batal jadwal <namajadwal> oleh Kevin(nama kakak)'
 
 dan hapus acara 'si bawel kita mau hapus jadwal <namajadwal>' """
 

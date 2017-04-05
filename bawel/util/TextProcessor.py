@@ -22,7 +22,7 @@ class TextProcessor(object):
         self.keyWordToEvent = ["jadwal","event","acara"]
         self.keyWordPengeluaran = ["pengeluaran"]
         self.listActionDetection = ["untuk", "bagi", "buat"]
-        self.listActionInEvent = {"lihat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "gajadi ikut":"gajadiikut","ga jadi ikut":"gajadiikut", "gak jadi ikut":"gajadiikut", "gak ikut":"gajadiikut", "ikut" : "ikut", "ubah":"ubah", "hapus":"hapus", "lapor":"report", "liat":"lihat", "report":"report", "eval":"report"}
+        self.listActionInEvent = {"lihat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "gajadi ikut":"gajadiikut", "gajadiikut":"gajadiikut", "ga jadi ikut":"gajadiikut", "gak jadi ikut":"gajadiikut", "gak ikut":"gajadiikut", "ikut" : "ikut", "ubah":"ubah", "hapus":"hapus", "lapor":"report", "liat":"lihat", "report":"report", "eval":"report", "batal":"gajadiikut"}
         self.listActionInPengeluaran ={"lihat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "ubah":"ubah", "hapus":"hapus", "lapor":"report", "liat":"lihat", "report":"report", "eval":"report"}
         self.listErrorInEvent={"lihat" : errorLiatJadwal, "ikut":errorIkutJadwal, "hapus":errorHapusJadwal, "ubah":errorCreateUpdateJadwal, "tambah":errorCreateUpdateJadwal}
         self.listErrorType={"jadwal":errorJadwal, "pengeluaran":errorPengeluaran}
@@ -195,7 +195,7 @@ class TextProcessor(object):
                         event_name = event_nameRe.findall(sentence)[0]
                         self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{'date': datetypedate,'event_name': event_name}}
                         break
-                    elif action in ["ikut", "gajadiikut", "gak ikut", "ga jadi ikut", "gajadi ikut","gak jadi ikut"]:
+                    elif action in ["ikut", "gajadiikut", "gak ikut", "ga jadi ikut", "gajadi ikut","gak jadi ikut","batal"]:
                         persons = self.checkPerson(sentence)
                         if persons :
                         	print(sentence)
@@ -375,6 +375,6 @@ class TextProcessor(object):
         return js
 
 # TP = TextProcessor()
-# TP.processText('si bawel mau tambah jadwal makan siang tanggal 27 April jam 11 malam')
+# TP.processText('si bawel mau batal jadwal makan siang oleh Gazandi')
 # json = TP.getJsonToSent()
 # print(json)
