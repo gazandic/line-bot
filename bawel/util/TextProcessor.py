@@ -22,7 +22,7 @@ class TextProcessor(object):
         self.keyWordToEvent = ["jadwal","event","acara"]
         self.keyWordPengeluaran = ["pengeluaran"]
         self.listActionDetection = ["untuk", "bagi", "buat"]
-        self.listActionInEvent = {"lihat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "gajadi ikut":"gajadiikut", "gajadiikut":"gajadiikut", "ga jadi ikut":"gajadiikut", "gak jadi ikut":"gajadiikut", "gak ikut":"gajadiikut", "ikut" : "ikut", "ubah":"ubah", "hapus":"hapus", "lapor":"report", "liat":"lihat", "report":"report", "eval":"report", "batal":"gajadiikut"}
+        self.listActionInEvent = {"lihat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "gajadi ikut":"gajadiikut", "gajadiikut":"gajadiikut", "ga jadi ikut":"gajadiikut", "gak jadi ikut":"gajadiikut", "gak ikut":"gajadiikut", "ikut" : "ikut", "ubah":"ubah", "hapus":"hapus", "lapor":"report", "liat":"lihat", "report":"report", "eval":"report", "batal":"gajadiikut", "ga ikut":"gajadiikut", "batal ikut":"gajadiikut"}
         self.listActionInPengeluaran ={"lihat" : "lihat", "ganti" : "ubah", "buat":"tambah", "tambah":"tambah", "bikin":"tambah", "ubah":"ubah", "hapus":"hapus", "lapor":"report", "liat":"lihat", "report":"report", "eval":"report"}
         self.listErrorInEvent={"lihat" : errorLiatJadwal, "ikut":errorIkutJadwal, "hapus":errorHapusJadwal, "ubah":errorCreateUpdateJadwal, "tambah":errorCreateUpdateJadwal}
         self.listErrorType={"jadwal":errorJadwal, "pengeluaran":errorPengeluaran}
@@ -195,7 +195,13 @@ class TextProcessor(object):
                         event_name = event_nameRe.findall(sentence)[0]
                         self.jsonToSend = {'type': 'jadwal', 'command': self.listActionInEvent[action], 'data':{'date': datetypedate,'event_name': event_name}}
                         break
-                    elif action in ["ikut", "gajadiikut", "gak ikut", "ga jadi ikut", "gajadi ikut","gak jadi ikut","batal"]:
+                    elif action in ["ga ikut", "batal ikut", "ikut", "gajadiikut", "gak ikut", "ga jadi ikut", "gajadi ikut","gak jadi ikut","batal"]:
+                        for action2 in ["ga ikut", "batal ikut", "gajadiikut", "gak ikut", "ga jadi ikut", "gajadi ikut","gak jadi ikut","batal"]:
+                          isContain = re.compile(r'\b({0})\b'.format(action2), flags=re.IGNORECASE)
+                          if(isContain.findall(temp_sentence)):
+                              action = action2
+                              break
+
                         persons = self.checkPerson(sentence)
                         if persons :
                         	print(sentence)
@@ -375,6 +381,6 @@ class TextProcessor(object):
         return js
 
 # TP = TextProcessor()
-# TP.processText('si bawel mau batal jadwal makan siang oleh Gazandi')
+# TP.processText('si bawel mau gak jadi ikut jadwal makan siang oleh Gazandi')
 # json = TP.getJsonToSent()
 # print(json)
