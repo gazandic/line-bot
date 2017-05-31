@@ -28,7 +28,8 @@
 
 ## File-based project format:
 *.iws
-
+.envrc
+.devenvrc
 ## Plugin-specific files:
 
 # IntelliJ
@@ -152,5 +153,7 @@ ENV/
 
 # Rope project settings
 .ropeproject
+
+static/tmp/
 
 # End of https://www.gitignore.io/api/python,pycharm

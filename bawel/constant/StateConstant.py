@@ -22,6 +22,9 @@ STATE_SHOW_PENGELUARAN = 15
 STATE_MODIFY_PENGELUARAN = 16
 STATE_DELETE_PENGELUARAN = 17
 STATE_REPORT_PENGELUARAN = 18
+STATE_IKUT_JADWAL = 19
+STATE_GAIKUT_JADWAL = 20
+STATE_IMAGE_ADD_PENGELUARAN = 21
 # STATE_EVENT_MENU =
 # STATE_HABIT_MENU =
 # STATE_USER_MENU =
@@ -61,7 +64,10 @@ ACTION_MAPPER = {
     STATE_MODIFY_PENGELUARAN: UbahPengeluaran,
     STATE_DELETE_PENGELUARAN: HapusPengeluaran,
     # '/selesaipengeluaran': self.selesaipengeluaranCommand,
-    STATE_REPORT_PENGELUARAN: ReportPengeluaran
+    STATE_REPORT_PENGELUARAN: ReportPengeluaran,
+    STATE_IKUT_JADWAL: IkutJadwal,
+    STATE_GAIKUT_JADWAL: TakIkutJadwal,
+    STATE_IMAGE_ADD_PENGELUARAN: ImageTambahPengeluaran
 }
 
 REQUEST_STATE = {
@@ -86,5 +92,7 @@ REQUEST_STATE = {
     '/ubahpengeluaran': STATE_MODIFY_PENGELUARAN,
     '/hapuspengeluaran': STATE_DELETE_PENGELUARAN,
     # '/selesaipengeluaran': #,
-    '/reportpengeluaran': STATE_REPORT_PENGELUARAN
+    '/reportpengeluaran': STATE_REPORT_PENGELUARAN,
+    '/ikutjadwal': STATE_IKUT_JADWAL,
+    '/gajadiikutjadwal': STATE_GAIKUT_JADWAL
 }

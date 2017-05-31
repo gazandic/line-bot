@@ -1,10 +1,11 @@
 from __future__ import unicode_literals
 
-from datetime import datetime,date,time
+from datetime import (
+    datetime, date, time
+)
 
 from bawel.action.Action import dispatch_action
 from bawel.constant.StateConstant import *
-
 from bawel.model.User import User
 from bawel.model.Event import Event
 from bawel.model.Expense import Expense
@@ -13,15 +14,17 @@ class RequestParser:
 
     def parse(self, text, state):
         lineid = state['id']
-        us = User(lineid, "undefined", "undefined", STATE_NOTHING)
+        us = User()
         user = us.searchOne({"lineid":lineid})
 
         # TODO
         # if 'id' not in state:
 
         if not user:
-            return us.create()
-        us.set(user)
+            us.setLineId({"lineid":lineid})
+            us.create()
+        else :
+            us.set(user)
 
         state, param = self.chooseMenu(text, state)
         # if state['state_id'] == STATE_UNKNOWN:
@@ -50,7 +53,7 @@ class RequestParser:
         cmd = text.split()
         param = cmd[1:]
         cmd = cmd[0]
-            
+
         try:
             return ({**state, 'state_id': REQUEST_STATE[cmd]}, param)
         except IndexError:

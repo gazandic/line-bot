@@ -7,12 +7,15 @@ class HelpAll(Action):
         super().__init__()
 
     def act(self, state):
-        S = """Halo bos, bingung sekretaris bos bisa ngapain aja ?
-sekretaris bos bisa ngatur acara bos dengan ketik '/acara' dan ingetin bos
-bisa juga ngatur habit bos dengan ketik '/habit' dan bakal berisikin bos tiap bos ngelakuin itu
-bisa juga ngatur pengeluaran bos dengan ketik '/pengeluaran'
-bisa juga baca foto yang bos berikan dengan upload foto bapak hehe """
+        S = """Halo kak, bingung si bawel bisa ngapain aja ?
 
+si bawel bisa ngatur acara kakak dan ingetin kakaknya kalo udah 1 jam sebelumnya, untuk lebih keponya bisa dengan ketik '/jadwal'
+
+bisa juga ngatur pengeluaran acara kakak,  untuk lebih keponya ketik '/pengeluaran'
+
+bisa juga baca foto pengeluaran yang kakak berikan dengan upload fotonyaa pas input pengeluaran hehe
+
+bisa kick bawel dengan @bye """
         return (state, S)
 
 class HelpJadwal(Action):
@@ -20,12 +23,17 @@ class HelpJadwal(Action):
         super().__init__()
 
     def act(self, state):
-        S = """Bos kalo bos mau nambah acara bisa ketik '/tambahjadwal namajadwal hari bulan tahun jam menit'
-bisa juga lihat schedule bos dengan ketik '/lihatjadwal'
-bos juga bisa reschedule bos dengan ketik '/ubahjadwal namajadwal hari bulan tahun jam menit'
-dan hapus schedule bos dengan ketik '/selesaijadwal namajadwal'
-dan hapus schedule bos dengan ketik '/reportjadwal'
-dan hapus schedule bos dengan ketik '/hapusjadwal namajadwal' """
+        S = """Si bawel bisa bantu nambah atau ubah acara bisa ketik kek gini'si bawel tolong dong tambah/ubah jadwal pergi ke jogja tanggal 5 April jam 3:50 sore'
+
+bisa juga lihat acara yang ada dengan kaya gini 'si bawel kita mau lihat jadwal'
+
+lihat yang ikut acara siapa saja dengan gini 'si bawel aku mau report event <namaevent>'
+
+atau ikut acara pake 'si bawel mau nih ikut acara <namajadwal> oleh Kevin(nama kakak)'
+
+bisa juga batal ikut acara 'si bawel aku batal jadwal <namajadwal> oleh Kevin(nama kakak)'
+
+dan hapus acara 'si bawel kita mau hapus jadwal <namajadwal>' """
 
         return (state, S)
 
@@ -35,7 +43,15 @@ class HelpPengeluaran(Action):
 
     def act(self, state):
         # TODO:
-        return (state, "ntaran")
+        S = """Si bawel bisa bantu nambah atau ubah pengeluaran untuk acara tertentu bisa ketik kaya 'si bawel tolong dong tambah/ubah <pengeluaran makan siang> (nama pengeluaran) untuk <acara pergi ke jogja> (nama acara) sebesar 50000 oleh Kevin'
+
+bisa juga lihat pengeluaran yang ada dengan ketik 'si bawel kita mau lihat pengeluaran <nama acara>'
+
+atau lihat pembagian pengeluaran pake 'si bawel aku mau report pengeluaran <pergi ke jogja>(namapengeluaran)'
+
+dan hapus pengeluaran 'si bawel kita mau hapus pengeluaran <pergi ke jakarta>(nama acara)' """
+
+        return (state, S)
 
 class HelpHabit(Action):
     def __init__(self):
@@ -43,8 +59,11 @@ class HelpHabit(Action):
 
     def act(self, state):
         S = """Bos mau nambah habit bos ketik '/tambahhabit namahabit jam menit hari'
+
 bisa juga lihat habit bos dengan ketik '/lihathabit'
+
 dan ubahhabit bos dengan ketik '/ubahhabit namahabit jam menit hari'
+
 bos juga bisa hapus habit bos dengan ketik '/hapushabit namahabit' """
 
         return (state, S)
