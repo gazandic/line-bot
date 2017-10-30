@@ -1,5 +1,3 @@
-import requests, os
-
 from datetime import date, time, datetime, timedelta
 __all__ = ["checkInputWaktu", "checkInputTanggal", "ImageProcessor", "JsonToQuery", "PengeluaranDetector", "Reminder", "RequestParser", "Sticker", "TextProcessor", "CheckMoney"]
 
@@ -14,14 +12,3 @@ def checkInputTanggal(hari, bulan, tahun, jam, menit):
     dt = dt + td
     print(dt)
     return (dt)
-
-def searchLoc(query):
-    token = os.getenv('GOOGLE_MAP_TOKEN', None)
-    base_url = "https://maps.googleapis.com/maps/api/place/textsearch/json?"
-    params = {"query": query, "key": token}
-    res = requests.get(base_url, params=params).json()
-    try:
-        geo = res['results'][0]['geometry']['location']
-        return "{0},{1}".format(geo['lat'], geo['lng'])
-    except (KeyError, IndexError):
-        return None

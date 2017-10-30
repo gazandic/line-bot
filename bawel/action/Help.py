@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from bawel.action.Action import Action
 
+
 class HelpAll(Action):
     def __init__(self):
         super().__init__()
@@ -17,6 +18,7 @@ bisa juga baca foto pengeluaran yang kakak berikan dengan upload fotonyaa pas in
 
 bisa kick bawel dengan @bye """
         return (state, S)
+
 
 class HelpJadwal(Action):
     def __init__(self):
@@ -35,7 +37,8 @@ bisa juga batal ikut acara 'si bawel aku batal jadwal <namajadwal> oleh Kevin(na
 
 dan hapus acara 'si bawel kita mau hapus jadwal <namajadwal>' """
 
-        return (state, S)
+        return state, S
+
 
 class HelpPengeluaran(Action):
     def __init__(self):
@@ -51,7 +54,8 @@ atau lihat pembagian pengeluaran pake 'si bawel aku mau report pengeluaran <perg
 
 dan hapus pengeluaran 'si bawel kita mau hapus pengeluaran <pergi ke jakarta>(nama acara)' """
 
-        return (state, S)
+        return state, S
+
 
 class HelpHabit(Action):
     def __init__(self):
@@ -66,4 +70,4 @@ dan ubahhabit bos dengan ketik '/ubahhabit namahabit jam menit hari'
 
 bos juga bisa hapus habit bos dengan ketik '/hapushabit namahabit' """
 
-        return (state, S)
+        return state, S

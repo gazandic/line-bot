@@ -7,3 +7,4 @@ pillow
 gunicorn
 pymongo
 python-dateutil
+python-telegram-bot

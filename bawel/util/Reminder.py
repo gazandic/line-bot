@@ -1,34 +1,16 @@
 from __future__ import unicode_literals
 
-import datetime
-import time
-import threading
 import sys
+import threading
+import time
 
-from datetime import datetime as dt
-from sched import scheduler
-from linebot import (
-    LineBotApi, WebhookHandler
-)
-from linebot.exceptions import (
-    InvalidSignatureError
-)
-from linebot.models import (
-    MessageEvent, TextMessage, TextSendMessage,
-    SourceUser, SourceGroup, SourceRoom,
-    TemplateSendMessage, ConfirmTemplate, MessageTemplateAction,
-    ButtonsTemplate, URITemplateAction, PostbackTemplateAction,
-    CarouselTemplate, CarouselColumn, PostbackEvent,
-    StickerMessage, StickerSendMessage, LocationMessage, LocationSendMessage,
-    ImageMessage, VideoMessage, AudioMessage,
-    UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
-)
 
 def worker_once(reminder):
     reminder.scheduler.run()
 
+
 def worker_repeated(reminder, callback, args):
-    worker_once(remainder)
+    worker_once(reminder)
     callback(*args)
 
 
@@ -44,10 +26,10 @@ class Reminder:
         next_time = time.mktime(next_time.timetuple())
 
         worker_thread = threading.Thread(target=worker_repeated,
-            kwargs={
-                'reminder': self, 'callback': self.add_repeated,
-                'args': (eid, tm, job, interval, args)
-            })
+                                         kwargs={
+                                             'reminder': self, 'callback': self.add_repeated,
+                                             'args': (eid, tm, job, interval, args)
+                                         })
         worker_thread.start()
 
     def add(self, eid, tm, job, args):
@@ -55,22 +37,11 @@ class Reminder:
         self.scheduler.enterabs(tm, 1, job, (eid, *args))
 
         worker_thread = threading.Thread(target=worker_once,
-            kwargs={'reminder': self})
+                                         kwargs={'reminder': self})
         worker_thread.start()
 
     def push(self, text, stickerid, lineid, location=None):
-        action_list = [
-                TextSendMessage(text=text),
-                StickerSendMessage(
-                    package_id=3,
-                    sticker_id=stickerid)
-            ]
-        if location is not None:
-            action_list.insert(1, LocationSendMessage(
-                    latitude=location['lat'],
-                    longitude=location['lng']
-                ))
-        self.linebot.push_message(lineid, action_list)
+        self.linebot.push_message(lineid, text, stickerid, location)
 
     def remove(self, eid):
         try:
