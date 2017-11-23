@@ -140,8 +140,8 @@ def handle_text_message(event):
 
     if isinstance(event.source, SourceUser):
         profile = line_bot_api.get_profile(event.source.user_id)
-        url = "https://api.bukalapak.com/v2/products.json?per_page=5&keywords=" + event.message.text
-        data = requests.get(url).json
+        url = "https://api.bukalapak.com/v2/products.json?page=0&per_page=5&keywords=" + event.message.text
+        data = requests.get(url).json()
         liprod = []
         ite = 0
         licc = []
@@ -163,8 +163,8 @@ def handle_text_message(event):
             template_message = TemplateSendMessage(
                 alt_text='List produk', template=carousel_template)
             liprod.append(template_message)
-        line_bot_api.reply_message(
-            event.reply_token, liprod
+        line_bot_api.push_message(
+            event.source.user_id, liprod
         )
 
     else:
