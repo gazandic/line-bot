@@ -147,9 +147,9 @@ def handle_text_message(event):
         licc = []
         for product in data['products']:
             ite += 1
-            about = product['name'].replace("_"," ")[0:20]+".."
-            text = product['desc'].replace("_"," ")[0:20]+".."
-            cc = ImageCarouselColumn(image_url=product['images'][0], text=text, title=about, actions=[
+            about = product['name'].replace("_"," ")[0:18] + ".."
+            text = product['desc'].replace("_"," ")[0:20]
+            cc = ImageCarouselColumn(image_url=product['images'][0], text=about, actions=[
                 URITemplateAction(label='Lihat product', uri=product['url'].replace("https://www","https://m"))
             ])
             licc.append(cc)
