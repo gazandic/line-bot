@@ -139,15 +139,31 @@ def handle_text_message(event):
 
     if isinstance(event.source, SourceUser):
         profile = line_bot_api.get_profile(event.source.user_id)
+        url = "https://api.bukalapak.com/v2/products.json?per_page=5&keywords=" + event.message.text
+        data = requests.get(url).json
+        liprod = []
+        ite = 0
+        licc = []
+        for product in data.products:
+            ite += 1
+            about = product['name'].replace("_"," ")[0:20]
+            text = product['desc'].replace("_"," ")[0:20]
+            cc = CarouselColumn(text=text, title=about, url=product['url'])
+            licc.append(cc)
+            if ite == 4:
+                carousel_template = CarouselTemplate(columns=licc)
+                template_message = TemplateSendMessage(
+                    alt_text='List produk', template=carousel_template)
+                ite = 0
+                liprod.append(template_message)
+                licc = []
+        if ite > 0:
+            carousel_template = CarouselTemplate(columns=licc)
+            template_message = TemplateSendMessage(
+                alt_text='List produk', template=carousel_template)
+            liprod.append(template_message)
         line_bot_api.reply_message(
-            event.reply_token, [
-                TextSendMessage(
-                    text='Maaf, kak ' + profile.display_name + ' bot ini fokus pada asisten grup, undang bawel ke grup kak'
-                ),
-                StickerSendMessage(
-                    package_id=3,
-                    sticker_id=random.choice(randomPrivate))
-            ]
+            event.reply_token, liprod
         )
 
     else:
