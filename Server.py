@@ -8,6 +8,7 @@ import sched
 import sys
 import tempfile
 import time
+import requests
 
 from argparse import ArgumentParser
 from flask import Flask, request, abort
