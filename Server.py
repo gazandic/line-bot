@@ -47,7 +47,7 @@ from linebot.models import (
     SourceUser, SourceGroup, SourceRoom,
     TemplateSendMessage, ConfirmTemplate, MessageTemplateAction,
     ButtonsTemplate, URITemplateAction, PostbackTemplateAction,
-    CarouselTemplate, CarouselColumn, PostbackEvent,
+    ImageCarouselTemplate, ImageCarouselColumn, CarouselTemplate, CarouselColumn, PostbackEvent,
     StickerMessage, StickerSendMessage, LocationMessage, LocationSendMessage,
     ImageMessage, VideoMessage, AudioMessage,
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
@@ -147,22 +147,25 @@ def handle_text_message(event):
         licc = []
         for product in data['products']:
             ite += 1
-            about = product['name'].replace("_"," ")[0:20]
-            text = product['desc'].replace("_"," ")[0:20]
-            cc = CarouselColumn(text=text, title=about, url=product['url'])
+            about = product['name'].replace("_"," ")[0:20]+".."
+            text = product['desc'].replace("_"," ")[0:20]+".."
+            cc = ImageCarouselColumn(image_url=product['images'][0], text=text, title=about, actions=[
+                URITemplateAction(label='Lihat product', uri=product['url'].replace("https://www","https://m"))
+            ])
             licc.append(cc)
             if ite == 4:
-                carousel_template = CarouselTemplate(columns=licc)
+                carousel_template = ImageCarouselTemplate(columns=licc)
                 template_message = TemplateSendMessage(
                     alt_text='List produk', template=carousel_template)
                 ite = 0
                 liprod.append(template_message)
                 licc = []
         if ite > 0:
-            carousel_template = CarouselTemplate(columns=licc)
+            carousel_template = ImageCarouselTemplate(columns=licc)
             template_message = TemplateSendMessage(
                 alt_text='List produk', template=carousel_template)
             liprod.append(template_message)
+        print(event.source.user_id, liprod)
         line_bot_api.push_message(
             event.source.user_id, liprod
         )
