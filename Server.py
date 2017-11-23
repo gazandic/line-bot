@@ -145,7 +145,7 @@ def handle_text_message(event):
         liprod = []
         ite = 0
         licc = []
-        for product in data.products:
+        for product in data['products']:
             ite += 1
             about = product['name'].replace("_"," ")[0:20]
             text = product['desc'].replace("_"," ")[0:20]
