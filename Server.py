@@ -52,7 +52,7 @@ from linebot.models import (
     ImageMessage, VideoMessage, AudioMessage,
     UnfollowEvent, FollowEvent, JoinEvent, LeaveEvent, BeaconEvent
 )
-
+state = {}
 
 # get channel_secret and channel_access_token from your environment variable
 channel_secret = os.getenv('LINE_CHANNEL_SECRET', None)
@@ -133,42 +133,82 @@ def callback():
 
     return 'OK'
 
+def process_data(products):
+    liprod = []
+    ite = 0
+    licc = []
+    for product in products:
+        ite += 1
+        cc = ImageCarouselColumn(image_url=product['images'][0], action=
+            URITemplateAction(label='Lihat produk', uri=product['url'].replace("https://www","https://m"))
+        )
+        licc.append(cc)
+        if ite == 4:
+            carousel_template = ImageCarouselTemplate(columns=licc)
+            template_message = TemplateSendMessage(
+                alt_text='List produk', template=carousel_template)
+            ite = 0
+            liprod.append(template_message)
+            licc = []
+    if ite > 0:
+        carousel_template = ImageCarouselTemplate(columns=licc)
+        template_message = TemplateSendMessage(
+            alt_text='List produk', template=carousel_template)
+        liprod.append(template_message)
+    return liprod
 
 @handler.add(MessageEvent, message=TextMessage)
 def handle_text_message(event):
     text = event.message.text
 
     if isinstance(event.source, SourceUser):
-        profile = line_bot_api.get_profile(event.source.user_id)
-        url = "https://api.bukalapak.com/v2/products.json?page=0&per_page=4&keywords=" + event.message.text
-        data = requests.get(url).json()
-        liprod = []
-        ite = 0
-        licc = []
-        for product in data['products']:
-            ite += 1
-            about = product['name'].replace("_"," ")[0:20]
-            text = product['desc'].replace("_"," ")[0:20]
-            cc = ImageCarouselColumn(image_url=product['images'][0], action=
-                URITemplateAction(label='Lihat produk', uri=product['url'].replace("https://www","https://m"))
-            )
-            licc.append(cc)
-            if ite == 4:
-                carousel_template = ImageCarouselTemplate(columns=licc)
-                template_message = TemplateSendMessage(
-                    alt_text='List produk', template=carousel_template)
-                ite = 0
-                liprod.append(template_message)
-                licc = []
-        if ite > 0:
-            carousel_template = ImageCarouselTemplate(columns=licc)
+        id = event.source.user_id
+        global state
+
+        if id in state:
+            user_state = state[id]
+        else:
+            user_state = { 'id': id }
+
+        if user_state.get('before_state'):
+            if user_state['before_state'] == 1001 :
+                profile = line_bot_api.get_profile(id)
+                url = os.getenv('BL_API_URL', "https://api.bukalapak.com/v2/products.json?page=0&per_page=4&keywords=") + event.message.text
+                data = requests.get(url).json()
+                liprod = process_data(data['products'])
+
+                line_bot_api.push_message(
+                    id, liprod
+                )
+            elif user_state['before_state'] == 1002 :
+                url = os.getenv('BL_API_URL2', "https://api.bukalapak.com/v2/favorites/") + event.message.text + ".json"
+                data = requests.get(url).json()
+                if data['products']:
+                    liprod = process_data(data['products'])
+                    line_bot_api.push_message(
+                        id, liprod
+                    )
+                else:
+                    line_bot_api.push_message(
+                        id, [
+                            TextSendMessage(text='user ' + event.message.text + ' tidak ditemukan')
+                        ]
+                    )
+
+            del user_state['before_state']
+            state[id] = user_state
+        else:
+            buttons_template = ButtonsTemplate(
+                title='Menu', text='Fitur bot bukalapak', actions=[
+                    PostbackTemplateAction(label='cari produk', data='Search'),
+                    PostbackTemplateAction(label='dapatkan produk favorit orang', data='Favorite')
+            ])
             template_message = TemplateSendMessage(
-                alt_text='List produk', template=carousel_template)
-            liprod.append(template_message)
-        print(event.source.user_id, liprod)
-        line_bot_api.push_message(
-            event.source.user_id, liprod
-        )
+                alt_text='Menu', template=buttons_template)
+
+            line_bot_api.push_message(
+                id, template_message
+            )
 
     else:
         id = None
@@ -361,10 +401,14 @@ def handle_join(event):
 def handle_postback(event):
     text = event.postback.data
     id = None
+    isUser = False
     if isinstance(event.source, SourceGroup):
         id = event.source.group_id
     elif isinstance(event.source, SourceRoom):
         id = event.source.room_id
+    elif isinstance(event.source, SourceUser):
+        id = event.source.user_id
+        isUser = True
 
     global state
 
@@ -372,6 +416,28 @@ def handle_postback(event):
         user_state = state[id]
     else:
         user_state = { 'id': id }
+
+    if isUser:
+        if user_state.get('before_state'): return
+        if text == 'Search':
+            user_state['before_state'] = 1001
+            state[id] = user_state
+
+            line_bot_api.push_message(
+                id, [
+                    TextSendMessage(text='mau lihat barang apa ?')
+                ]
+            )
+        elif text == 'Favorite':
+            user_state['before_state'] = 1002
+            state[id] = user_state
+
+            line_bot_api.push_message(
+                id, [
+                    TextSendMessage(text='kasih username bukalapak dong')
+                ]
+            )
+        return
 
     s = text.split(" ")
 
