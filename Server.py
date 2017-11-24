@@ -201,7 +201,7 @@ def handle_text_message(event):
             buttons_template = ButtonsTemplate(
                 title='Menu', text='Fitur bot bukalapak', actions=[
                     PostbackTemplateAction(label='cari produk', data='Search'),
-                    PostbackTemplateAction(label='dapatkan produk favorit orang', data='Favorite')
+                    PostbackTemplateAction(label='cari favorit', data='Favorite')
             ])
             template_message = TemplateSendMessage(
                 alt_text='Menu', template=buttons_template)
