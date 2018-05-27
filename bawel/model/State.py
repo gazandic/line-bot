@@ -1,8 +1,7 @@
+import json
 from typing import Dict
 
 from bawel.model.BaseMongo import BaseMongo
-
-import json
 
 
 class State(BaseMongo):
@@ -20,17 +19,21 @@ class State(BaseMongo):
 
     def search(self, query):
         states = self.db.state.find(query)
-        return states
+        return list(map(self.parse_state, states))
 
     def search_one(self, query):
-        expense = self.db.state.find_one(query)
-        return expense
+        state = self.db.state.find_one(query)
+        return self.parse_state(state)
 
     def remove_self(self):
         self.db.state.delete_one(self.make_state())
 
     def remove_query(self, query):
         self.db.state.delete_many(query)
+
+    def parse_state(self, state_row):
+        if state_row is None: return None
+        return State(state_row['uid'], json.loads(state_row['state']))
 
     def update(self):
         state = self.search_one({"uid": self.uid})
@@ -53,6 +56,3 @@ class State(BaseMongo):
             "state": json.dumps(self.state)
         }
         return state
-
-# ev1 = State("123",{'mata':[123, 456], 'sapi': 'sei'})
-# ev1.create()
