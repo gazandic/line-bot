@@ -9,6 +9,7 @@ from linebot.models import (
 )
 
 from bawel.client.ChatClient import ChatClient
+from bawel.handler.line.LineMiddleware import LineMiddleware
 
 
 class Line(ChatClient):
@@ -30,10 +31,9 @@ class Line(ChatClient):
         def decorator(func):
             @self.handler.add(event, message)
             def wrapper(event):
-                func(event)
-
+                if LineMiddleware.check_message(self.api, event):
+                    func(event)
             return func
-
         return decorator
 
     def reply(self, event, messages):

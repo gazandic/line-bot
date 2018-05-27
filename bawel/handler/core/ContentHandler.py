@@ -17,7 +17,7 @@ from bawel.processor.TextProcessor import TextProcessor
 from bawel.util.CheckMoney import CheckMoney
 from bawel.util.ExpenseDetector import ExpenseDetector
 from bawel.util.JsonToQuery import JsonToQuery
-from bawel.util.Sticker import randomPrivate
+from bawel.util.Sticker import line_sticker_nums
 
 
 class Image:
@@ -98,7 +98,7 @@ class ContentHandler:
                     text="Keyword tidak ditemukan, tolong ketik 'si bawel tolong' atau '/help'"),
                 StickerSendMessage(
                     package_id=3,
-                    sticker_id=random.choice(randomPrivate))
+                    sticker_id=random.choice(line_sticker_nums))
             ]
 
     @staticmethod

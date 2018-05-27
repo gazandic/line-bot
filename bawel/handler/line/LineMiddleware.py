@@ -3,7 +3,7 @@ import random
 from linebot.models import TextSendMessage, SourceUser, \
     StickerSendMessage
 
-from bawel.util.Sticker import randomPrivate
+from bawel.util.Sticker import line_sticker_nums
 
 
 class LineMiddleware:
@@ -18,7 +18,7 @@ class LineMiddleware:
                 ),
                 StickerSendMessage(
                     package_id=3,
-                    sticker_id=random.choice(randomPrivate))
+                    sticker_id=random.choice(line_sticker_nums))
             ]
         )
 

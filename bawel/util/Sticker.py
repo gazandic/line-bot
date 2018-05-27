@@ -1,1 +1,1 @@
-randomPrivate = [181, 183, 187, 188]
+line_sticker_nums = [181, 183, 187, 188]
