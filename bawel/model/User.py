@@ -1,6 +1,4 @@
-# from flask import jsonify
-
-import pprint
+from datetime import datetime
 
 from bawel.constant.StateConstant import STATE_NOTHING
 from bawel.model.BaseMongo import BaseMongo
@@ -12,7 +10,7 @@ class User(BaseMongo):
         self.name = _name
         self.location = _location
         self.state = _state
-        # self.jointime = datetime.datetime.now()
+        self.jointime = datetime.now()
 
     def setLineId(self, line_id):
         self.lineid = line_id
@@ -81,11 +79,4 @@ class User(BaseMongo):
                 "location" : self.location,
                 "state" : self.state}
         return user
-#
-# ev1 = User("2783718371823718","Osas",0)
-# ev1.create()
-# # ev1.removeSelf()
-# # event = ev1.searchOne({"lineid":"2783718371823718"})
-# # pprint.pprint(event)
-# ev1.setState(1)
-# ev1.update()
+

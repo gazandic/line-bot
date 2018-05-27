@@ -3,9 +3,9 @@ from bawel.constant.StateConstant import (
     STATE_DELETE_JADWAL,
     STATE_ADD_PENGELUARAN,
     STATE_DELETE_PENGELUARAN,
-    STATE_SHOW_PENGELUARAN,
-    ACTION_MAPPER
+    STATE_SHOW_PENGELUARAN
 )
+from bawel.constant.ActionMapper import ACTION_MAPPER
 from bawel.util.RequestParser import RequestParser
 
 
@@ -28,9 +28,9 @@ def handle_action(raw_text, text, state, reminder, nlptext, gmaps):
         param.append(state)
 
     if state['state_id'] == STATE_ADD_JADWAL:
-        ent = nlptext.getEntities(raw_text)
+        ent = nlptext.get_entities(raw_text)
         loc_name = list(ent.filter(lambda e: e['entity'] == "LOCATION").map(lambda e: e["fragment"]))
-        loc_coord = gmaps.searchLoc(loc_name)
+        loc_coord = gmaps.search_loc(loc_name)
         param.append(loc_coord)
 
     return dispatch_action(ACTION_MAPPER[state['state_id']], *param)

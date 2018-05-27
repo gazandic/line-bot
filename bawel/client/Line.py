@@ -12,6 +12,11 @@ from bawel.client.ChatClient import ChatClient
 
 
 class Line(ChatClient):
+
+    def __init__(self, channel_secret, channel_access_token):
+        self.api = LineBotApi(channel_access_token)
+        self.handler = WebhookHandler(channel_secret)
+
     def textMessage(self, text):
         pass
 
@@ -20,10 +25,6 @@ class Line(ChatClient):
 
     def imageMessage(self, imageFile):
         pass
-
-    def __init__(self, channel_secret, channel_access_token):
-        self.api = LineBotApi(channel_access_token)
-        self.handler = WebhookHandler(channel_secret)
 
     def add(self, event, message=None):
         def decorator(func):

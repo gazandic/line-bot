@@ -5,22 +5,25 @@ from bawel.model.User import User
 
 
 class RequestParser:
-    def parse(self, text, state):
-        lineid = state['id']
+
+    @staticmethod
+    def parse(text, state):
+        line_id = state['id']
         us = User()
-        user = us.searchOne({"lineid": lineid})
+        user = us.searchOne({"lineid": line_id})
 
         if not user:
-            us.setLineId({"lineid": lineid})
+            us.setLineId({"lineid": line_id})
             us.create()
         else:
             us.set(user)
 
-        state, param = self.chooseMenu(text, state)
+        state, param = RequestParser.choose_menu(text, state)
 
-        return (state, param)
+        return state, param
 
-    def chooseMenu(self, text, state):
+    @staticmethod
+    def choose_menu(text, state):
         cmd = text.split()
         param = cmd[1:]
         cmd = cmd[0]

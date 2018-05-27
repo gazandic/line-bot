@@ -49,7 +49,7 @@ class Reminder:
             job, args = ev.action, ev.argument
             self.scheduler.cancel(ev)
             print(args)
-            return (job, args)
+            return job, args
         except:
             print(sys.exc_info())
 

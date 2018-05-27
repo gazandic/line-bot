@@ -1,3 +1,5 @@
+from typing import List, Tuple
+
 import pytesseract
 import requests
 import re
@@ -13,7 +15,10 @@ except ImportError:
     from io import BytesIO
 
 
-class ImageProcessor(object):
+class ImageProcessor:
+    EMAIL_REGEX_PATTERN = re.compile(
+        r"(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)")
+
     NEWIMAGESIZE = 1200
     path = ""
 
@@ -26,9 +31,9 @@ class ImageProcessor(object):
         return self.process_images(onlyfiles)
 
     # process list image to string and print it
-    def process_images(self, listUrl):
+    def process_images(self, list_url: List[str]):
         s = {}
-        for url in listUrl:
+        for url in list_url:
             s[url] = self.process_image(self.path + url) + "\n"
         return s
 
@@ -49,27 +54,30 @@ class ImageProcessor(object):
         return self.normalize(s)
 
     # get the image
-    def _get_image(self, url):
+    @staticmethod
+    def _get_image(url):
         if "http" in url:
             return Image.open(requests.get(url), 'rb')
         return Image.open(url)
 
-   # resize image with magnitude
-    def _resize_image(self, image, magnitude):
-        xDim = image.size[0] * magnitude
-        yDim = image.size[1] * magnitude
-        newSize = self.aspectRatio(xDim, yDim)
+    # resize image with magnitude
+    @staticmethod
+    def _resize_image(image, magnitude):
+        x_dim = image.size[0] * magnitude
+        y_dim = image.size[1] * magnitude
+        new_size = ImageProcessor.calculate_aspect_ratio(x_dim, y_dim)
         return image.resize(
             (int(
-                newSize[0]), int(
-                newSize[1])), Image.ANTIALIAS)
+                new_size[0]), int(
+                new_size[1])), Image.ANTIALIAS)
 
-   # normalize indonesian string for small email picture
-    def normalize(self, string):
+    # normalize indonesian string for small email picture
+    @staticmethod
+    def normalize(string: str) -> str:
         s = list(string)
-        i = 0
-        numbercount = 0
-        alphacount = 0
+        # i = 0
+        # numbercount = 0
+        # alphacount = 0
         # for c in s:
         #     if not self.isVowel(c):
         #         if c == 'c' and i >= 1 and s[i-1] == 'L' :
@@ -91,8 +99,8 @@ class ImageProcessor(object):
         #             s[i] = 'l'
         #     i += 1
         ss = "".join(s)
-        if self.isEmail(ss):
-            # is_valid = validate_email(ss)
+        if ImageProcessor.is_email(ss):
+            is_valid = ImageProcessor.is_email(ss)
             if is_valid:
                 return ss
             else:
@@ -107,37 +115,45 @@ class ImageProcessor(object):
     #             listEmail[key] = ""
 
     # check the char is vowel or not
-    def isVowel(self, c):
-        return c == 'a' or c == 'i' or c == 'u' or c == 'e' or c == 'o'
+    @staticmethod
+    def is_vowel(text: str) -> bool:
+        return text == 'a' or text == 'i' or text == 'u' or text == 'e' or text == 'o'
 
     # check the char is number and - or not
-    def isNumber(self, c, search=re.compile(r'[^0-9.+-]').search):
-        return not bool(search(c))
+    @staticmethod
+    def is_number(text: str) -> bool:
+        try:
+            _: float = float(text)
+        except ValueError:
+            return False
+        finally:
+            return True
 
     # check the char is number and - or not
-    def isEmail(self, c, search=re.compile(
-            r'(^[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+$)').search):
-        return bool(search(c))
+    @staticmethod
+    def is_email(text: str) -> bool:
+        return bool(ImageProcessor.EMAIL_REGEX_PATTERN.search(text))
 
     # calculate aspectRatio from dimension x and y
-    def aspectRatio(self, xDim, yDim):
+    @staticmethod
+    def calculate_aspect_ratio(x_dim: int, y_dim: int) -> Tuple(int, int):
         # ensures images already correct size are not enlarged.
-        if xDim <= self.NEWIMAGESIZE and yDim <= self.NEWIMAGESIZE:
-            return(xDim, yDim)
+        if x_dim <= ImageProcessor.NEWIMAGESIZE and y_dim <= ImageProcessor.NEWIMAGESIZE:
+            return x_dim, y_dim
 
-        elif xDim > yDim:
-            divider = xDim / float(self.NEWIMAGESIZE)
-            xDim = float(xDim / divider)
-            yDim = float(yDim / divider)
-            return(xDim, yDim)
+        elif x_dim > y_dim:
+            divider = x_dim / float(ImageProcessor.NEWIMAGESIZE)
+            x_dim = float(x_dim / divider)
+            y_dim = float(y_dim / divider)
+            return x_dim, y_dim
 
-        elif yDim > xDim:
-            divider = yDim / float(self.NEWIMAGESIZE)
-            xDim = float(xDim / divider)
-            yDim = float(yDim / divider)
-            return(xDim, yDim)
+        elif y_dim > x_dim:
+            divider = y_dim / float(ImageProcessor.NEWIMAGESIZE)
+            x_dim = float(x_dim / divider)
+            y_dim = float(y_dim / divider)
+            return x_dim, y_dim
 
-        elif xDim == yDim:
-            xDim = self.NEWIMAGESIZE
-            yDim = self.NEWIMAGESIZE
-            return(xDim, yDim)
+        elif x_dim == y_dim:
+            x_dim = ImageProcessor.NEWIMAGESIZE
+            y_dim = ImageProcessor.NEWIMAGESIZE
+            return x_dim, y_dim

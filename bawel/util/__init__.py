@@ -1,5 +1,5 @@
 from datetime import date, time, datetime, timedelta
-__all__ = ["checkInputWaktu", "checkInputTanggal", "ImageProcessor", "JsonToQuery", "PengeluaranDetector", "Reminder", "RequestParser", "Sticker", "TextProcessor", "CheckMoney"]
+__all__ = ["checkInputWaktu", "checkInputTanggal", "ImageProcessor", "JsonToQuery", "ExpenseDetector.py", "Reminder", "RequestParser", "Sticker", "TextProcessor", "CheckMoney"]
 
 def checkInputWaktu(jam, menit):
     return time(int(jam), int(menit))

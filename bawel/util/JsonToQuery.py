@@ -1,33 +1,35 @@
+from typing import Dict, Optional, Union
+
 from datetime import datetime
 
+JsonType = Dict[str, Optional[Union[int, str]]]
 
-class JsonToQuery():
-    def __init__(self, _json):
-        self.json = _json
 
-    def parseJSON(self):
-        obj = self.json
-        finalResult = ""
-        print(obj)
-        if obj.get('error'):
-            return str(obj['error'])
-        precommand = '/' + obj['command'] + obj['type']
-        finalResult += precommand
-        data = obj['data']
+class JsonToQuery:
+    @staticmethod
+    def parse_json(json: JsonType) -> str:
+        final_result = ""
+
+        if json.get('error'):
+            return str(json['error'])
+
+        precommand = '/' + json['command'] + json['type']
+        final_result += precommand
+        data = json['data']
         if data.get('event_name'):
             nama = data['event_name']
             nama = nama.replace(" ", "_")
-            finalResult += ' '+nama
+            final_result += ' '+nama
 
         if data.get('pengeluaran_name'):
             nama = data['pengeluaran_name']
             nama = nama.replace(" ", "_")
-            finalResult += ' '+nama
+            final_result += ' '+nama
 
         if data.get('date'):
             tanggal = datetime.strptime(
                 data['date'], "%Y-%m-%dT%H:%M:%S").strftime(" %d %m %Y %H %M")
-            finalResult += tanggal
+            final_result += tanggal
 
         if data.get('persons'):
             personstring = ''
@@ -35,10 +37,10 @@ class JsonToQuery():
                 if 'bawel' not in person:
                     personstring = ' ' + person
                     break
-            finalResult += personstring
+            final_result += personstring
 
         if data.get('amount'):
             amount = ' '+data['amount']
-            finalResult += amount
-        print(finalResult)
-        return finalResult
+            final_result += amount
+
+        return final_result

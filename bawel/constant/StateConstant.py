@@ -1,13 +1,9 @@
-from bawel.action.Help import *
-from bawel.action.Jadwal import *
-from bawel.action.Pengeluaran import *
-
 STATE_UNKNOWN = -1
 STATE_NOTHING = 0
-# STATE_ASK_USERNAME = 1
-# STATE_ASK_USERLOCATION = 2
-# STATE_INPUT_USERNAME = 3
-# STATE_INPUT_USERLOCATION = 4
+STATE_ASK_USERNAME = 1
+STATE_ASK_USERLOCATION = 2
+STATE_INPUT_USERNAME = 3
+STATE_INPUT_USERLOCATION = 4
 STATE_HELP_ALL = 5
 STATE_HELP_JADWAL = 6
 STATE_HELP_HABIT = 7
@@ -41,34 +37,6 @@ STATE_IMAGE_ADD_PENGELUARAN = 21
 # STATE_HABIT_UPDATE =
 # STATE_HABIT_SEARCH =
 # STATE_HABIT_DELETE =
-
-ACTION_MAPPER = {
-    STATE_HELP_ALL: HelpAll,
-    STATE_HELP_JADWAL: HelpJadwal,
-    STATE_HELP_HABIT: HelpHabit,
-    STATE_HELP_PENGELUARAN: HelpPengeluaran,
-    STATE_ADD_JADWAL: TambahJadwal,
-    STATE_SHOW_JADWAL: LihatJadwal,
-    STATE_MODIFY_JADWAL: UbahJadwal,
-    STATE_DELETE_JADWAL: HapusJadwal,
-    # STATE_: SelesaiJadwal,
-    STATE_REPORT_JADWAL: ReportJadwal,
-    # '/tambahhabit': self.tambahhabitCommand,
-    # '/lihathabit': self.lihathabitCommand,
-    # '/ubahhabit': self.ubahhabitCommand,
-    # '/hapushabit': self.hapushabitCommand,
-    # '/selesaihabit': self.selesaihabitCommand,
-    # '/reporthabit': self.reporthabitCommand,
-    STATE_ADD_PENGELUARAN: TambahPengeluaran,
-    STATE_SHOW_PENGELUARAN: LihatPengeluaran,
-    STATE_MODIFY_PENGELUARAN: UbahPengeluaran,
-    STATE_DELETE_PENGELUARAN: HapusPengeluaran,
-    # '/selesaipengeluaran': self.selesaipengeluaranCommand,
-    STATE_REPORT_PENGELUARAN: ReportPengeluaran,
-    STATE_IKUT_JADWAL: IkutJadwal,
-    STATE_GAIKUT_JADWAL: TakIkutJadwal,
-    STATE_IMAGE_ADD_PENGELUARAN: ImageTambahPengeluaran
-}
 
 REQUEST_STATE = {
     '/help': STATE_HELP_ALL,
