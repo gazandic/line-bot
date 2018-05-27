@@ -1,6 +1,6 @@
 import re
 
-from bawel.util.ImageProcessor import ImageProcessor
+from bawel.processor.ImageProcessor import ImageProcessor
 
 
 class ExpenseDetector:

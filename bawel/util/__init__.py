@@ -1,14 +1,18 @@
 from datetime import date, time, datetime, timedelta
-__all__ = ["checkInputWaktu", "checkInputTanggal", "ImageProcessor", "JsonToQuery", "ExpenseDetector.py", "Reminder", "RequestParser", "Sticker", "TextProcessor", "CheckMoney"]
 
-def checkInputWaktu(jam, menit):
+__all__ = ["check_time_input", "check_date_input", "JsonToQuery", "ExpenseDetector.py", "Reminder", "RequestParser",
+           "Sticker", "TextProcessor", "CheckMoney"]
+
+
+def check_time_input(jam, menit):
     return time(int(jam), int(menit))
 
-def checkInputTanggal(hari, bulan, tahun, jam, menit):
+
+def check_date_input(hari, bulan, tahun, jam, menit):
     d = date(int(tahun), int(bulan), int(hari))
-    t = checkInputWaktu(jam, menit)
-    dt = datetime.combine(d,t)
+    t = check_time_input(jam, menit)
+    dt = datetime.combine(d, t)
     td = timedelta(hours=-8)
     dt = dt + td
-    print(dt)
-    return (dt)
+    # print(dt)
+    return dt

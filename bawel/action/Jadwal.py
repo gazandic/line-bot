@@ -1,21 +1,18 @@
 from __future__ import unicode_literals
 
 import sys
-import time as t
-
-from datetime import datetime, date, time, timedelta
+from datetime import datetime, timedelta
 from functools import reduce
-
-from bawel.model.Expense import Expense
-from bawel.action.Action import Action
-from bawel.model.Event import Event
-from bawel.util import checkInputWaktu, checkInputTanggal
 
 from linebot.models import (
     TemplateSendMessage,
-    CarouselTemplate, CarouselColumn, PostbackTemplateAction, URITemplateAction
+    CarouselTemplate, CarouselColumn, PostbackTemplateAction
 )
 
+from bawel.action.Action import Action
+from bawel.model.Event import Event
+from bawel.model.Expense import Expense
+from bawel.util import check_date_input
 
 
 class TambahJadwal(Action):
@@ -25,7 +22,7 @@ class TambahJadwal(Action):
             reminder.push(text, stickerid, lineid, location)
 
         try:
-            dt = checkInputTanggal(hari, bulan, tahun, jam, menit)
+            dt = check_date_input(hari, bulan, tahun, jam, menit)
             ev1 = Event(state['id'],namajadwal,hari,bulan,tahun,jam,menit,location,0)
             ev1.create()
             dta = dt + timedelta(hours=8)
@@ -118,7 +115,7 @@ class TakIkutJadwal(Action):
 class UbahJadwal(Action):
     def act(self, namajadwal, hari, bulan, tahun, jam, menit, reminder, state):
         try:
-            dtime = checkInputTanggal(hari, bulan, tahun, jam, menit)
+            dtime = check_date_input(hari, bulan, tahun, jam, menit)
             ev1 = Event(state['id'],namajadwal,hari,bulan,tahun,jam,menit,0)
             ev1.update()
             print('nande')
