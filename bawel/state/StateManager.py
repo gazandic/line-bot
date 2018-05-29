@@ -10,7 +10,7 @@ class StateManager:
         return st.search_one({"uid": uid})
 
     @staticmethod
-    def update(uid: str, updated_state: Dict) -> State:
+    def update(uid: str, updated_state: Dict):
         st = State()
         st = st.search_one({"uid": uid})
         if st is None:

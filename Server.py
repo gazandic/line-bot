@@ -5,6 +5,7 @@ from argparse import ArgumentParser
 from flask import Flask, request, abort, jsonify
 from linebot.exceptions import InvalidSignatureError
 
+from bawel.handler.telegram.TelegramHandler import TelegramHandler, set_webhook, create_updater
 from bawel.handler.line.LineHandler import handle
 from bawel.util.FileUtil import make_static_tmp_dir
 
@@ -40,20 +41,15 @@ def callback_line():
     return 'OK'
 
 
-# @app.route("/telegram", methods=['POST'])
-# def callbackTelegram():
-#     # retrieve the message in JSON and then transform it to Telegram object
-#     update = telegram.Update.de_json(request.get_json(force=True))
-#
-#     chat_id = update.message.chat.id
-#
-#     # Telegram understands UTF-8, so encode text for unicode compatibility
-#     text = update.message.text.encode('utf-8')
-#
-#     # repeat the same message back (echo)
-#     bot.sendMessage(chat_id=chat_id, text=text)
-#
-#     return 'OK'
+@app.route("/telegram", methods=['POST'])
+def callback_telegram():
+    update = create_updater()
+
+    chat_id = update.message.chat.id
+    text = update.message.text
+
+    TelegramHandler.handle_text(chat_id, text)
+    return 'OK'
 
 
 if __name__ == "__main__":
@@ -67,4 +63,6 @@ if __name__ == "__main__":
     # create tmp dir for download content
     make_static_tmp_dir()
     # jadwaler.run()
+
+    set_webhook('https://87a76aaf.ngrok.io/telegram')
     app.run(debug=options.debug, port=options.port)

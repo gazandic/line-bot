@@ -136,7 +136,7 @@ class ImageProcessor:
 
     # calculate aspectRatio from dimension x and y
     @staticmethod
-    def calculate_aspect_ratio(x_dim: int, y_dim: int) -> Tuple(int, int):
+    def calculate_aspect_ratio(x_dim: int, y_dim: int) -> Tuple[int, int]:
         # ensures images already correct size are not enlarged.
         if x_dim <= ImageProcessor.NEWIMAGESIZE and y_dim <= ImageProcessor.NEWIMAGESIZE:
             return x_dim, y_dim
