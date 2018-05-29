@@ -1,5 +1,8 @@
 from __future__ import unicode_literals
 
+import json
+import logging
+import traceback
 from argparse import ArgumentParser
 
 from flask import Flask, request, abort, jsonify
@@ -44,11 +47,22 @@ def callback_line():
 @app.route("/telegram", methods=['POST'])
 def callback_telegram():
     update = create_updater()
+    message = update.message
 
-    chat_id = update.message.chat.id
-    text = update.message.text
+    try:
+        chat_id = "TG"+message.chat.id
+        text = message.text
 
-    TelegramHandler.handle_text(chat_id, text)
+        if text is not None:
+            TelegramHandler.handle_text(chat_id, text)
+
+        join = message.new_chat_members
+        if len(join) > 0:
+            TelegramHandler.handle_join(chat_id)
+    except AttributeError as e:
+        logging.error("Access attribute error:\n{json}".format(json=json.dumps(update.to_json())))
+        traceback.print_exc()
+
     return 'OK'
 
 
@@ -64,5 +78,5 @@ if __name__ == "__main__":
     make_static_tmp_dir()
     # jadwaler.run()
 
-    set_webhook('https://87a76aaf.ngrok.io/telegram')
+    set_webhook(request.host_url+'/telegram')
     app.run(debug=options.debug, port=options.port)

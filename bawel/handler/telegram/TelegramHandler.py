@@ -26,7 +26,7 @@ def create_updater():
     return Update.de_json(request.get_json(force=True), client.bot)
 
 
-def set_webhook(url: str) -> str:
+def set_webhook(url: str):
     s = client.bot.setWebhook(url)
     if s:
         logging.info("{} WebHook Setup OK!".format(bot_name))
@@ -49,3 +49,7 @@ class TelegramHandler:
                 client.send(chat_id, el)
 
         StateManager.update(chat_id, updated_state)
+
+    @staticmethod
+    def handle_join(chat_id: str):
+        client.send(chat_id, ContentHandler.handle_join(None))

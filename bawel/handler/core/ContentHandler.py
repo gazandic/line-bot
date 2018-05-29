@@ -104,8 +104,9 @@ class ContentHandler:
 
     @staticmethod
     def handle_join(type):
-        return 'Hai, si bawel telah join ' + type + ' ini. ' \
-               'Mohon bantuannya, ketik "si bawel tolong" atau "/help" ya kak'
+        return 'Hai, si bawel disini\nUntuk selengkapnya, ketik "si bawel tolong" atau "/help" ya kak'
+        # return 'Hai, si bawel telah join ' + type + ' ini. ' \
+        #        'Mohon bantuannya, ketik "si bawel tolong" atau "/help" ya kak'
 
     @staticmethod
     def handle_image(user_state: Dict, message_content: MessageContent) -> Tuple[Dict, ResponseList]:
