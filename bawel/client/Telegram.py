@@ -2,6 +2,7 @@ from __future__ import unicode_literals
 
 from telegram import Bot
 
+
 class Telegram:
 
     def __init__(self, token):

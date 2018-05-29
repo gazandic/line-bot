@@ -1,5 +1,8 @@
 from __future__ import unicode_literals
 
+import json
+import logging
+
 from bawel.constant.StateConstant import *
 from bawel.model.User import User
 
@@ -8,19 +11,25 @@ class RequestParser:
 
     @staticmethod
     def parse(text, state):
-        line_id = state['id']
-        us = User()
-        user = us.searchOne({"lineid": line_id})
+        try:
+            line_id = state['uid']
 
-        if not user:
-            us.setLineId({"lineid": line_id})
-            us.create()
-        else:
-            us.set(user)
+            us = User()
+            user = us.searchOne({"lineid": line_id})
 
-        state, param = RequestParser.choose_menu(text, state)
+            if not user:
+                us.setLineId({"lineid": line_id})
+                us.create()
+            else:
+                us.set(user)
 
-        return state, param
+            state, param = RequestParser.choose_menu(text, state)
+
+            return state, param
+
+        except KeyError:
+            logging.error(json.dumps(state))
+            return {**state, 'state_id': STATE_UNKNOWN}, [""]
 
     @staticmethod
     def choose_menu(text, state):

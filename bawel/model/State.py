@@ -23,6 +23,9 @@ class State(BaseMongo):
 
     def search_one(self, query):
         state = self.db.state.find_one(query)
+        if state is None: 
+            return State(query["uid"], {"uid": query["uid"], "before_state": {}})
+            
         return self.parse_state(state)
 
     def remove_self(self):
@@ -31,20 +34,22 @@ class State(BaseMongo):
     def remove_query(self, query):
         self.db.state.delete_many(query)
 
+    def set_state(self, state):
+        self.state = {**self.state, **state}
+
     def parse_state(self, state_row):
-        if state_row is None: return None
         return State(state_row['uid'], json.loads(state_row['state']))
 
     def update(self):
         state = self.search_one({"uid": self.uid})
         self.db.expenses.update(
             {
-                '_id': state['_id']
+                '_id': state.uid
             },
             {
                 "$set": {
-                    "uid": self.uid,
-                    "state": json.dumps(self.state)
+                    "uid": state.uid,
+                    "state": json.dumps(state.state)
                 }
             },
             upsert=False, multi=True)
