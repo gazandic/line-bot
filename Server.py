@@ -11,6 +11,7 @@ from linebot.exceptions import InvalidSignatureError
 from bawel.handler.telegram.TelegramHandler import TelegramHandler, set_webhook, create_updater
 from bawel.handler.line.LineHandler import handle
 from bawel.util.FileUtil import make_static_tmp_dir
+from bawel.util.WebUtil import hostname
 
 # gmaps = GoogleMaps(token_google)
 # jadwaler = sched.scheduler(time.time, time.sleep)
@@ -78,5 +79,5 @@ if __name__ == "__main__":
     make_static_tmp_dir()
     # jadwaler.run()
 
-    set_webhook(request.host_url+'/telegram')
+    set_webhook(hostname()+'/telegram')
     app.run(debug=options.debug, port=options.port)
