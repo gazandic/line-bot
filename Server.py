@@ -79,5 +79,6 @@ if __name__ == "__main__":
     make_static_tmp_dir()
     # jadwaler.run()
 
+    logging.debug("Connecting Telegram api to {}".format(hostname()))
     set_webhook(hostname()+'/telegram')
     app.run(debug=options.debug, port=options.port)
