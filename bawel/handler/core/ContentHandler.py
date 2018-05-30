@@ -78,6 +78,9 @@ class ContentHandler:
                 return user_state, [TextResponse(text="ketik 'si bawel tolong' kak")]
 
         try:
+            if 'bawel' not in text.lower():
+                return user_state, []
+            
             text_processor.process_text(text)
             json = text_processor.get_json_to_sent()
             resp_text = JsonToQuery.parse_json(json)
