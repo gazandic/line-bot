@@ -66,6 +66,15 @@ def callback_telegram():
 
     return 'OK'
 
+@app.before_first_request
+def before_first_request():
+    # create tmp dir for download content
+    make_static_tmp_dir()
+    # jadwaler.run()
+
+    logging.debug("Connecting Telegram api to {}".format(hostname()))
+    set_webhook(hostname()+'/telegram')
+
 
 if __name__ == "__main__":
     arg_parser = ArgumentParser(
@@ -75,10 +84,4 @@ if __name__ == "__main__":
     arg_parser.add_argument('-d', '--debug', default=False, help='debug')
     options = arg_parser.parse_args()
 
-    # create tmp dir for download content
-    make_static_tmp_dir()
-    # jadwaler.run()
-
-    logging.debug("Connecting Telegram api to {}".format(hostname()))
-    set_webhook(hostname()+'/telegram')
     app.run(debug=options.debug, port=options.port)
