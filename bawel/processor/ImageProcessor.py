@@ -123,7 +123,7 @@ class ImageProcessor:
     @staticmethod
     def is_number(text: str) -> bool:
         try:
-            _: float = float(text)
+            test_num: float = float(text)
         except ValueError:
             return False
         finally:
