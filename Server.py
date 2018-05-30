@@ -51,7 +51,7 @@ def callback_telegram():
     message = update.message
 
     try:
-        chat_id = "TG"+str(message.chat.id)
+        chat_id = str(message.chat.id)
         text = message.text
 
         if text is not None:
