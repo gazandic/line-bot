@@ -1,12 +1,17 @@
 from __future__ import unicode_literals
 
+import json
+import logging
+import traceback
 from argparse import ArgumentParser
 
 from flask import Flask, request, abort, jsonify
 from linebot.exceptions import InvalidSignatureError
 
+from bawel.handler.telegram.TelegramHandler import TelegramHandler, set_webhook, create_updater
 from bawel.handler.line.LineHandler import handle
 from bawel.util.FileUtil import make_static_tmp_dir
+from bawel.util.WebUtil import hostname
 
 # gmaps = GoogleMaps(token_google)
 # jadwaler = sched.scheduler(time.time, time.sleep)
@@ -40,20 +45,35 @@ def callback_line():
     return 'OK'
 
 
-# @app.route("/telegram", methods=['POST'])
-# def callbackTelegram():
-#     # retrieve the message in JSON and then transform it to Telegram object
-#     update = telegram.Update.de_json(request.get_json(force=True))
-#
-#     chat_id = update.message.chat.id
-#
-#     # Telegram understands UTF-8, so encode text for unicode compatibility
-#     text = update.message.text.encode('utf-8')
-#
-#     # repeat the same message back (echo)
-#     bot.sendMessage(chat_id=chat_id, text=text)
-#
-#     return 'OK'
+@app.route("/telegram", methods=['POST'])
+def callback_telegram():
+    update = create_updater()
+    message = update.message
+
+    try:
+        chat_id = str(message.chat.id)
+        text = message.text
+
+        if text is not None:
+            TelegramHandler.handle_text(chat_id, text)
+
+        join = message.new_chat_members
+        if len(join) > 0:
+            TelegramHandler.handle_join(chat_id)
+    except AttributeError as e:
+        logging.error("Access attribute error:\n{json}".format(json=json.dumps(update.to_json())))
+        traceback.print_exc()
+
+    return 'OK'
+
+@app.before_first_request
+def before_first_request():
+    # create tmp dir for download content
+    make_static_tmp_dir()
+    # jadwaler.run()
+
+    logging.debug("Connecting Telegram api to {}".format(hostname()))
+    set_webhook(hostname()+'/telegram')
 
 
 if __name__ == "__main__":
@@ -64,7 +84,4 @@ if __name__ == "__main__":
     arg_parser.add_argument('-d', '--debug', default=False, help='debug')
     options = arg_parser.parse_args()
 
-    # create tmp dir for download content
-    make_static_tmp_dir()
-    # jadwaler.run()
     app.run(debug=options.debug, port=options.port)

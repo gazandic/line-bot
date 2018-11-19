@@ -8,24 +8,14 @@ from linebot.models import (
     StickerSendMessage, LocationSendMessage
 )
 
-from bawel.client.ChatClient import ChatClient
 from bawel.handler.line.LineMiddleware import LineMiddleware
 
 
-class Line(ChatClient):
+class Line:
 
     def __init__(self, channel_secret, channel_access_token):
         self.api = LineBotApi(channel_access_token)
         self.handler = WebhookHandler(channel_secret)
-
-    def textMessage(self, text):
-        pass
-
-    def stickerMessage(self, stickerId):
-        pass
-
-    def imageMessage(self, imageFile):
-        pass
 
     def add(self, event, message=None):
         def decorator(func):

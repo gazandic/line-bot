@@ -1,8 +1,7 @@
+import json
 from typing import Dict
 
 from bawel.model.BaseMongo import BaseMongo
-
-import json
 
 
 class State(BaseMongo):
@@ -20,11 +19,14 @@ class State(BaseMongo):
 
     def search(self, query):
         states = self.db.state.find(query)
-        return states
+        return list(map(self.parse_state, states))
 
     def search_one(self, query):
-        expense = self.db.state.find_one(query)
-        return expense
+        state = self.db.state.find_one(query)
+        if state is None: 
+            return State(query["uid"], {"uid": query["uid"], "before_state": {}})
+            
+        return self.parse_state(state)
 
     def remove_self(self):
         self.db.state.delete_one(self.make_state())
@@ -32,16 +34,22 @@ class State(BaseMongo):
     def remove_query(self, query):
         self.db.state.delete_many(query)
 
+    def set_state(self, state):
+        self.state = {**self.state, **state}
+
+    def parse_state(self, state_row):
+        return State(state_row['uid'], json.loads(state_row['state']))
+
     def update(self):
         state = self.search_one({"uid": self.uid})
         self.db.expenses.update(
             {
-                '_id': state['_id']
+                '_id': state.uid
             },
             {
                 "$set": {
-                    "uid": self.uid,
-                    "state": json.dumps(self.state)
+                    "uid": state.uid,
+                    "state": json.dumps(state.state)
                 }
             },
             upsert=False, multi=True)
@@ -53,6 +61,3 @@ class State(BaseMongo):
             "state": json.dumps(self.state)
         }
         return state
-
-# ev1 = State("123",{'mata':[123, 456], 'sapi': 'sei'})
-# ev1.create()
